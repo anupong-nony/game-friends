@@ -1,0 +1,1601 @@
+/* =====================================================
+   GAME FRIENDS
+   BINGO
+   bingo.css
+   ===================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+
+/* =====================================================
+   HTML / BODY
+   ===================================================== */
+
+html,
+body {
+
+    margin: 0;
+    padding: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+}
+
+
+body {
+
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    background:
+        linear-gradient(
+            135deg,
+            #10131a,
+            #171b24
+        );
+
+    color: #fff;
+
+    min-height: 100dvh;
+
+    padding: 5px;
+
+    overscroll-behavior: none;
+
+    touch-action: manipulation;
+
+}
+
+
+/* =====================================================
+   APP
+   ===================================================== */
+
+.bingo-app {
+
+    width: 100%;
+
+    max-width: 500px;
+
+    height:
+        calc(100dvh - 10px);
+
+    margin: 0 auto;
+
+    background: #20242d;
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    border-radius: 12px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 10px 35px
+        rgba(0,0,0,.4);
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+
+.bingo-header {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    padding:
+        8px 11px;
+
+    background:
+        #282d37;
+
+    border-bottom:
+        1px solid
+        rgba(255,255,255,.07);
+
+    flex-shrink: 0;
+
+}
+
+
+.bingo-title {
+
+    font-size: 17px;
+
+    font-weight: 800;
+
+}
+
+
+.bingo-status {
+
+    display: flex;
+
+    align-items:
+        center;
+
+    gap: 9px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+}
+
+
+/* =====================================================
+   PLAYER COUNT
+   ===================================================== */
+
+.player-count-btn {
+
+    border: none;
+
+    background:
+        transparent;
+
+    color: #fff;
+
+    padding:
+        2px 0;
+
+    font: inherit;
+
+    cursor: pointer;
+
+}
+
+
+.player-count-btn:active {
+
+    transform:
+        scale(.96);
+
+}
+
+
+/* =====================================================
+   ROOM INFO
+   ===================================================== */
+
+.room-info {
+
+    display: flex;
+
+    align-items:
+        center;
+
+    gap: 7px;
+
+    padding:
+        6px 9px;
+
+    background:
+        #242933;
+
+    flex-shrink: 0;
+
+}
+
+
+.room-name {
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    white-space:
+        nowrap;
+
+}
+
+
+.room-status {
+
+    flex: 1;
+
+    text-align:
+        center;
+
+    font-size: 10px;
+
+    color:
+        #57d68d;
+
+}
+
+
+/* =====================================================
+   LEAVE ROOM
+   ===================================================== */
+
+.leave-room-btn {
+
+    border: none;
+
+    border-radius: 6px;
+
+    padding:
+        5px 8px;
+
+    background:
+        #353b47;
+
+    color:
+        #ff8c8c;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    white-space:
+        nowrap;
+
+    cursor: pointer;
+
+}
+
+
+.leave-room-btn:active {
+
+    transform:
+        scale(.95);
+
+}
+
+
+/* =====================================================
+   LATEST NUMBERS
+   ===================================================== */
+
+.latest-numbers-section {
+
+    display: flex;
+
+    align-items:
+        center;
+
+    gap: 7px;
+
+    padding:
+        5px 10px;
+
+    background:
+        #20242d;
+
+    flex-shrink: 0;
+
+}
+
+
+.latest-title {
+
+    font-size: 9px;
+
+    color:
+        #aeb5c2;
+
+    white-space:
+        nowrap;
+
+}
+
+
+.latest-numbers {
+
+    display: flex;
+
+    flex: 1;
+
+    gap: 4px;
+
+}
+
+
+.latest-numbers span {
+
+    flex: 1;
+
+    min-width: 0;
+
+    text-align:
+        center;
+
+    padding:
+        3px 1px;
+
+    border-radius: 5px;
+
+    background:
+        #303641;
+
+    color:
+        #fff;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    transition:
+        transform .15s ease,
+        opacity .15s ease,
+        background-color .15s ease,
+        box-shadow .15s ease;
+
+}
+
+
+/* =====================================================
+   LATEST NUMBERS - BINGO COLORS
+   ===================================================== */
+
+/* B = 1-15 */
+
+.latest-numbers span.latest-b {
+
+    background:
+        #3d5fa8;
+
+    color:
+        #fff;
+
+}
+
+
+/* I = 16-30 */
+
+.latest-numbers span.latest-i {
+
+    background:
+        #3d8a68;
+
+    color:
+        #fff;
+
+}
+
+
+/* N = 31-45 */
+
+.latest-numbers span.latest-n {
+
+    background:
+        #9a8435;
+
+    color:
+        #fff;
+
+}
+
+
+/* G = 46-60 */
+
+.latest-numbers span.latest-g {
+
+    background:
+        #a8663d;
+
+    color:
+        #fff;
+
+}
+
+
+/* O = 61-75 */
+
+.latest-numbers span.latest-o {
+
+    background:
+        #a8444f;
+
+    color:
+        #fff;
+
+}
+
+
+/* =====================================================
+   LATEST CURRENT
+   ===================================================== */
+
+.latest-numbers span.latest-current {
+
+    transform:
+        scale(1.08);
+
+    font-weight:
+        900;
+
+    box-shadow:
+        0 0 0 1px
+        rgba(255,255,255,.35),
+        0 3px 8px
+        rgba(0,0,0,.3);
+
+}
+
+
+/* =====================================================
+   LATEST EMPTY
+   ===================================================== */
+
+.latest-numbers span.latest-empty {
+
+    background:
+        #303641;
+
+    color:
+        #707784;
+
+}
+
+
+/* =====================================================
+   BOARDS CONTAINER
+   ===================================================== */
+
+.boards-container {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 6px;
+
+    padding:
+        5px 8px;
+
+    flex: 1;
+
+    min-height: 0;
+
+    overflow: hidden;
+
+    align-content: center;
+
+}
+
+
+/* =====================================================
+   1 BOARD
+   ===================================================== */
+
+.boards-container.board-count-1 {
+
+    grid-template-columns:
+        minmax(0, 1fr);
+
+}
+
+
+/* =====================================================
+   2 BOARDS
+   ===================================================== */
+
+.boards-container.board-count-2 {
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+}
+
+
+/* =====================================================
+   3 BOARDS
+   ===================================================== */
+
+.boards-container.board-count-3 {
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+}
+
+
+/* =====================================================
+   BOARD 3 CENTER
+   ===================================================== */
+
+.boards-container.board-count-3
+.bingo-board:last-child {
+
+    grid-column:
+        1 / -1;
+
+    width:
+        calc(50% - 3px);
+
+    justify-self:
+        center;
+
+}
+
+
+/* =====================================================
+   4 BOARDS
+   ===================================================== */
+
+.boards-container.board-count-4 {
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+}
+
+
+/* =====================================================
+   BINGO BOARD
+   ===================================================== */
+
+.bingo-board {
+
+    width: 100%;
+
+    padding: 3px;
+
+    background:
+        #282d37;
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    border-radius: 8px;
+
+    min-width: 0;
+
+    min-height: 0;
+
+    overflow: hidden;
+
+}
+
+
+/* =====================================================
+   BOARD TITLE
+   ===================================================== */
+
+.board-title {
+
+    text-align:
+        center;
+
+    font-size: 8px;
+
+    color:
+        #aeb5c2;
+
+    margin-bottom: 2px;
+
+    font-weight: 700;
+
+    line-height: 1.2;
+
+}
+
+
+/* =====================================================
+   BINGO LETTERS
+   ===================================================== */
+
+.bingo-letters {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, minmax(0, 1fr));
+
+    gap: 2px;
+
+    margin-bottom: 2px;
+
+}
+
+
+.bingo-letter {
+
+    text-align:
+        center;
+
+    font-size: 9px;
+
+    font-weight: 900;
+
+    line-height: 1;
+
+}
+
+
+/* =====================================================
+   BINGO LETTER COLORS
+   ===================================================== */
+
+/* B */
+
+.bingo-letters .bingo-letter:nth-child(1) {
+
+    color:
+        #3d5fa8;
+
+}
+
+
+/* I */
+
+.bingo-letters .bingo-letter:nth-child(2) {
+
+    color:
+        #3d8a68;
+
+}
+
+
+/* N */
+
+.bingo-letters .bingo-letter:nth-child(3) {
+
+    color:
+        #9a8435;
+
+}
+
+
+/* G */
+
+.bingo-letters .bingo-letter:nth-child(4) {
+
+    color:
+        #a8663d;
+
+}
+
+
+/* O */
+
+.bingo-letters .bingo-letter:nth-child(5) {
+
+    color:
+        #a8444f;
+
+}
+
+
+/* =====================================================
+   BINGO GRID
+   ===================================================== */
+
+.bingo-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, minmax(0, 1fr));
+
+    gap: 2px;
+
+    width: 100%;
+
+}
+
+
+/* =====================================================
+   BINGO CELL
+   ===================================================== */
+
+.bingo-cell {
+
+    aspect-ratio:
+        1 / 1;
+
+    min-width: 0;
+
+    min-height: 0;
+
+    display: flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border: none;
+
+    border-radius: 3px;
+
+    background:
+        #171b22;
+
+    color:
+        #fff;
+
+    font-size:
+        clamp(
+            7px,
+            2.3vw,
+            13px
+        );
+
+    font-weight: 700;
+
+    line-height: 1;
+
+    overflow: hidden;
+
+    cursor: pointer;
+
+    user-select: none;
+
+}
+
+
+.bingo-cell:active {
+
+    transform:
+        scale(.94);
+
+}
+
+
+/* =====================================================
+   MY FRIEND
+   ===================================================== */
+
+.bingo-cell.free {
+
+    background:
+        #394152;
+
+    color:
+        #9fb8ff;
+
+    font-size:
+        clamp(
+            5px,
+            1.7vw,
+            9px
+        );
+
+    line-height: 1;
+
+    text-align:
+        center;
+
+    padding: 1px;
+
+}
+
+
+/* =====================================================
+   MARKED
+   ===================================================== */
+
+.bingo-cell.marked {
+
+    background:
+        #5578d8;
+
+    color:
+        #fff;
+
+}
+
+
+/* =====================================================
+   3-4 BOARDS
+   ===================================================== */
+
+.boards-container.board-count-3
+.bingo-board,
+
+.boards-container.board-count-4
+.bingo-board {
+
+    padding: 2px;
+
+}
+
+
+.boards-container.board-count-3
+.board-title,
+
+.boards-container.board-count-4
+.board-title {
+
+    font-size: 7px;
+
+    margin-bottom: 1px;
+
+}
+
+
+.boards-container.board-count-3
+.bingo-letters,
+
+.boards-container.board-count-4
+.bingo-letters {
+
+    gap: 1px;
+
+    margin-bottom: 1px;
+
+}
+
+
+.boards-container.board-count-3
+.bingo-letter,
+
+.boards-container.board-count-4
+.bingo-letter {
+
+    font-size: 7px;
+
+}
+
+
+.boards-container.board-count-3
+.bingo-grid,
+
+.boards-container.board-count-4
+.bingo-grid {
+
+    gap: 1px;
+
+}
+
+
+.boards-container.board-count-3
+.bingo-cell,
+
+.boards-container.board-count-4
+.bingo-cell {
+
+    font-size:
+        clamp(
+            6px,
+            2vw,
+            11px
+        );
+
+}
+
+
+.boards-container.board-count-3
+.bingo-cell.free,
+
+.boards-container.board-count-4
+.bingo-cell.free {
+
+    font-size:
+        clamp(
+            5px,
+            1.5vw,
+            8px
+        );
+
+}
+
+
+/* =====================================================
+   BOARD CONTROLS
+   ===================================================== */
+
+.board-controls {
+
+    display: flex;
+
+    align-items:
+        center;
+
+    gap: 7px;
+
+    padding:
+        0 9px 5px;
+
+    flex-shrink: 0;
+
+}
+
+
+.board-count-text {
+
+    flex: 1;
+
+    font-size: 10px;
+
+    color:
+        #aeb5c2;
+
+}
+
+
+.buy-board-btn {
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    border-radius: 7px;
+
+    padding:
+        6px 9px;
+
+    background:
+        #303641;
+
+    color:
+        #fff;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+}
+
+
+.buy-board-btn span {
+
+    color:
+        #ffd45c;
+
+}
+
+
+.buy-board-btn:active {
+
+    transform:
+        scale(.97);
+
+}
+
+
+.buy-board-btn:disabled {
+
+    opacity:
+        .45;
+
+    cursor:
+        not-allowed;
+
+}
+
+
+/* =====================================================
+   HOST CONTROLS
+   ===================================================== */
+
+.host-controls {
+
+    padding:
+        5px 9px;
+
+    border-top:
+        1px solid
+        rgba(255,255,255,.07);
+
+    background:
+        #242933;
+
+    flex-shrink: 0;
+
+}
+
+
+.host-label {
+
+    font-size: 9px;
+
+    color:
+        #aeb5c2;
+
+    margin-bottom: 3px;
+
+}
+
+
+.draw-number-btn {
+
+    width: 100%;
+
+    min-height: 29px;
+
+    border: none;
+
+    border-radius: 7px;
+
+    background:
+        #5578d8;
+
+    color:
+        #fff;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+}
+
+
+.draw-number-btn:active {
+
+    transform:
+        scale(.98);
+
+}
+
+
+.draw-result {
+
+    margin-top: 2px;
+
+    text-align:
+        center;
+
+    font-size: 16px;
+
+    font-weight: 900;
+
+    min-height: 19px;
+
+}
+
+
+/* =====================================================
+   CHAT
+   ===================================================== */
+
+.chat-section {
+
+    padding:
+        6px 9px;
+
+    border-top:
+        1px solid
+        rgba(255,255,255,.07);
+
+    flex-shrink: 0;
+
+}
+
+
+.chat-title {
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    margin-bottom: 3px;
+
+}
+
+
+.chat-messages {
+
+    height: 52px;
+
+    overflow: hidden;
+
+    padding:
+        4px 7px;
+
+    border-radius: 6px;
+
+    background:
+        #171b22;
+
+}
+
+
+.chat-message {
+
+    font-size: 9px;
+
+    line-height: 1.55;
+
+    text-align:
+        right;
+
+    white-space:
+        nowrap;
+
+    overflow:
+        hidden;
+
+    text-overflow:
+        ellipsis;
+
+}
+
+
+.system-message {
+
+    text-align:
+        left;
+
+}
+
+
+.chat-input-row {
+
+    display: flex;
+
+    gap: 5px;
+
+    margin-top: 4px;
+
+}
+
+
+.chat-input-row input {
+
+    flex: 1;
+
+    min-width: 0;
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    border-radius: 6px;
+
+    background:
+        #171b22;
+
+    color:
+        #fff;
+
+    padding:
+        6px 7px;
+
+    outline:
+        none;
+
+    font-size: 10px;
+
+}
+
+
+.chat-input-row button {
+
+    border: none;
+
+    border-radius: 6px;
+
+    padding:
+        0 10px;
+
+    background:
+        #303641;
+
+    color:
+        #fff;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+}
+
+
+/* =====================================================
+   READY
+   ===================================================== */
+
+.game-controls {
+
+    padding:
+        0 9px 7px;
+
+    flex-shrink: 0;
+
+}
+
+
+.ready-btn {
+
+    width: 100%;
+
+    min-height: 32px;
+
+    border: none;
+
+    border-radius: 7px;
+
+    background:
+        #57a773;
+
+    color:
+        #fff;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+}
+
+
+/* =====================================================
+   MODAL OVERLAY
+   ===================================================== */
+
+.modal-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    background:
+        rgba(0,0,0,.65);
+
+    display: flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    padding: 20px;
+
+    z-index: 100;
+
+}
+
+
+.modal-overlay[hidden] {
+
+    display: none;
+
+}
+
+
+/* =====================================================
+   PLAYER MODAL
+   ===================================================== */
+
+.player-modal {
+
+    width: 100%;
+
+    max-width: 340px;
+
+    max-height: 70vh;
+
+    overflow: hidden;
+
+    background:
+        #282d37;
+
+    border:
+        1px solid
+        rgba(255,255,255,.1);
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 15px 40px
+        rgba(0,0,0,.5);
+
+}
+
+
+.modal-header {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    padding:
+        11px 12px;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    border-bottom:
+        1px solid
+        rgba(255,255,255,.08);
+
+}
+
+
+.modal-close-btn {
+
+    border: none;
+
+    background:
+        transparent;
+
+    color:
+        #fff;
+
+    font-size: 15px;
+
+    cursor: pointer;
+
+}
+
+
+.player-list {
+
+    padding: 8px;
+
+    overflow-y: auto;
+
+    max-height: 55vh;
+
+}
+
+
+.player-item {
+
+    display: flex;
+
+    align-items:
+        center;
+
+    gap: 8px;
+
+    padding: 8px;
+
+    border-radius: 7px;
+
+    background:
+        #20242d;
+
+    margin-bottom: 5px;
+
+    font-size: 11px;
+
+}
+
+
+.player-owner {
+
+    font-size: 14px;
+
+}
+
+
+.player-name {
+
+    flex: 1;
+
+}
+
+
+/* =====================================================
+   CONFIRM LEAVE MODAL
+   ===================================================== */
+
+.confirm-modal {
+
+    width: 100%;
+
+    max-width: 320px;
+
+    background:
+        #282d37;
+
+    border:
+        1px solid
+        rgba(255,255,255,.1);
+
+    border-radius: 12px;
+
+    padding: 16px;
+
+    box-shadow:
+        0 15px 40px
+        rgba(0,0,0,.5);
+
+}
+
+
+.confirm-title {
+
+    font-size: 15px;
+
+    font-weight: 800;
+
+    margin-bottom: 9px;
+
+}
+
+
+.confirm-message {
+
+    font-size: 12px;
+
+    color:
+        #c4c9d2;
+
+    line-height: 1.5;
+
+    margin-bottom: 15px;
+
+}
+
+
+.confirm-buttons {
+
+    display: flex;
+
+    gap: 7px;
+
+}
+
+
+.confirm-buttons button {
+
+    flex: 1;
+
+    border: none;
+
+    border-radius: 7px;
+
+    min-height: 34px;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+}
+
+
+.cancel-btn {
+
+    background:
+        #353b47;
+
+    color:
+        #fff;
+
+}
+
+
+.confirm-leave-btn {
+
+    background:
+        #b94a4a;
+
+    color:
+        #fff;
+
+}
+
+
+.confirm-buttons button:active {
+
+    transform:
+        scale(.97);
+
+}
+
+
+/* =====================================================
+   SMALL PHONE
+   ===================================================== */
+
+@media (max-width: 380px) {
+
+    body {
+
+        padding: 3px;
+
+    }
+
+
+    .bingo-app {
+
+        height:
+            calc(100dvh - 6px);
+
+        border-radius: 9px;
+
+    }
+
+
+    .boards-container {
+
+        gap: 4px;
+
+        padding:
+            4px 6px;
+
+    }
+
+
+    .bingo-board {
+
+        padding: 2px;
+
+    }
+
+
+    .bingo-grid,
+    .bingo-letters {
+
+        gap: 1px;
+
+    }
+
+
+    .board-controls {
+
+        padding:
+            0 6px 5px;
+
+    }
+
+
+    .host-controls,
+    .chat-section {
+
+        padding:
+            5px 6px;
+
+    }
+
+
+    .latest-numbers-section {
+
+        padding:
+            4px 7px;
+
+        gap: 5px;
+
+    }
+
+
+    .latest-numbers {
+
+        gap: 3px;
+
+    }
+
+
+    .latest-numbers span {
+
+        padding:
+            3px 1px;
+
+        font-size: 9px;
+
+    }
+
+}
