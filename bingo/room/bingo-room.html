@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bingo - Game Friends</title>
+
+    <link
+        rel="stylesheet"
+        href="bingo-room.css"
+    >
+
+</head>
+
+<body>
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+
+    <header class="room-header">
+
+        <button
+            id="backBtn"
+            class="back-btn"
+            type="button"
+        >
+            ← กลับ
+        </button>
+
+        <div class="header-title">
+            🎱 Bingo
+        </div>
+
+        <div
+            id="coinDisplay"
+            class="coin-display"
+        >
+            🪙 0
+        </div>
+
+    </header>
+
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
+    <main class="room-container">
+
+        <section class="page-intro">
+
+            <h1>
+                🏠 ห้อง Bingo
+            </h1>
+
+            <p>
+                สร้างห้องใหม่ หรือเข้าร่วมห้องของเพื่อน
+            </p>
+
+        </section>
+
+
+        <!-- =========================
+             CREATE ROOM BUTTON
+        ========================== -->
+
+        <button
+            id="openCreateModalBtn"
+            class="open-create-btn"
+            type="button"
+        >
+            <span class="create-icon">➕</span>
+
+            <span>
+                <strong>สร้างห้อง</strong>
+                <small>สร้างห้อง Bingo ใหม่</small>
+            </span>
+
+        </button>
+
+
+        <!-- =========================
+             ROOM LIST
+        ========================== -->
+
+        <section class="room-card">
+
+            <div class="room-list-header">
+
+                <div>
+
+                    <h2>
+                        🌐 ห้องที่เปิดอยู่
+                    </h2>
+
+                    <p>
+                        เลือกห้องเพื่อเข้าร่วมเล่น
+                    </p>
+
+                </div>
+
+                <button
+                    id="refreshBtn"
+                    class="refresh-btn"
+                    type="button"
+                    aria-label="รีเฟรช"
+                >
+                    🔄
+                </button>
+
+            </div>
+
+
+            <div
+                id="roomList"
+                class="room-list"
+            >
+
+                <div class="loading">
+                    กำลังโหลดห้อง...
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =================================================
+         CREATE ROOM MODAL
+    ================================================== -->
+
+    <div
+        id="createModal"
+        class="modal"
+    >
+
+        <div class="modal-box create-modal-box">
+
+            <button
+                id="closeCreateModalBtn"
+                class="modal-close"
+                type="button"
+                aria-label="ปิด"
+            >
+                ×
+            </button>
+
+
+            <div class="modal-icon">
+                🎱
+            </div>
+
+
+            <h2>
+                สร้างห้อง Bingo
+            </h2>
+
+            <p class="modal-description">
+                ตั้งค่าห้องของคุณก่อนเริ่มเล่น
+            </p>
+
+
+            <!-- ROOM NAME -->
+
+            <label for="roomName">
+                ชื่อห้อง
+            </label>
+
+            <input
+                type="text"
+                id="roomName"
+                maxlength="30"
+                placeholder="เช่น ห้องเพื่อน"
+                autocomplete="off"
+            >
+
+
+            <!-- ROOM TYPE -->
+
+            <div class="type-title">
+                ประเภทห้อง
+            </div>
+
+
+            <div class="room-type">
+
+                <button
+                    id="publicBtn"
+                    class="type-btn active"
+                    type="button"
+                >
+                    <span>🌐</span>
+                    <span>
+                        <strong>Public</strong>
+                        <small>ทุกคนสามารถเข้าร่วมได้</small>
+                    </span>
+                </button>
+
+
+                <button
+                    id="privateBtn"
+                    class="type-btn"
+                    type="button"
+                >
+                    <span>🔒</span>
+                    <span>
+                        <strong>Private</strong>
+                        <small>ต้องใช้รหัสผ่าน</small>
+                    </span>
+                </button>
+
+            </div>
+
+
+            <!-- PASSWORD -->
+
+            <div
+                id="passwordSection"
+                class="password-section"
+            >
+
+                <label for="roomPassword">
+                    รหัสผ่านห้อง
+                </label>
+
+                <input
+                    type="password"
+                    id="roomPassword"
+                    maxlength="10"
+                    placeholder="1-10 ตัวอักษร"
+                    autocomplete="off"
+                >
+
+                <p class="input-hint">
+                    รหัสผ่านมีความยาว 1-10 ตัวอักษร
+                </p>
+
+            </div>
+
+
+            <button
+                id="createRoomBtn"
+                class="create-room-btn"
+                type="button"
+            >
+                🎱 สร้างห้อง
+            </button>
+
+
+            <p
+                id="createMessage"
+                class="message"
+            ></p>
+
+
+            <button
+                id="cancelCreateBtn"
+                class="cancel-btn"
+                type="button"
+            >
+                ยกเลิก
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         PRIVATE ROOM JOIN MODAL
+    ================================================== -->
+
+    <div
+        id="passwordModal"
+        class="modal"
+    >
+
+        <div class="modal-box">
+
+            <button
+                id="cancelPrivateBtn"
+                class="modal-close"
+                type="button"
+                aria-label="ปิด"
+            >
+                ×
+            </button>
+
+
+            <div class="modal-icon">
+                🔒
+            </div>
+
+
+            <h2>
+                ห้อง Private
+            </h2>
+
+
+            <p
+                id="privateRoomName"
+                class="private-room-name"
+            >
+                -
+            </p>
+
+
+            <input
+                type="password"
+                id="joinPassword"
+                maxlength="10"
+                placeholder="กรอกรหัสผ่าน"
+                autocomplete="off"
+            >
+
+
+            <button
+                id="joinPrivateBtn"
+                class="modal-primary-btn"
+                type="button"
+            >
+                เข้าห้อง
+            </button>
+
+
+            <button
+                id="cancelPrivateBtnBottom"
+                class="modal-secondary-btn"
+                type="button"
+            >
+                ยกเลิก
+            </button>
+
+
+            <p
+                id="joinMessage"
+                class="message"
+            ></p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         SCRIPT
+    ========================== -->
+
+    <script
+        type="module"
+        src="bingo-room.js"
+    ></script>
+
+</body>
+
+</html>
