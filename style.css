@@ -1,0 +1,1474 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+}
+
+
+body {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    font-family: Arial, sans-serif;
+
+    background: #1b1b2f;
+
+    padding: 20px;
+}
+
+
+/* =========================
+   LOGIN
+========================= */
+
+.login-container {
+
+    width: 90%;
+
+    max-width: 400px;
+
+    text-align: center;
+}
+
+
+h1 {
+
+    color: white;
+
+    font-size: 32px;
+
+    margin-bottom: 8px;
+}
+
+
+.subtitle {
+
+    color: #b8b8c7;
+
+    margin-bottom: 25px;
+}
+
+
+.login-box {
+
+    background: white;
+
+    padding: 30px;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 10px 30px
+        rgba(0, 0, 0, 0.3);
+}
+
+
+input {
+
+    width: 100%;
+
+    padding: 14px;
+
+    margin-bottom: 15px;
+
+    border:
+        1px solid #ddd;
+
+    border-radius: 8px;
+
+    font-size: 16px;
+
+    outline: none;
+}
+
+
+input:focus {
+
+    border-color: #3333cc;
+}
+
+
+/* =========================
+   PASSWORD FIELD
+========================= */
+
+.password-field {
+
+    position: relative;
+
+    width: 100%;
+}
+
+
+.password-field input {
+
+    padding-right: 44px;
+}
+
+
+.password-toggle {
+
+    position: absolute;
+
+    right: 7px;
+
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    width: 30px;
+
+    height: 30px;
+
+    padding: 0;
+
+    margin: 0;
+
+    border-radius: 6px;
+
+    background: transparent;
+
+    color: #666;
+
+    font-size: 15px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+}
+
+
+.password-toggle:hover {
+
+    background: #f0f0f0;
+}
+
+
+.password-hint {
+
+    display: block;
+
+    width: 100%;
+
+    text-align: left;
+
+    font-size: 8px;
+
+    color: #888;
+
+    margin-top: -10px;
+
+    margin-bottom: 15px;
+}
+
+
+button {
+
+    width: 100%;
+
+    padding: 14px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    font-size: 16px;
+
+    cursor: pointer;
+
+    margin-top: 5px;
+}
+
+
+button:disabled {
+
+    opacity: 0.6;
+
+    cursor: not-allowed;
+}
+
+
+#loginBtn {
+
+    background: #3333cc;
+
+    color: white;
+}
+
+
+.register-btn {
+
+    background: #eeeeee;
+
+    color: #333;
+
+    margin-top: 12px;
+}
+
+
+#message,
+#registerMessage {
+
+    margin-top: 15px;
+
+    font-size: 14px;
+
+    min-height: 20px;
+}
+
+
+/* =========================
+   GAME CENTER
+========================= */
+
+.game-center {
+
+    display: none;
+
+    width: 90%;
+
+    max-width: 400px;
+
+    text-align: center;
+
+    align-self: flex-start;
+
+    margin-top: 20px;
+}
+
+
+.game-center h1 {
+
+    color: white;
+
+    margin-bottom: 5px;
+
+    font-size: 27px;
+}
+
+
+.game-center-subtitle {
+
+    color: #b8b8c7;
+
+    margin-bottom: 15px;
+
+    font-size: 14px;
+}
+
+
+/* =========================
+   PLAYER
+========================= */
+
+.player-card {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    background: white;
+
+    padding: 15px;
+
+    border-radius: 15px;
+
+    margin-bottom: 10px;
+
+    box-shadow:
+        0 8px 20px
+        rgba(0, 0, 0, 0.25);
+
+    text-align: left;
+
+    cursor: pointer;
+}
+
+
+.player-card:active {
+
+    transform: scale(0.98);
+}
+
+
+.player-icon {
+
+    width: 48px;
+
+    height: 48px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    background: #eeeeee;
+
+    border-radius: 50%;
+
+    font-size: 23px;
+}
+
+
+.player-info {
+
+    flex: 1;
+
+    min-width: 0;
+}
+
+
+.display-name {
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    color: #222;
+
+    word-break: break-word;
+}
+
+
+.friend-id {
+
+    margin-top: 4px;
+
+    font-size: 11px;
+
+    color: #888;
+}
+
+
+/* =========================
+   PROFILE
+========================= */
+
+.profile-modal-box {
+
+    width: 100%;
+
+    max-width: 390px;
+
+    max-height: 88vh;
+
+    overflow-y: auto;
+
+    background: white;
+
+    padding: 20px;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 10px 35px
+        rgba(0, 0, 0, 0.4);
+
+    text-align: center;
+}
+
+
+.profile-modal-box h2 {
+
+    color: #222;
+
+    margin-bottom: 15px;
+
+    font-size: 22px;
+}
+
+
+.profile-preview {
+
+    background: #f5f5ff;
+
+    padding: 14px;
+
+    border-radius: 12px;
+
+    margin-bottom: 15px;
+}
+
+
+.profile-preview-icon {
+
+    width: 48px;
+
+    height: 48px;
+
+    margin: 0 auto 6px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #eeeeee;
+
+    border-radius: 50%;
+
+    font-size: 24px;
+}
+
+
+.profile-preview-name {
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    color: #222;
+
+    word-break: break-word;
+}
+
+
+.profile-preview-id,
+.profile-preview-date {
+
+    margin-top: 4px;
+
+    font-size: 11px;
+
+    color: #888;
+}
+
+
+.profile-section-title {
+
+    text-align: left;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    color: #333;
+
+    margin-bottom: 8px;
+}
+
+
+/* =========================
+   PROFILE STATS
+========================= */
+
+.profile-stats {
+
+    width: 100%;
+
+    margin-bottom: 8px;
+}
+
+
+.profile-stat-card {
+
+    background: #f7f7f7;
+
+    border-radius: 10px;
+
+    padding: 9px 10px;
+
+    margin-bottom: 7px;
+
+    text-align: left;
+}
+
+
+.profile-stat-game {
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    color: #333;
+
+    margin-bottom: 6px;
+}
+
+
+.profile-stat-row {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 4px;
+}
+
+
+.profile-stat-item {
+
+    background: white;
+
+    border-radius: 7px;
+
+    padding: 5px 2px;
+
+    text-align: center;
+
+    font-size: 9px;
+
+    color: #666;
+}
+
+
+.profile-stat-item strong {
+
+    display: block;
+
+    font-size: 12px;
+
+    color: #222;
+
+    margin-top: 2px;
+}
+
+
+.profile-no-stats {
+
+    background: #f7f7f7;
+
+    border-radius: 10px;
+
+    padding: 12px;
+
+    font-size: 12px;
+
+    color: #888;
+
+    margin-bottom: 8px;
+}
+
+
+.all-stats-btn {
+
+    background: #f0f0ff;
+
+    color: #3333cc;
+
+    font-size: 13px;
+
+    padding: 10px;
+
+    margin-top: 0;
+
+    margin-bottom: 12px;
+}
+
+
+.change-name-title {
+
+    text-align: left;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    color: #333;
+
+    margin-bottom: 7px;
+}
+
+
+.display-name-hint {
+
+    text-align: left;
+
+    font-size: 10px;
+
+    line-height: 1.5;
+
+    color: #888;
+
+    margin-top: -7px;
+
+    margin-bottom: 12px;
+}
+
+
+.name-example {
+
+    background: #f7f7f7;
+
+    border-radius: 8px;
+
+    padding: 8px;
+
+    font-size: 12px;
+
+    color: #555;
+
+    margin-bottom: 10px;
+
+    word-break: break-word;
+}
+
+
+.save-name-btn {
+
+    background: #3333cc;
+
+    color: white;
+}
+
+
+.profile-close-btn {
+
+    background: #eeeeee;
+
+    color: #333;
+}
+
+
+.profile-message {
+
+    min-height: 18px;
+
+    margin-top: 10px;
+
+    font-size: 12px;
+
+    color: #555;
+}
+
+
+/* =========================
+   WALLET CARD
+========================= */
+
+.wallet-card {
+
+    background: white;
+
+    padding: 15px;
+
+    border-radius: 15px;
+
+    margin-bottom: 12px;
+
+    box-shadow:
+        0 8px 20px
+        rgba(0, 0, 0, 0.25);
+
+    color: #333;
+
+    cursor: pointer;
+
+    text-align: left;
+}
+
+
+.wallet-card:active {
+
+    transform: scale(0.98);
+}
+
+
+.wallet-main {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+
+.wallet-title {
+
+    font-size: 16px;
+
+    font-weight: bold;
+}
+
+
+.wallet-card strong {
+
+    font-size: 20px;
+
+    color: #3333cc;
+}
+
+
+.wallet-preview {
+
+    margin-top: 10px;
+
+    border-top:
+        1px solid #eeeeee;
+
+    padding-top: 7px;
+}
+
+
+.wallet-preview-item {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    padding: 3px 0;
+
+    font-size: 11px;
+}
+
+
+.wallet-preview-item.credit {
+
+    color: #17833b;
+}
+
+
+.wallet-preview-item.debit {
+
+    color: #cc3333;
+}
+
+
+.wallet-more {
+
+    text-align: center;
+
+    margin-top: 7px;
+
+    font-size: 10px;
+
+    color: #888;
+}
+
+
+/* =========================
+   GAMES
+========================= */
+
+.game-button {
+
+    background: white;
+
+    color: #222;
+
+    margin-top: 8px;
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+    padding: 15px;
+
+    box-shadow:
+        0 6px 15px
+        rgba(0, 0, 0, 0.2);
+}
+
+
+.game-button:active {
+
+    transform: scale(0.98);
+}
+
+
+/* =========================
+   ADMIN PANEL
+========================= */
+
+.admin-panel-button {
+
+    display: none;
+
+    background: #6b4cff;
+
+    color: white;
+
+    font-size: 15px;
+
+    font-weight: bold;
+
+    margin-top: 10px;
+}
+
+
+.admin-panel-button:active {
+
+    transform: scale(0.98);
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+.logout-button {
+
+    background: #555;
+
+    color: white;
+
+    margin-top: 10px;
+
+    font-size: 14px;
+}
+
+
+#gameCenterMessage {
+
+    color: white;
+
+    font-size: 13px;
+
+    margin-top: 10px;
+}
+
+
+/* =========================
+   MODAL
+========================= */
+
+.modal {
+
+    display: none;
+
+    position: fixed;
+
+    inset: 0;
+
+    background:
+        rgba(0, 0, 0, 0.65);
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 20px;
+
+    z-index: 1000;
+}
+
+
+.modal.show {
+
+    display: flex;
+}
+
+
+/* =========================
+   WALLET MODAL
+========================= */
+
+.wallet-modal-box {
+
+    width: 100%;
+
+    max-width: 390px;
+
+    max-height: 85vh;
+
+    background: white;
+
+    padding: 20px;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 10px 35px
+        rgba(0, 0, 0, 0.4);
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.wallet-modal-box h2 {
+
+    text-align: center;
+
+    color: #222;
+
+    margin-bottom: 15px;
+
+    font-size: 21px;
+}
+
+
+.wallet-balance {
+
+    background: #f2f2ff;
+
+    border-radius: 12px;
+
+    padding: 15px;
+
+    text-align: center;
+
+    margin-bottom: 15px;
+}
+
+
+.balance-label {
+
+    font-size: 12px;
+
+    color: #777;
+
+    margin-bottom: 5px;
+}
+
+
+.balance-number {
+
+    font-size: 25px;
+
+    font-weight: bold;
+
+    color: #3333cc;
+}
+
+
+.wallet-history-title {
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    margin-bottom: 7px;
+}
+
+
+.wallet-history {
+
+    max-height: 220px;
+
+    overflow-y: auto;
+
+    border:
+        1px solid #eeeeee;
+
+    border-radius: 10px;
+
+    padding: 8px;
+}
+
+
+.wallet-history-item {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    padding: 9px 5px;
+
+    border-bottom:
+        1px solid #eeeeee;
+
+    font-size: 12px;
+}
+
+
+.wallet-history-item:last-child {
+
+    border-bottom: none;
+}
+
+
+.transaction-info {
+
+    flex: 1;
+
+    min-width: 0;
+}
+
+
+.transaction-reason {
+
+    color: #333;
+
+    word-break: break-word;
+}
+
+
+.transaction-date {
+
+    color: #999;
+
+    font-size: 9px;
+
+    margin-top: 3px;
+}
+
+
+.transaction-amount {
+
+    font-weight: bold;
+
+    white-space: nowrap;
+}
+
+
+.transaction-amount.credit {
+
+    color: #17833b;
+}
+
+
+.transaction-amount.debit {
+
+    color: #cc3333;
+}
+
+
+.history-all-btn {
+
+    background: #3333cc;
+
+    color: white;
+
+    margin-top: 12px;
+}
+
+
+.wallet-close-btn {
+
+    background: #eeeeee;
+
+    color: #333;
+
+    margin-top: 8px;
+}
+
+
+/* =========================
+   ALL HISTORY
+========================= */
+
+.all-history-list {
+
+    max-height: 55vh;
+
+    overflow-y: auto;
+
+    border:
+        1px solid #eeeeee;
+
+    border-radius: 10px;
+
+    padding: 8px;
+}
+
+
+/* =========================
+   ALL GAME STATS
+========================= */
+
+.stats-modal-box {
+
+    width: 100%;
+
+    max-width: 390px;
+
+    max-height: 85vh;
+
+    overflow-y: auto;
+
+    background: white;
+
+    padding: 20px;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 10px 35px
+        rgba(0, 0, 0, 0.4);
+}
+
+
+.stats-modal-box h2 {
+
+    text-align: center;
+
+    font-size: 21px;
+
+    margin-bottom: 15px;
+
+    color: #222;
+}
+
+
+.all-stats-list {
+
+    max-height: 58vh;
+
+    overflow-y: auto;
+}
+
+
+.all-stat-card {
+
+    background: #f7f7f7;
+
+    border-radius: 10px;
+
+    padding: 10px;
+
+    margin-bottom: 8px;
+}
+
+
+.all-stat-game {
+
+    font-weight: bold;
+
+    font-size: 14px;
+
+    margin-bottom: 7px;
+}
+
+
+/* =========================
+   REGISTER
+========================= */
+
+.register-modal-box {
+
+    width: 100%;
+
+    max-width: 380px;
+
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 15px;
+
+    text-align: center;
+
+    box-shadow:
+        0 10px 35px
+        rgba(0, 0, 0, 0.4);
+}
+
+
+.register-modal-box h2 {
+
+    margin-bottom: 18px;
+
+    color: #222;
+
+    font-size: 22px;
+}
+
+
+.password-match-message {
+
+    min-height: 18px;
+
+    text-align: left;
+
+    font-size: 11px;
+
+    margin-top: -8px;
+
+    margin-bottom: 8px;
+}
+
+
+.password-match-message.match {
+
+    color: #17833b;
+}
+
+
+.password-match-message.no-match {
+
+    color: #cc3333;
+}
+
+
+#confirmRegisterBtn {
+
+    background: #3333cc;
+
+    color: white;
+
+    transition:
+        background 0.2s ease;
+}
+
+
+#confirmRegisterBtn.password-ok {
+
+    background: #17833b;
+}
+
+
+.cancel-btn {
+
+    background: #eeeeee;
+
+    color: #333;
+
+    margin-top: 10px;
+}
+
+
+/* =========================
+   LOGIN SUCCESS POPUP
+========================= */
+
+.login-success-popup {
+
+    display: none;
+
+    position: fixed;
+
+    inset: 0;
+
+    background:
+        rgba(0, 0, 0, 0.45);
+
+    justify-content: center;
+
+    align-items: center;
+
+    z-index: 9999;
+}
+
+
+.login-success-popup.show {
+
+    display: flex;
+}
+
+
+.login-success-box {
+
+    background: white;
+
+    padding: 25px 40px;
+
+    border-radius: 15px;
+
+    text-align: center;
+
+    box-shadow:
+        0 10px 35px
+        rgba(0, 0, 0, 0.4);
+
+    animation:
+        loginSuccessPop
+        0.25s ease;
+}
+
+
+.success-icon {
+
+    font-size: 40px;
+
+    margin-bottom: 8px;
+}
+
+
+.success-text {
+
+    font-size: 20px;
+
+    font-weight: bold;
+
+    color: #333;
+}
+
+
+@keyframes loginSuccessPop {
+
+    from {
+
+        transform:
+            scale(0.8);
+
+        opacity: 0;
+    }
+
+    to {
+
+        transform:
+            scale(1);
+
+        opacity: 1;
+    }
+}
+
+
+/* =========================
+   SMALL SCREEN
+========================= */
+
+@media (max-height: 700px) {
+
+    body {
+
+        align-items: flex-start;
+
+        padding-top: 12px;
+    }
+
+    .game-center {
+
+        margin-top: 0;
+    }
+
+    .game-center h1 {
+
+        font-size: 24px;
+    }
+
+    .game-button {
+
+        padding: 12px;
+    }
+
+}
+
+/* =====================================================
+   ADMIN PANEL MODAL
+===================================================== */
+
+.admin-panel-modal-box {
+
+    width: min(
+        92%,
+        420px
+    );
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    background: #ffffff;
+
+    border-radius: 20px;
+
+    padding: 24px;
+
+    box-sizing: border-box;
+
+    box-shadow:
+        0 10px 35px
+        rgba(0, 0, 0, 0.25);
+
+    text-align: center;
+
+}
+
+
+.admin-panel-modal-box h2 {
+
+    margin-top: 0;
+
+    margin-bottom: 8px;
+
+}
+
+
+.admin-panel-role {
+
+    margin-top: 0;
+
+    margin-bottom: 20px;
+
+    color: #777;
+
+    font-size: 14px;
+
+}
+
+
+.admin-panel-menu {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+}
+
+
+.admin-menu-button {
+
+    width: 100%;
+
+    padding: 14px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: #f1f1f1;
+
+    font-size: 16px;
+
+    cursor: pointer;
+
+}
+
+
+.admin-menu-button:active {
+
+    transform: scale(0.98);
+
+}
+
+
+.admin-panel-close-btn {
+
+    width: 100%;
+
+    margin-top: 20px;
+
+    padding: 13px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: #333;
+
+    color: #ffffff;
+
+    font-size: 16px;
+
+    cursor: pointer;
+
+}
+
+
+.admin-panel-message {
+
+    min-height: 20px;
+
+    margin-top: 12px;
+
+    font-size: 14px;
+
+}

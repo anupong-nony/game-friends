@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Game Friends</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         LOGIN
+    ========================== -->
+
+    <div
+        class="login-container"
+        id="loginScreen"
+    >
+
+        <h1>🎮 Game Friends</h1>
+
+        <p class="subtitle">
+            เกมสนุก ๆ สำหรับเล่นกับเพื่อน
+        </p>
+
+
+        <div class="login-box">
+
+            <input
+                type="text"
+                id="username"
+                placeholder="Username"
+                maxlength="20"
+                autocomplete="username"
+            >
+
+
+            <div class="password-field">
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Password"
+                    minlength="8"
+                    autocomplete="current-password"
+                >
+
+                <button
+                    type="button"
+                    class="password-toggle"
+                    data-target="password"
+                >
+                    👁️
+                </button>
+
+            </div>
+
+
+            <p class="password-hint">
+                Password อย่างน้อย 8 ตัวอักษร
+            </p>
+
+
+            <button id="loginBtn">
+                เข้าสู่ระบบ
+            </button>
+
+
+            <button
+                id="registerBtn"
+                class="register-btn"
+            >
+                สมัครสมาชิก
+            </button>
+
+
+            <p id="message"></p>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================
+         GAME CENTER
+    ========================== -->
+
+    <div
+        class="game-center"
+        id="gameCenter"
+    >
+
+        <h1>🎮 Game Friends</h1>
+
+        <p class="game-center-subtitle">
+            Game Center
+        </p>
+
+
+        <!-- PLAYER -->
+
+        <div
+            class="player-card"
+            id="profileBtn"
+        >
+
+            <div class="player-icon">
+                👤
+            </div>
+
+
+            <div class="player-info">
+
+                <div
+                    class="display-name"
+                    id="displayName"
+                >
+                    -
+                </div>
+
+
+                <div
+                    class="friend-id"
+                    id="friendId"
+                >
+                    Friend ID: -
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =========================
+             WALLET
+        ========================== -->
+
+        <div
+            class="wallet-card"
+            id="walletBtn"
+        >
+
+            <div class="wallet-main">
+
+                <span class="wallet-title">
+                    🪙 เหรียญ
+                </span>
+
+
+                <strong id="coinAmount">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div
+                class="wallet-preview"
+                id="walletPreview"
+            >
+            </div>
+
+
+            <div class="wallet-more">
+                แตะเพื่อดู Wallet
+            </div>
+
+        </div>
+
+
+
+        <!-- =========================
+             GAMES
+        ========================== -->
+
+        <button
+            class="game-button"
+            id="bingoBtn"
+        >
+            🎱 Bingo
+        </button>
+
+
+        <button
+            class="game-button"
+            id="xoBtn"
+        >
+            ❌⭕ XO
+        </button>
+
+
+
+        <!-- =========================
+     ADMIN / GM PANEL
+========================== -->
+
+<button
+    class="admin-panel-button"
+    id="adminPanelBtn"
+    style="display: none;"
+>
+    👑 Admin Panel
+</button>
+
+
+<button
+    class="admin-panel-button"
+    id="gmPanelBtn"
+    style="display: none;"
+>
+    🛡️ GM Panel
+</button>
+
+
+
+        <!-- LOGOUT -->
+
+        <button
+            class="logout-button"
+            id="logoutBtn"
+        >
+            ออกจากระบบ
+        </button>
+
+
+        <p id="gameCenterMessage"></p>
+
+    </div>
+
+
+
+    <!-- =========================
+         PROFILE
+    ========================== -->
+
+    <div
+        id="profileModal"
+        class="modal"
+    >
+
+        <div class="profile-modal-box">
+
+            <h2>
+                👤 โปรไฟล์
+            </h2>
+
+
+            <div class="profile-preview">
+
+                <div class="profile-preview-icon">
+                    👤
+                </div>
+
+
+                <div
+                    class="profile-preview-name"
+                    id="profilePreviewName"
+                >
+                    -
+                </div>
+
+
+                <div
+                    class="profile-preview-id"
+                    id="profilePreviewId"
+                >
+                    Friend ID: -
+                </div>
+
+
+                <div
+                    class="profile-preview-date"
+                    id="profilePreviewDate"
+                >
+                    สมัครเมื่อ: -
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 GAME STATISTICS
+            ========================== -->
+
+            <div class="profile-section-title">
+                🎮 สถิติการเล่น
+            </div>
+
+
+            <div
+                class="profile-stats"
+                id="profileStats"
+            >
+            </div>
+
+
+            <button
+                id="allStatsBtn"
+                class="all-stats-btn"
+            >
+                📊 ดูสถิติทั้งหมด
+            </button>
+
+
+
+            <!-- =========================
+                 CHANGE NAME
+            ========================== -->
+
+            <div class="change-name-title">
+                เปลี่ยนชื่อ
+            </div>
+
+
+            <input
+                type="text"
+                id="displayNameInput"
+                placeholder="ชื่อใหม่"
+                maxlength="20"
+                autocomplete="off"
+            >
+
+
+            <div
+                class="name-example"
+                id="nameExample"
+            >
+                ชื่อจะแสดงเป็น: -
+            </div>
+
+
+            <button
+                id="saveNameBtn"
+                class="save-name-btn"
+            >
+                💾 บันทึกชื่อ
+            </button>
+
+
+            <button
+                id="closeProfileBtn"
+                class="profile-close-btn"
+            >
+                ปิด
+            </button>
+
+
+            <p
+                id="profileMessage"
+                class="profile-message"
+            ></p>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================
+         WALLET MODAL
+    ========================== -->
+
+    <div
+        id="walletModal"
+        class="modal"
+    >
+
+        <div class="wallet-modal-box">
+
+            <h2>
+                🪙 Wallet
+            </h2>
+
+
+            <div class="wallet-balance">
+
+                <div class="balance-label">
+                    ยอดคงเหลือ
+                </div>
+
+
+                <div
+                    class="balance-number"
+                    id="walletModalBalance"
+                >
+                    0 🪙
+                </div>
+
+            </div>
+
+
+            <div class="wallet-history-title">
+                รายการล่าสุด
+            </div>
+
+
+            <div
+                class="wallet-history"
+                id="walletHistory"
+            >
+            </div>
+
+
+            <button
+                class="history-all-btn"
+                id="historyAllBtn"
+            >
+                📜 ประวัติทั้งหมด
+            </button>
+
+
+            <button
+                class="wallet-close-btn"
+                id="closeWalletBtn"
+            >
+                ปิด
+            </button>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================
+         ALL WALLET HISTORY
+    ========================== -->
+
+    <div
+        id="walletAllModal"
+        class="modal"
+    >
+
+        <div class="wallet-modal-box">
+
+            <h2>
+                📜 ประวัติ Wallet
+            </h2>
+
+
+            <div
+                class="all-history-list"
+                id="allHistoryList"
+            >
+            </div>
+
+
+            <button
+                class="wallet-close-btn"
+                id="closeAllHistoryBtn"
+            >
+                ปิด
+            </button>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================
+         ALL GAME STATISTICS
+    ========================== -->
+
+    <div
+        id="allStatsModal"
+        class="modal"
+    >
+
+        <div class="stats-modal-box">
+
+            <h2>
+                📊 สถิติทั้งหมด
+            </h2>
+
+
+            <div
+                id="allStatsList"
+                class="all-stats-list"
+            >
+            </div>
+
+
+            <button
+                class="wallet-close-btn"
+                id="closeAllStatsBtn"
+            >
+                ปิด
+            </button>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================
+         REGISTER MODAL
+    ========================== -->
+
+    <div
+        id="registerModal"
+        class="modal"
+    >
+
+        <div class="register-modal-box">
+
+            <h2>
+                สมัครสมาชิก
+            </h2>
+
+
+            <input
+                type="text"
+                id="registerUsername"
+                placeholder="Username"
+                maxlength="20"
+                autocomplete="off"
+            >
+
+
+            <div class="password-field">
+
+                <input
+                    type="password"
+                    id="registerPassword"
+                    placeholder="Password"
+                    minlength="8"
+                    autocomplete="new-password"
+                >
+
+                <button
+                    type="button"
+                    class="password-toggle"
+                    data-target="registerPassword"
+                >
+                    👁️
+                </button>
+
+            </div>
+
+
+            <div class="password-field">
+
+                <input
+                    type="password"
+                    id="registerPasswordConfirm"
+                    placeholder="ยืนยัน Password"
+                    minlength="8"
+                    autocomplete="new-password"
+                >
+
+                <button
+                    type="button"
+                    class="password-toggle"
+                    data-target="registerPasswordConfirm"
+                >
+                    👁️
+                </button>
+
+            </div>
+
+
+            <div
+                id="passwordMatchMessage"
+                class="password-match-message"
+            >
+            </div>
+
+
+            <p class="password-hint">
+                Password อย่างน้อย 8 ตัวอักษร
+            </p>
+
+
+            <button
+                id="confirmRegisterBtn"
+                disabled
+            >
+                ยืนยันสมัครสมาชิก
+            </button>
+
+
+            <button
+                id="cancelRegisterBtn"
+                class="cancel-btn"
+            >
+                ยกเลิก
+            </button>
+
+
+            <p id="registerMessage"></p>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================
+         LOGIN SUCCESS POPUP
+    ========================== -->
+
+    <div
+        id="loginSuccessPopup"
+        class="login-success-popup"
+    >
+
+        <div class="login-success-box">
+
+            <div class="success-icon">
+                🎉
+            </div>
+
+
+            <div class="success-text">
+                เข้าสู่ระบบสำเร็จ!
+            </div>
+
+        </div>
+
+    </div>
+
+<!-- =========================
+     ADMIN PANEL MODAL
+========================== -->
+
+<div
+    id="adminPanelModal"
+    class="modal"
+>
+
+    <div class="admin-panel-modal-box">
+
+        <h2>
+            👑 Admin Panel
+        </h2>
+
+        <p class="admin-panel-role">
+            ระบบจัดการสำหรับ Admin / GM
+        </p>
+
+        <div class="admin-panel-menu">
+
+            <button
+                class="admin-menu-button"
+                id="adminUsersBtn"
+            >
+                👥 จัดการสมาชิก
+            </button>
+
+            <button
+                class="admin-menu-button"
+                id="adminWalletBtn"
+            >
+                🪙 จัดการ Wallet
+            </button>
+
+            <button
+                class="admin-menu-button"
+                id="adminGamesBtn"
+            >
+                🎮 จัดการเกม
+            </button>
+
+        </div>
+
+        <button
+            class="admin-panel-close-btn"
+            id="closeAdminPanelBtn"
+        >
+            ปิด
+        </button>
+
+        <p
+            id="adminPanelMessage"
+            class="admin-panel-message"
+        ></p>
+
+    </div>
+
+</div>
+
+    <script
+        type="module"
+        src="game.js"
+    ></script>
+
+</body>
+
+</html>
