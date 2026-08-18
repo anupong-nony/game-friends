@@ -771,14 +771,15 @@ async function loadRoom() {
     }
 }
 
-
 // =====================================================
 // JOIN ROOM
 // =====================================================
 
 async function joinRoom() {
 
-    if (!currentUser || !roomId) return;
+    if (!currentUser || !roomId) {
+        throw new Error("ไม่พบข้อมูลผู้เล่นหรือ Room ID");
+    }
 
     const roomRef =
         ref(
@@ -800,6 +801,11 @@ async function joinRoom() {
     const room =
         snapshot.val();
 
+
+    // =================================================
+    // ตรวจว่าผู้เล่นอยู่ในห้องแล้วหรือไม่
+    // =================================================
+
     if (
         room.players &&
         room.players[currentUser.uid]
@@ -808,10 +814,16 @@ async function joinRoom() {
         return;
     }
 
+
+    // =================================================
+    // ตรวจจำนวนผู้เล่น
+    // =================================================
+
     const currentPlayers =
         room.players
             ? Object.keys(room.players)
             : [];
+
 
     if (
         currentPlayers.length >=
@@ -825,44 +837,104 @@ async function joinRoom() {
         );
     }
 
+
     const displayName =
         currentUserData?.displayName ||
         "Player";
 
+
     const now =
         Date.now();
 
-    await update(
-        roomRef,
+
+    // =================================================
+    // เพิ่มผู้เล่นของตัวเอง
+    // =================================================
+
+    const playerRef =
+        ref(
+            database,
+            "bingoRooms/" +
+            roomId +
+            "/players/" +
+            currentUser.uid
+        );
+
+
+    await set(
+        playerRef,
         {
-            ["players/" +
-            currentUser.uid]:
-            {
-                uid:
-                    currentUser.uid,
 
-                displayName:
-                    displayName,
+            uid:
+                currentUser.uid,
 
-                joinedAt:
-                    now,
+            displayName:
+                displayName,
 
-                ready:
-                    false,
+            joinedAt:
+                now,
 
-                winnerAcknowledged:
-                    false
-            },
+            ready:
+                false,
 
-            playerCount:
-                currentPlayers.length + 1,
+            winnerAcknowledged:
+                false
 
-            updatedAt:
-                now
         }
     );
 
+
+    // =================================================
+    // อัปเดตจำนวนผู้เล่น
+    // =================================================
+
+    const playerCountRef =
+        ref(
+            database,
+            "bingoRooms/" +
+            roomId +
+            "/playerCount"
+        );
+
+
+    await runTransaction(
+        playerCountRef,
+        count => {
+
+            const currentCount =
+                Number(count || 0);
+
+            if (
+                currentCount >=
+                MAX_PLAYERS
+            ) {
+
+                return currentCount;
+
+            }
+
+            return currentCount + 1;
+
+        }
+    );
+
+
+    // =================================================
+    // อัปเดตเวลา
+    // =================================================
+
+    await set(
+        ref(
+            database,
+            "bingoRooms/" +
+            roomId +
+            "/updatedAt"
+        ),
+        now
+    );
+
 }
+
 
 
 // =====================================================
