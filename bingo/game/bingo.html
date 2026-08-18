@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
+    <title>Game Friends - Bingo</title>
+
+    <link
+        rel="stylesheet"
+        href="bingo.css"
+    >
+
+</head>
+
+<body>
+
+    <main class="bingo-app">
+
+        <!-- HEADER -->
+
+        <header class="bingo-header">
+
+            <div class="bingo-title">
+                🎯 BINGO
+            </div>
+
+            <div class="bingo-status">
+
+                <div>
+                    🪙
+                    <span id="coinDisplay">0</span>
+                </div>
+
+                <button
+                    id="playerCountBtn"
+                    class="player-count-btn"
+                    type="button"
+                >
+                    👥
+                    <span id="playerCount">0/20</span>
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- ROOM -->
+
+        <section class="room-info">
+
+            <div
+                id="roomName"
+                class="room-name"
+            >
+                ห้อง Bingo
+            </div>
+
+            <div
+                id="roomStatus"
+                class="room-status"
+            >
+                รอผู้เล่น
+            </div>
+
+            <button
+                id="leaveRoomBtn"
+                class="leave-room-btn"
+                type="button"
+            >
+                🚪 ออก
+            </button>
+
+        </section>
+
+
+        <!-- LATEST DRAW -->
+
+        <section class="latest-draw-section">
+
+            <div class="latest-draw-label">
+                เลขล่าสุด
+            </div>
+
+            <div
+                id="latestDrawNumber"
+                class="latest-draw-number"
+            >
+                -
+            </div>
+
+        </section>
+
+
+        <!-- LAST 5 NUMBERS -->
+
+        <section class="latest-numbers-section">
+
+            <div class="latest-title">
+                5 เลขล่าสุด
+            </div>
+
+            <div
+                id="latestNumbers"
+                class="latest-numbers"
+            >
+
+                <span>-</span>
+                <span>-</span>
+                <span>-</span>
+                <span>-</span>
+                <span>-</span>
+
+            </div>
+
+        </section>
+
+
+        <!-- BOARD AREA -->
+
+        <section
+            id="boardsContainer"
+            class="boards-container"
+        ></section>
+
+
+        <!-- BOARD CONTROLS -->
+
+        <section class="board-controls">
+
+            <div
+                id="boardCountText"
+                class="board-count-text"
+            >
+                กระดาน 1/4
+            </div>
+
+            <button
+                id="buyBoardBtn"
+                class="buy-board-btn"
+                type="button"
+            >
+                ➕ ซื้อกระดาน
+                <span>20 🪙</span>
+            </button>
+
+        </section>
+
+
+        <!-- HOST CONTROLS -->
+
+        <section
+            id="hostControls"
+            class="host-controls"
+            hidden
+        >
+
+            <div class="host-label">
+                👑 เจ้าของห้อง
+            </div>
+
+            <div class="host-action-row">
+
+                <button
+                    id="startGameBtn"
+                    class="start-game-btn"
+                    type="button"
+                >
+                    ▶️ เปิดเกม
+                </button>
+
+                <div
+                    id="drawResult"
+                    class="draw-result"
+                >
+                    -
+                </div>
+
+                <button
+                    id="drawNumberBtn"
+                    class="draw-number-btn"
+                    type="button"
+                    disabled
+                >
+                    🎲 สุ่มเลข
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- PLAYER CONTROLS -->
+
+        <section
+            id="gameControls"
+            class="game-controls"
+        >
+
+            <button
+                id="readyBtn"
+                class="ready-btn"
+                type="button"
+            >
+                พร้อม
+            </button>
+
+        </section>
+
+
+        <!-- CHAT -->
+
+        <section
+            id="chatSection"
+            class="chat-section"
+        >
+
+            <div class="chat-title">
+                💬 Chat
+                <span class="chat-expand-hint">
+                    แตะเพื่อขยาย
+                </span>
+            </div>
+
+            <div
+                id="chatMessages"
+                class="chat-messages"
+            >
+
+                <div class="chat-message system-message">
+                    <b>ระบบ:</b>
+                    ยินดีต้อนรับเข้าสู่ห้อง Bingo
+                </div>
+
+            </div>
+
+            <div class="chat-input-row">
+
+                <input
+                    id="chatInput"
+                    type="text"
+                    maxlength="100"
+                    placeholder="พิมพ์ข้อความ..."
+                >
+
+                <button
+                    id="chatSendBtn"
+                    type="button"
+                >
+                    ส่ง
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- PLAYER LIST -->
+
+    <div
+        id="playerModal"
+        class="modal-overlay"
+        hidden
+    >
+
+        <div class="player-modal">
+
+            <div class="modal-header">
+
+                <div>
+                    👥 ผู้เล่นในห้อง
+                </div>
+
+                <button
+                    id="closePlayerModalBtn"
+                    class="modal-close-btn"
+                    type="button"
+                >
+                    ✕
+                </button>
+
+            </div>
+
+            <div
+                id="playerList"
+                class="player-list"
+            ></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CHAT MODAL -->
+
+    <div
+        id="chatModal"
+        class="modal-overlay"
+        hidden
+    >
+
+        <div class="chat-modal">
+
+            <div class="chat-modal-header">
+
+                <div>
+                    💬 Chat
+                </div>
+
+                <button
+                    id="closeChatModalBtn"
+                    class="modal-close-btn"
+                    type="button"
+                >
+                    ✕
+                </button>
+
+            </div>
+
+            <div
+                id="expandedChatMessages"
+                class="expanded-chat-messages"
+            ></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- LEAVE ROOM -->
+
+    <div
+        id="leaveModal"
+        class="modal-overlay"
+        hidden
+    >
+
+        <div class="confirm-modal">
+
+            <div class="confirm-title">
+                🚪 ออกจากห้อง
+            </div>
+
+            <div class="confirm-message">
+                คุณต้องการออกจากห้อง Bingo หรือไม่?
+            </div>
+
+            <div class="confirm-buttons">
+
+                <button
+                    id="cancelLeaveBtn"
+                    class="cancel-btn"
+                    type="button"
+                >
+                    ยกเลิก
+                </button>
+
+                <button
+                    id="confirmLeaveBtn"
+                    class="confirm-leave-btn"
+                    type="button"
+                >
+                    ออกจากห้อง
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script
+        type="module"
+        src="bingo.js"
+    ></script>
+
+</body>
+
+</html>
