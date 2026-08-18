@@ -17,13 +17,156 @@
         href="bingo.css"
     >
 
+    <style>
+        /* =====================================================
+           BINGO COUNTDOWN
+           ===================================================== */
+
+        #bingoCountdownOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            background: transparent;
+        }
+
+        #bingoCountdownOverlay[hidden] {
+            display: none;
+        }
+
+        .bingo-countdown-number {
+            min-width: 120px;
+            min-height: 120px;
+            padding: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(20, 24, 32, .90);
+            border: 2px solid rgba(255,255,255,.18);
+            box-shadow:
+                0 12px 45px rgba(0,0,0,.55),
+                0 0 35px rgba(85,120,216,.18);
+            color: #fff;
+            font-size: 58px;
+            font-weight: 900;
+            line-height: 1;
+            text-shadow: 0 3px 15px rgba(0,0,0,.7);
+        }
+
+        .bingo-countdown-text {
+            position: absolute;
+            margin-top: 155px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: rgba(20,24,32,.88);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+
+        /* =====================================================
+           WINNER POPUP
+           ===================================================== */
+
+        #winnerModal {
+            z-index: 250;
+        }
+
+        .winner-modal {
+            width: 100%;
+            max-width: 360px;
+            background: #282d37;
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 20px 55px rgba(0,0,0,.6);
+            text-align: center;
+        }
+
+        .winner-title {
+            font-size: 22px;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+
+        .winner-name {
+            font-size: 18px;
+            font-weight: 900;
+            color: #ffd45c;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .winner-message {
+            color: #c4c9d2;
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .winner-prize {
+            background: #20242d;
+            border-radius: 9px;
+            padding: 10px;
+            margin-bottom: 14px;
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .winner-confirm-btn {
+            width: 100%;
+            min-height: 38px;
+            border: none;
+            border-radius: 8px;
+            background: #57a773;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .winner-confirm-btn:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        .winner-confirm-status {
+            min-height: 18px;
+            margin-top: 8px;
+            color: #aeb5c2;
+            font-size: 10px;
+        }
+
+        @media (max-width: 380px) {
+
+            .bingo-countdown-number {
+                min-width: 100px;
+                min-height: 100px;
+                font-size: 48px;
+            }
+
+            .bingo-countdown-text {
+                margin-top: 130px;
+            }
+
+            .winner-modal {
+                max-width: 320px;
+                padding: 15px;
+            }
+        }
+    </style>
+
 </head>
 
 <body>
 
     <main class="bingo-app">
-
-        <!-- HEADER -->
 
         <header class="bingo-header">
 
@@ -52,8 +195,6 @@
         </header>
 
 
-        <!-- ROOM -->
-
         <section class="room-info">
 
             <div
@@ -81,8 +222,6 @@
         </section>
 
 
-        <!-- LATEST DRAW -->
-
         <section class="latest-draw-section">
 
             <div class="latest-draw-label">
@@ -99,8 +238,6 @@
         </section>
 
 
-        <!-- LAST 5 NUMBERS -->
-
         <section class="latest-numbers-section">
 
             <div class="latest-title">
@@ -111,27 +248,21 @@
                 id="latestNumbers"
                 class="latest-numbers"
             >
-
                 <span>-</span>
                 <span>-</span>
                 <span>-</span>
                 <span>-</span>
                 <span>-</span>
-
             </div>
 
         </section>
 
-
-        <!-- BOARD AREA -->
 
         <section
             id="boardsContainer"
             class="boards-container"
         ></section>
 
-
-        <!-- BOARD CONTROLS -->
 
         <section class="board-controls">
 
@@ -153,8 +284,6 @@
 
         </section>
 
-
-        <!-- HOST CONTROLS -->
 
         <section
             id="hostControls"
@@ -197,8 +326,6 @@
         </section>
 
 
-        <!-- PLAYER CONTROLS -->
-
         <section
             id="gameControls"
             class="game-controls"
@@ -214,8 +341,6 @@
 
         </section>
 
-
-        <!-- CHAT -->
 
         <section
             id="chatSection"
@@ -264,7 +389,35 @@
     </main>
 
 
-    <!-- PLAYER LIST -->
+    <!-- =====================================================
+         COUNTDOWN
+         ===================================================== -->
+
+    <div
+        id="bingoCountdownOverlay"
+        hidden
+    >
+
+        <div
+            id="bingoCountdownNumber"
+            class="bingo-countdown-number"
+        >
+            60
+        </div>
+
+        <div
+            id="bingoCountdownText"
+            class="bingo-countdown-text"
+        >
+            เตรียมตัวกดพร้อม
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         PLAYER LIST
+         ===================================================== -->
 
     <div
         id="playerModal"
@@ -300,7 +453,9 @@
     </div>
 
 
-    <!-- CHAT MODAL -->
+    <!-- =====================================================
+         CHAT MODAL
+         ===================================================== -->
 
     <div
         id="chatModal"
@@ -336,7 +491,9 @@
     </div>
 
 
-    <!-- LEAVE ROOM -->
+    <!-- =====================================================
+         LEAVE ROOM
+         ===================================================== -->
 
     <div
         id="leaveModal"
@@ -373,6 +530,61 @@
                 </button>
 
             </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         WINNER POPUP
+         ===================================================== -->
+
+    <div
+        id="winnerModal"
+        class="modal-overlay"
+        hidden
+    >
+
+        <div class="winner-modal">
+
+            <div class="winner-title">
+                🎉 BINGO!
+            </div>
+
+            <div
+                id="winnerName"
+                class="winner-name"
+            >
+                -
+            </div>
+
+            <div
+                id="winnerMessage"
+                class="winner-message"
+            >
+                ชนะเกม Bingo
+            </div>
+
+            <div
+                id="winnerPrize"
+                class="winner-prize"
+            >
+                กำลังคำนวณรางวัล...
+            </div>
+
+            <button
+                id="winnerConfirmBtn"
+                class="winner-confirm-btn"
+                type="button"
+            >
+                ตกลง
+            </button>
+
+            <div
+                id="winnerConfirmStatus"
+                class="winner-confirm-status"
+            ></div>
 
         </div>
 

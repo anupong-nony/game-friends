@@ -1752,3 +1752,387 @@ body {
     }
 
 }
+
+/* =====================================================
+   BINGO WINNER POPUP
+   ===================================================== */
+
+.bingo-winner-modal {
+
+    width: 100%;
+
+    max-width: 340px;
+
+    background:
+        #282d37;
+
+    border:
+        1px solid
+        rgba(255,255,255,.12);
+
+    border-radius: 14px;
+
+    padding: 20px 16px;
+
+    text-align: center;
+
+    box-shadow:
+        0 20px 50px
+        rgba(0,0,0,.6);
+
+    animation:
+        bingoWinnerPop
+        .2s ease-out;
+
+}
+
+@keyframes bingoWinnerPop {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            scale(.85);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            scale(1);
+
+    }
+
+}
+
+
+.bingo-winner-icon {
+
+    font-size: 42px;
+
+    line-height: 1;
+
+    margin-bottom: 8px;
+
+}
+
+
+.bingo-winner-title {
+
+    font-size: 20px;
+
+    font-weight: 900;
+
+    color:
+        #ffd45c;
+
+    margin-bottom: 7px;
+
+}
+
+
+.bingo-winner-name {
+
+    font-size: 15px;
+
+    font-weight: 800;
+
+    color:
+        #fff;
+
+    margin-bottom: 5px;
+
+}
+
+
+.bingo-winner-board {
+
+    font-size: 11px;
+
+    color:
+        #aeb5c2;
+
+    margin-bottom: 15px;
+
+}
+
+
+.bingo-winner-ok-btn {
+
+    width: 100%;
+
+    min-height: 38px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background:
+        #57a773;
+
+    color:
+        #fff;
+
+    font-size: 12px;
+
+    font-weight: 900;
+
+    cursor: pointer;
+
+}
+
+
+.bingo-winner-ok-btn:active {
+
+    transform:
+        scale(.97);
+
+}
+
+
+.bingo-winner-ok-btn:disabled {
+
+    opacity:
+        .45;
+
+    cursor:
+        not-allowed;
+
+}
+
+
+/* =====================================================
+   BINGO COUNTDOWN
+   ===================================================== */
+
+.bingo-countdown {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 200;
+
+    display: flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    background:
+        rgba(0,0,0,.65);
+
+    pointer-events: none;
+
+}
+
+
+.bingo-countdown[hidden] {
+
+    display: none;
+
+}
+
+
+.bingo-countdown-box {
+
+    min-width: 150px;
+
+    padding:
+        20px;
+
+    border-radius: 14px;
+
+    background:
+        #282d37;
+
+    border:
+        1px solid
+        rgba(255,255,255,.1);
+
+    text-align:
+        center;
+
+    box-shadow:
+        0 15px 45px
+        rgba(0,0,0,.55);
+
+}
+
+
+.bingo-countdown-title {
+
+    font-size: 12px;
+
+    color:
+        #aeb5c2;
+
+    font-weight: 700;
+
+    margin-bottom: 5px;
+
+}
+
+
+.bingo-countdown-number {
+
+    font-size: 52px;
+
+    line-height: 1;
+
+    font-weight: 900;
+
+    color:
+        #ffd45c;
+
+}
+
+
+/* =====================================================
+   WAITING / READY STATE
+   ===================================================== */
+
+.ready-btn.ready-active {
+
+    background:
+        #5578d8;
+
+    color:
+        #fff;
+
+}
+
+
+.ready-btn.ready-active::before {
+
+    content:
+        "✓ ";
+
+}
+
+
+.player-item.player-ready {
+
+    border:
+        1px solid
+        rgba(87,214,141,.25);
+
+}
+
+
+.player-item.player-host {
+
+    border:
+        1px solid
+        rgba(255,212,92,.2);
+
+}
+
+
+/* =====================================================
+   FINISHED ROOM STATE
+   ===================================================== */
+
+.room-status.finished {
+
+    color:
+        #ffd45c;
+
+}
+
+
+.room-status.playing {
+
+    color:
+        #57d68d;
+
+}
+
+
+.room-status.waiting {
+
+    color:
+        #aeb5c2;
+
+}
+
+
+/* =====================================================
+   RESET / NEW ROUND
+   ===================================================== */
+
+.new-round-ready {
+
+    border:
+        1px solid
+        rgba(87,214,141,.3);
+
+    background:
+        rgba(87,167,115,.12);
+
+}
+
+
+/* =====================================================
+   SMALL PHONE
+   ===================================================== */
+
+@media (max-width: 380px) {
+
+    .bingo-winner-modal {
+
+        max-width:
+            300px;
+
+        padding:
+            17px 13px;
+
+    }
+
+    .bingo-winner-icon {
+
+        font-size:
+            36px;
+
+    }
+
+    .bingo-winner-title {
+
+        font-size:
+            18px;
+
+    }
+
+    .bingo-winner-ok-btn {
+
+        min-height:
+            36px;
+
+        font-size:
+            11px;
+
+    }
+
+    .bingo-countdown-box {
+
+        min-width:
+            130px;
+
+        padding:
+            17px;
+
+    }
+
+    .bingo-countdown-number {
+
+        font-size:
+            45px;
+
+    }
+
+}
