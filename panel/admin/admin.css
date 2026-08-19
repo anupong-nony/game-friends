@@ -1,0 +1,955 @@
+/* =====================================================
+   GAME FRIENDS
+   ADMIN PANEL
+   ===================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+
+body {
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    background:
+        linear-gradient(
+            135deg,
+            #10131a,
+            #171b24
+        );
+
+    color: #fff;
+
+    min-height: 100vh;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: flex-start;
+
+    padding: 20px 12px;
+}
+
+
+/* =====================================================
+   PANEL
+   ===================================================== */
+
+.admin-panel {
+    width: 100%;
+
+    max-width: 430px;
+
+    background: #20242d;
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 15px 40px
+        rgba(0,0,0,.45);
+}
+
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+
+.admin-header {
+    position: relative;
+
+    padding: 16px 18px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #292e39,
+            #222731
+        );
+
+    border-bottom:
+        1px solid
+        rgba(255,255,255,.08);
+}
+
+
+.admin-title {
+    font-size: 18px;
+
+    font-weight: 700;
+}
+
+
+.admin-username {
+    margin-top: 5px;
+
+    font-size: 13px;
+
+    color: #aeb5c2;
+}
+
+
+.admin-close-btn {
+    position: absolute;
+
+    top: 12px;
+
+    right: 14px;
+
+    width: 32px;
+
+    height: 32px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.07);
+
+    color: #fff;
+
+    font-size: 17px;
+
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   DASHBOARD
+   ===================================================== */
+
+.admin-dashboard {
+    padding: 16px;
+}
+
+
+.admin-dashboard-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 10px;
+}
+
+
+.admin-dashboard-card {
+    min-height: 110px;
+
+    padding: 13px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.07);
+
+    border-radius: 12px;
+
+    background: #282d37;
+
+    color: #fff;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        .15s;
+
+    display: grid;
+
+    grid-template-columns: auto 1fr;
+
+    grid-template-rows: auto auto auto;
+
+    column-gap: 7px;
+
+    align-items: center;
+}
+
+
+.admin-dashboard-card:hover {
+    background: #303641;
+}
+
+
+.admin-dashboard-card:active {
+    transform: scale(.98);
+}
+
+
+.admin-card-icon {
+    grid-column: 1;
+
+    grid-row: 1;
+
+    font-size: 21px;
+
+    margin: 0;
+}
+
+
+.admin-card-title {
+    grid-column: 2;
+
+    grid-row: 1;
+
+    font-size: 12px;
+
+    color: #aeb5c2;
+
+    white-space: nowrap;
+}
+
+
+.admin-card-value {
+    grid-column: 1 / 3;
+
+    grid-row: 2;
+
+    margin-top: 6px;
+
+    font-size: 21px;
+
+    font-weight: 700;
+}
+
+
+.admin-card-online {
+    grid-column: 1 / 3;
+
+    grid-row: 3;
+
+    margin-top: 2px;
+
+    font-size: 10px;
+
+    color: #57d68d;
+
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   TRANSACTIONS
+   ===================================================== */
+
+.transactions-section {
+    padding: 15px 16px;
+
+    border-top:
+        1px solid
+        rgba(255,255,255,.08);
+
+    border-bottom:
+        1px solid
+        rgba(255,255,255,.08);
+}
+
+
+.admin-section-title {
+    font-size: 14px;
+
+    font-weight: 700;
+
+    margin-bottom: 7px;
+}
+
+
+.admin-transaction {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 10px 0;
+
+    border-bottom:
+        1px solid
+        rgba(255,255,255,.05);
+}
+
+
+.admin-transaction:last-child {
+    border-bottom: none;
+}
+
+
+.transaction-left {
+    min-width: 0;
+
+    flex: 1;
+}
+
+
+.transaction-title {
+    font-size: 12px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+.transaction-detail {
+    margin-top: 2px;
+
+    font-size: 10px;
+
+    color: #8d95a3;
+}
+
+
+.transaction-date {
+    margin-top: 3px;
+
+    font-size: 10px;
+
+    color: #858d9b;
+}
+
+
+.transaction-amount {
+    flex-shrink: 0;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+
+.transaction-amount.credit {
+    color: #57d68d;
+}
+
+
+.transaction-amount.debit {
+    color: #ff7373;
+}
+
+
+.view-all-transactions {
+    width: 100%;
+
+    margin-top: 7px;
+
+    padding: 8px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: transparent;
+
+    color: #9fb8ff;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+.view-all-transactions:hover {
+    background:
+        rgba(159,184,255,.08);
+}
+
+
+.admin-transaction-empty {
+    padding: 12px 0;
+
+    text-align: center;
+
+    color: #858d9b;
+
+    font-size: 11px;
+}
+
+
+/* =====================================================
+   ACTIONS
+   ===================================================== */
+
+.admin-actions {
+    padding: 15px 16px 18px;
+}
+
+
+.admin-action-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+
+.admin-action-btn {
+    width: 100%;
+
+    min-height: 44px;
+
+    padding: 10px 13px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.07);
+
+    border-radius: 10px;
+
+    background: #282d37;
+
+    color: #fff;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    text-align: left;
+
+    cursor: pointer;
+}
+
+
+.admin-action-btn:hover {
+    background: #303641;
+}
+
+
+.admin-action-btn:active {
+    transform: scale(.985);
+}
+
+
+/* =====================================================
+   MODAL
+   ===================================================== */
+
+.admin-modal {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1000;
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 16px;
+
+    background:
+        rgba(0,0,0,.68);
+
+    backdrop-filter:
+        blur(4px);
+}
+
+
+.admin-modal.show {
+    display: flex;
+}
+
+
+.admin-modal-content {
+    width: 100%;
+
+    max-width: 430px;
+
+    max-height: 85vh;
+
+    overflow-y: auto;
+
+    background: #20242d;
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 15px 45px
+        rgba(0,0,0,.55);
+}
+
+
+.admin-modal-header {
+    position: sticky;
+
+    top: 0;
+
+    z-index: 2;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 14px 16px;
+
+    background: #242933;
+
+    border-bottom:
+        1px solid
+        rgba(255,255,255,.07);
+}
+
+
+.admin-modal-title {
+    font-size: 15px;
+
+    font-weight: 700;
+}
+
+
+.admin-modal-close {
+    border: none;
+
+    background: transparent;
+
+    color: #fff;
+
+    font-size: 19px;
+
+    cursor: pointer;
+}
+
+
+.admin-modal-body {
+    padding: 16px;
+}
+
+
+/* =====================================================
+   EMPTY
+   ===================================================== */
+
+.admin-empty {
+    padding: 18px 10px;
+
+    text-align: center;
+
+    color: #858d9b;
+
+    font-size: 12px;
+
+    line-height: 1.6;
+}
+
+
+/* =====================================================
+   USER LIST
+   ===================================================== */
+
+.user-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+
+.user-list-item {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    padding: 11px 12px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.06);
+
+    border-radius: 10px;
+
+    background: #282d37;
+
+    color: #fff;
+
+    text-align: left;
+
+    cursor: pointer;
+}
+
+
+.user-list-item:hover {
+    background: #303641;
+}
+
+
+.user-main {
+    min-width: 0;
+
+    flex: 1;
+}
+
+
+.user-name {
+    font-size: 13px;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+.user-id {
+    margin-top: 3px;
+
+    font-size: 10px;
+
+    color: #858d9b;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+.user-right {
+    flex-shrink: 0;
+
+    text-align: right;
+}
+
+
+.user-online {
+    font-size: 10px;
+
+    color: #57d68d;
+
+    font-weight: 700;
+}
+
+
+.user-offline {
+    font-size: 10px;
+
+    color: #858d9b;
+}
+
+
+/* =====================================================
+   DETAIL
+   ===================================================== */
+
+.detail-card {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 9px;
+}
+
+
+.detail-row {
+    padding: 10px 11px;
+
+    border-radius: 9px;
+
+    background: #282d37;
+}
+
+
+.detail-label {
+    font-size: 10px;
+
+    color: #858d9b;
+}
+
+
+.detail-value {
+    margin-top: 3px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    word-break: break-word;
+}
+
+
+/* =====================================================
+   GM WALLET
+   ===================================================== */
+
+.gm-wallet-balance {
+    padding: 16px;
+
+    margin-bottom: 16px;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2c3443,
+            #252b35
+        );
+
+    text-align: center;
+}
+
+
+.gm-wallet-label {
+    font-size: 12px;
+
+    color: #aeb5c2;
+}
+
+
+.gm-wallet-value {
+    margin-top: 5px;
+
+    font-size: 28px;
+
+    font-weight: 800;
+}
+
+.gm-wallet-action-buttons {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+
+    margin-top: 2px;
+}
+
+
+/* =====================================================
+   FORMS
+   ===================================================== */
+
+.admin-form {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+
+.admin-form label {
+    font-size: 11px;
+
+    color: #aeb5c2;
+}
+
+
+.admin-form input,
+.admin-form textarea,
+.admin-form select {
+    width: 100%;
+
+    padding: 11px 12px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.1);
+
+    border-radius: 9px;
+
+    outline: none;
+
+    background: #171b22;
+
+    color: #fff;
+
+    font-family: inherit;
+
+    font-size: 13px;
+}
+
+
+.admin-form textarea {
+    min-height: 100px;
+
+    resize: vertical;
+}
+
+
+.admin-form input:focus,
+.admin-form textarea:focus,
+.admin-form select:focus {
+    border-color:
+        rgba(159,184,255,.7);
+}
+
+
+.admin-submit-btn {
+    width: 100%;
+
+    padding: 11px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: #5578d8;
+
+    color: #fff;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        .15s;
+}
+
+
+.admin-submit-btn:hover {
+    background: #6486e4;
+}
+
+
+.admin-submit-btn:active {
+    transform: scale(.985);
+}
+
+
+.admin-submit-btn:disabled {
+    opacity: .65;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+/* =====================================================
+   NOTIFICATIONS
+   ===================================================== */
+
+.notification-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+
+.notification-item {
+    padding: 11px 12px;
+
+    border-radius: 10px;
+
+    background: #282d37;
+}
+
+
+.notification-title {
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+
+.notification-message {
+    margin-top: 4px;
+
+    font-size: 11px;
+
+    color: #aeb5c2;
+
+    line-height: 1.5;
+}
+
+
+.notification-date {
+    margin-top: 6px;
+
+    font-size: 9px;
+
+    color: #707887;
+}
+
+
+/* =====================================================
+   MOBILE
+   ===================================================== */
+
+@media (max-width: 380px) {
+
+    body {
+        padding: 10px 8px;
+    }
+
+
+    .admin-panel {
+        border-radius: 13px;
+    }
+
+
+    .admin-dashboard {
+        padding: 12px;
+    }
+
+
+    .transactions-section,
+    .admin-actions {
+        padding-left: 12px;
+
+        padding-right: 12px;
+    }
+
+
+    .admin-modal {
+        padding: 10px;
+    }
+
+
+    .admin-modal-content {
+        max-height: 90vh;
+    }
+
+}

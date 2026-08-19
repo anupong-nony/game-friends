@@ -1,1 +1,879 @@
+<!DOCTYPE html>
+<html lang="th">
 
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Game Friends - Admin Panel</title>
+
+    <link
+        rel="stylesheet"
+        href="admin.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<main
+    id="adminPanel"
+    class="admin-panel"
+>
+
+
+    <!-- =================================================
+         HEADER
+         ================================================= -->
+
+    <header class="admin-header">
+
+        <div>
+
+            <div class="admin-title">
+                👑 Admin Panel
+            </div>
+
+            <div
+                id="panelUsername"
+                class="admin-username"
+            >
+                -
+            </div>
+
+        </div>
+
+
+        <button
+            id="closeAdminBtn"
+            class="admin-close-btn"
+            type="button"
+        >
+            ✕
+        </button>
+
+    </header>
+
+
+
+    <!-- =================================================
+         DASHBOARD
+         ================================================= -->
+
+    <section class="admin-dashboard">
+
+        <div class="admin-dashboard-grid">
+
+
+            <!-- =================================================
+                 PLAYERS
+                 ================================================= -->
+
+            <button
+                id="playersCard"
+                class="admin-dashboard-card"
+                type="button"
+            >
+
+                <div class="admin-card-icon">
+                    👥
+                </div>
+
+                <div class="admin-card-title">
+                    ผู้เล่น
+                </div>
+
+                <div
+                    id="playerCount"
+                    class="admin-card-value"
+                >
+                    0
+                </div>
+
+                <div
+                    id="playerOnlineCount"
+                    class="admin-card-online"
+                >
+                    Online 0
+                </div>
+
+            </button>
+
+
+
+            <!-- =================================================
+                 GM
+                 ================================================= -->
+
+            <button
+                id="gmCard"
+                class="admin-dashboard-card"
+                type="button"
+            >
+
+                <div class="admin-card-icon">
+                    🛡️
+                </div>
+
+                <div class="admin-card-title">
+                    GM
+                </div>
+
+                <div
+                    id="gmCount"
+                    class="admin-card-value"
+                >
+                    0
+                </div>
+
+                <div
+                    id="gmOnlineCount"
+                    class="admin-card-online"
+                >
+                    Online 0
+                </div>
+
+            </button>
+
+
+
+            <!-- =================================================
+                 GM WALLET
+                 ================================================= -->
+
+            <button
+                id="gmWalletCard"
+                class="admin-dashboard-card"
+                type="button"
+            >
+
+                <div class="admin-card-icon">
+                    🪙
+                </div>
+
+                <div class="admin-card-title">
+                    GM Wallet
+                </div>
+
+                <div
+                    id="gmWalletBalance"
+                    class="admin-card-value"
+                >
+                    0
+                </div>
+
+            </button>
+
+
+
+            <!-- =================================================
+                 COMPENSATION
+                 ================================================= -->
+
+            <button
+                id="compensationCard"
+                class="admin-dashboard-card"
+                type="button"
+            >
+
+                <div class="admin-card-icon">
+                    🎁
+                </div>
+
+                <div class="admin-card-title">
+                    ชดเชย
+                </div>
+
+                <div
+                    id="compensationCount"
+                    class="admin-card-value"
+                >
+                    0
+                </div>
+
+            </button>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         TRANSACTIONS
+         ================================================= -->
+
+    <section class="transactions-section">
+
+        <div class="admin-section-title">
+            💰 Transactions
+        </div>
+
+
+        <div id="transactionPreview">
+        </div>
+
+
+        <button
+            id="viewAllTransactionsBtn"
+            class="view-all-transactions"
+            type="button"
+        >
+            ดูทั้งหมด →
+        </button>
+
+    </section>
+
+
+
+    <!-- =================================================
+         TOOLS
+         ================================================= -->
+
+    <section class="admin-actions">
+
+        <div class="admin-section-title">
+            🛠️ Tools
+        </div>
+
+
+        <div class="admin-action-list">
+
+
+            <button
+                id="rewardBtn"
+                class="admin-action-btn"
+                type="button"
+            >
+                🎁 มอบรางวัล
+            </button>
+
+
+            <button
+                id="announcementBtn"
+                class="admin-action-btn"
+                type="button"
+            >
+                📢 ประกาศ
+            </button>
+
+
+            <button
+                id="notificationBtn"
+                class="admin-action-btn"
+                type="button"
+            >
+                🔔 Notifications
+            </button>
+
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+
+<!-- =====================================================
+     TRANSACTIONS MODAL
+     ===================================================== -->
+
+<div
+    id="transactionsModal"
+    class="admin-modal"
+>
+
+    <div class="admin-modal-content">
+
+        <header class="admin-modal-header">
+
+            <div class="admin-modal-title">
+                💰 Transactions
+            </div>
+
+            <button
+                id="closeTransactionsBtn"
+                class="admin-modal-close"
+                type="button"
+            >
+                ✕
+            </button>
+
+        </header>
+
+
+        <div
+            id="allTransactionsList"
+            class="admin-modal-body"
+        >
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     COMPENSATION MODAL
+     ===================================================== -->
+
+<div
+    id="compensationModal"
+    class="admin-modal"
+>
+
+    <div class="admin-modal-content">
+
+        <header class="admin-modal-header">
+
+            <div class="admin-modal-title">
+                🎁 ชดเชย
+            </div>
+
+            <button
+                id="closeCompensationBtn"
+                class="admin-modal-close"
+                type="button"
+            >
+                ✕
+            </button>
+
+        </header>
+
+
+        <div
+            id="compensationContent"
+            class="admin-modal-body"
+        >
+
+            <div class="admin-empty">
+
+                ระบบชดเชยรางวัล
+                จะเชื่อมต่อในขั้นตอนถัดไป
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     GM WALLET MODAL
+     ===================================================== -->
+
+<div
+    id="gmWalletModal"
+    class="admin-modal"
+>
+
+    <div class="admin-modal-content">
+
+        <header class="admin-modal-header">
+
+            <div class="admin-modal-title">
+                🪙 GM Wallet
+            </div>
+
+            <button
+                id="closeGmWalletBtn"
+                class="admin-modal-close"
+                type="button"
+            >
+                ✕
+            </button>
+
+        </header>
+
+
+        <div class="admin-modal-body">
+
+
+            <div class="gm-wallet-balance">
+
+                <div class="gm-wallet-label">
+                    ยอด GM Wallet
+                </div>
+
+                <div
+                    id="gmWalletModalBalance"
+                    class="gm-wallet-value"
+                >
+                    0 🪙
+                </div>
+
+            </div>
+
+
+
+            <!-- เติมเหรียญ -->
+
+            <form
+    id="gmWalletForm"
+    class="admin-form"
+>
+
+    <label
+        for="gmWalletAmount"
+    >
+        จำนวนเหรียญ
+    </label>
+
+    <input
+        id="gmWalletAmount"
+        type="number"
+        min="1"
+        step="1"
+        inputmode="numeric"
+        placeholder="เช่น 1000"
+        required
+    >
+
+
+    <label
+        for="gmWalletReason"
+    >
+        เหตุผล
+    </label>
+
+    <textarea
+        id="gmWalletReason"
+        maxlength="100"
+        placeholder="เช่น Admin จัดการเหรียญ GM Wallet"
+        required
+    ></textarea>
+
+
+    <div class="gm-wallet-action-buttons">
+
+        <button
+            id="gmWalletDepositBtn"
+            class="admin-submit-btn"
+            type="button"
+        >
+            🪙 เติม
+        </button>
+
+
+        <button
+            id="gmWalletWithdrawBtn"
+            class="admin-submit-btn"
+            type="button"
+        >
+            🪙 ลบ
+        </button>
+
+    </div>
+
+</form>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     PLAYERS MODAL
+     ===================================================== -->
+
+<div
+    id="playersModal"
+    class="admin-modal"
+>
+
+    <div class="admin-modal-content">
+
+        <header class="admin-modal-header">
+
+            <div class="admin-modal-title">
+                👥 ผู้เล่นทั้งหมด
+            </div>
+
+            <button
+                id="closePlayersBtn"
+                class="admin-modal-close"
+                type="button"
+            >
+                ✕
+            </button>
+
+        </header>
+
+
+        <div
+            id="playersList"
+            class="admin-modal-body"
+        >
+
+            <div class="admin-empty">
+                กำลังโหลด...
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     PLAYER DETAIL MODAL
+     ===================================================== -->
+
+<div
+    id="playerDetailModal"
+    class="admin-modal"
+>
+
+    <div class="admin-modal-content">
+
+        <header class="admin-modal-header">
+
+            <div class="admin-modal-title">
+                👤 Player Details
+            </div>
+
+            <button
+                id="closePlayerDetailBtn"
+                class="admin-modal-close"
+                type="button"
+            >
+                ✕
+            </button>
+
+        </header>
+
+
+        <div
+            id="playerDetailContent"
+            class="admin-modal-body"
+        >
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     GM MODAL
+     ===================================================== -->
+
+<div
+    id="gmModal"
+    class="admin-modal"
+>
+
+    <div class="admin-modal-content">
+
+        <header class="admin-modal-header">
+
+            <div class="admin-modal-title">
+                🛡️ GM ทั้งหมด
+            </div>
+
+            <button
+                id="closeGmBtn"
+                class="admin-modal-close"
+                type="button"
+            >
+                ✕
+            </button>
+
+        </header>
+
+
+        <div
+            id="gmList"
+            class="admin-modal-body"
+        >
+
+            <div class="admin-empty">
+                กำลังโหลด...
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     GM DETAIL MODAL
+     ===================================================== -->
+
+<div
+    id="gmDetailModal"
+    class="admin-modal"
+>
+
+    <div class="admin-modal-content">
+
+        <header class="admin-modal-header">
+
+            <div class="admin-modal-title">
+                🛡️ GM Details
+            </div>
+
+            <button
+                id="closeGmDetailBtn"
+                class="admin-modal-close"
+                type="button"
+            >
+                ✕
+            </button>
+
+        </header>
+
+
+        <div
+            id="gmDetailContent"
+            class="admin-modal-body"
+        >
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     ANNOUNCEMENT MODAL
+     ===================================================== -->
+
+<div
+    id="announcementModal"
+    class="admin-modal"
+>
+
+    <div class="admin-modal-content">
+
+        <header class="admin-modal-header">
+
+            <div class="admin-modal-title">
+                📢 ประกาศ
+            </div>
+
+            <button
+                id="closeAnnouncementBtn"
+                class="admin-modal-close"
+                type="button"
+            >
+                ✕
+            </button>
+
+        </header>
+
+
+        <div class="admin-modal-body">
+
+            <form
+                id="announcementForm"
+                class="admin-form"
+            >
+
+                <label>
+                    หัวข้อประกาศ
+                </label>
+
+                <input
+                    id="announcementTitle"
+                    type="text"
+                    maxlength="80"
+                    placeholder="หัวข้อประกาศ"
+                    required
+                >
+
+
+                <label>
+                    ข้อความ
+                </label>
+
+                <textarea
+                    id="announcementMessage"
+                    maxlength="500"
+                    placeholder="ข้อความประกาศ"
+                    required
+                ></textarea>
+
+
+                <button
+                    class="admin-submit-btn"
+                    type="submit"
+                >
+                    📢 สร้างประกาศ
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     REWARD MODAL
+     ===================================================== -->
+
+<div
+    id="rewardModal"
+    class="admin-modal"
+>
+
+    <div class="admin-modal-content">
+
+        <header class="admin-modal-header">
+
+            <div class="admin-modal-title">
+                🎁 มอบรางวัล
+            </div>
+
+            <button
+                id="closeRewardBtn"
+                class="admin-modal-close"
+                type="button"
+            >
+                ✕
+            </button>
+
+        </header>
+
+
+        <div class="admin-modal-body">
+
+            <form
+                id="rewardForm"
+                class="admin-form"
+            >
+
+                <label>
+                    Friend ID / Username
+                </label>
+
+                <input
+                    id="rewardTarget"
+                    type="text"
+                    maxlength="30"
+                    placeholder="ระบุผู้เล่น"
+                    required
+                >
+
+
+                <label>
+                    จำนวนเหรียญ
+                </label>
+
+                <input
+                    id="rewardAmount"
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="จำนวนเหรียญ"
+                    required
+                >
+
+
+                <label>
+                    เหตุผล
+                </label>
+
+                <textarea
+                    id="rewardReason"
+                    maxlength="200"
+                    placeholder="เหตุผลในการมอบรางวัล"
+                    required
+                ></textarea>
+
+
+                <button
+                    class="admin-submit-btn"
+                    type="submit"
+                >
+                    🎁 มอบรางวัล
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     NOTIFICATION MODAL
+     ===================================================== -->
+
+<div
+    id="notificationModal"
+    class="admin-modal"
+>
+
+    <div class="admin-modal-content">
+
+        <header class="admin-modal-header">
+
+            <div class="admin-modal-title">
+                🔔 Notifications
+            </div>
+
+            <button
+                id="closeNotificationBtn"
+                class="admin-modal-close"
+                type="button"
+            >
+                ✕
+            </button>
+
+        </header>
+
+
+        <div
+            id="notificationList"
+            class="admin-modal-body"
+        >
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script
+    type="module"
+    src="admin.js"
+></script>
+
+
+</body>
+
+</html>
