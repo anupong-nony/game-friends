@@ -74,9 +74,17 @@ const roomId =
 // SETTINGS
 // =====================================================
 
-const READY_FEE = 25;
-const PRIZE_PER_READY_PLAYER = 20;
-const GM_FEE_PER_READY_PLAYER = 5;
+// กฎล่าสุด:
+// ผู้เล่นที่ Ready จะถูกหัก 20 เหรียญ
+// 20 เหรียญเต็มจำนวนเข้า Pot
+// เมื่อมีผู้ชนะ:
+// 20% ของ Pot -> GM Wallet
+// 80% ของ Pot -> ผู้ชนะ
+
+const READY_FEE = 20;
+
+const GM_PERCENT = 20;
+const WINNER_PERCENT = 80;
 
 const BOARD_PRICE = 20;
 
@@ -445,6 +453,7 @@ async function refreshPlayerCoins() {
         );
 
     }
+
 }
 
 
@@ -527,6 +536,7 @@ async function loadRoom() {
         goBackToRoom();
 
     }
+
 }
 
 
@@ -668,6 +678,7 @@ async function setupDisconnectHandler() {
         );
 
     }
+
 }
 
 
@@ -1093,11 +1104,6 @@ function countdownTick() {
         endAt - Date.now();
 
 
-    // =================================================
-    // สำคัญ:
-    // เวลาหมดแล้วไม่ให้ 0 หรือ 1 ค้าง/กระพริบ
-    // =================================================
-
     if (remainMs <= 0) {
 
         stopCountdown();
@@ -1285,12 +1291,15 @@ async function maybeAdvanceCountdown() {
             );
 
 
-        let totalPrize =
-            Number(
-                room.pot || 0
-            );
+        // =================================================
+        // กฎล่าสุด:
+        // หัก 20 เหรียญจากผู้เล่น Ready
+        // 20 เหรียญเต็มจำนวนเข้า Pot
+        // ไม่มี GM Fee ตอนเริ่ม
+        // =================================================
 
-        let totalGm = 0;
+        let totalPrize =
+            0;
 
         const chargedPlayers = [];
 
@@ -1414,12 +1423,9 @@ async function maybeAdvanceCountdown() {
             );
 
 
+            // 20 เหรียญเต็มจำนวนเข้า Pot
             totalPrize +=
-                PRIZE_PER_READY_PLAYER;
-
-
-            totalGm +=
-                GM_FEE_PER_READY_PLAYER;
+                READY_FEE;
 
 
             if (
@@ -1431,93 +1437,6 @@ async function maybeAdvanceCountdown() {
                     newCoins;
 
                 updateCoinDisplay();
-
-            }
-
-        }
-
-
-        // =================================================
-        // GM WALLET
-        // =================================================
-
-        if (totalGm > 0) {
-
-            try {
-
-                const gmCoinsRef =
-                    ref(
-                        database,
-                        "gmWallet/coins"
-                    );
-
-
-                const gmResult =
-                    await runTransaction(
-                        gmCoinsRef,
-                        currentCoins => {
-
-                            return (
-                                Number(
-                                    currentCoins || 0
-                                ) +
-                                totalGm
-                            );
-
-                        }
-                    );
-
-
-                if (gmResult.committed) {
-
-                    try {
-
-                        const gmTxRef =
-                            push(
-                                ref(
-                                    database,
-                                    "gmWallet/transactions"
-                                )
-                            );
-
-
-                        await set(
-                            gmTxRef,
-                            {
-
-                                type:
-                                    "credit",
-
-                                amount:
-                                    totalGm,
-
-                                reason:
-                                    "ค่าธรรมเนียม Bingo รอบ " +
-                                    roundId,
-
-                                timestamp:
-                                    Date.now()
-
-                            }
-                        );
-
-                    } catch (gmHistoryError) {
-
-                        console.error(
-                            "GM HISTORY ERROR:",
-                            gmHistoryError
-                        );
-
-                    }
-
-                }
-
-            } catch (gmError) {
-
-                console.error(
-                    "GM WALLET ERROR:",
-                    gmError
-                );
 
             }
 
@@ -1576,6 +1495,8 @@ async function maybeAdvanceCountdown() {
             roomRef,
             {
 
+                // เงินจากผู้เล่น Ready ทั้งหมด
+                // เข้า Pot เต็มจำนวน
                 pot:
                     totalPrize,
 
@@ -1604,7 +1525,7 @@ async function maybeAdvanceCountdown() {
         await addSystemMessage(
             "🎮 เริ่มเกมแล้ว! ผู้เล่นที่พร้อมถูกหัก " +
             READY_FEE +
-            " เหรียญ"
+            " เหรียญ และเงินทั้งหมดเข้า Pot"
         );
 
 
@@ -1615,8 +1536,8 @@ async function maybeAdvanceCountdown() {
             error
         );
 
+
         /*
-         * สำคัญ:
          * ถ้าการประมวลผลล้มเหลว
          * ต้องเปิดโอกาสให้ลองใหม่
          */
@@ -1833,6 +1754,12 @@ async function startGame() {
                     null,
 
                 potAtWin:
+                    null,
+
+                gmFee:
+                    null,
+
+                winnerPercent:
                     null,
 
                 players:
@@ -2782,14 +2709,37 @@ async function finishLocalBingo(
         }
 
 
+        // =================================================
+        // POT
+        // =================================================
+
         const pot =
             Number(
                 room.pot || 0
             );
 
 
+        // =================================================
+        // กฎล่าสุด:
+        //
+        // GM = 20% ของ Pot
+        // Winner = 80% ของ Pot
+        // =================================================
+
+        const gmFee =
+            Math.floor(
+                pot *
+                GM_PERCENT /
+                100
+            );
+
+
         const prize =
-            pot;
+            Math.floor(
+                pot *
+                WINNER_PERCENT /
+                100
+            );
 
 
         const winnerBoardData =
@@ -2797,6 +2747,10 @@ async function finishLocalBingo(
                 boardIndex
             );
 
+
+        // =================================================
+        // บันทึกสถานะจบเกมก่อน
+        // =================================================
 
         await update(
             roomRef,
@@ -2827,12 +2781,115 @@ async function finishLocalBingo(
                 potAtWin:
                     pot,
 
+                gmFee:
+                    gmFee,
+
+                winnerPercent:
+                    WINNER_PERCENT,
+
                 updatedAt:
                     Date.now()
 
             }
         );
 
+
+        // =================================================
+        // GM WALLET
+        // =================================================
+
+        if (gmFee > 0) {
+
+            try {
+
+                const gmCoinsRef =
+                    ref(
+                        database,
+                        "gmWallet/coins"
+                    );
+
+
+                const gmResult =
+                    await runTransaction(
+                        gmCoinsRef,
+                        currentCoins => {
+
+                            return (
+                                Number(
+                                    currentCoins || 0
+                                ) +
+                                gmFee
+                            );
+
+                        }
+                    );
+
+
+                if (gmResult.committed) {
+
+                    try {
+
+                        const gmTxRef =
+                            push(
+                                ref(
+                                    database,
+                                    "gmWallet/transactions"
+                                )
+                            );
+
+
+                        await set(
+                            gmTxRef,
+                            {
+
+                                type:
+                                    "credit",
+
+                                amount:
+                                    gmFee,
+
+                                reason:
+                                    "20% ค่าธรรมเนียม Bingo รอบ " +
+                                    (
+                                        room.roundId ||
+                                        currentRoundId
+                                    ),
+
+                                pot:
+                                    pot,
+
+                                timestamp:
+                                    Date.now()
+
+                            }
+                        );
+
+                    } catch (gmHistoryError) {
+
+                        console.error(
+                            "GM HISTORY ERROR:",
+                            gmHistoryError
+                        );
+
+                    }
+
+                }
+
+            } catch (gmError) {
+
+                console.error(
+                    "GM WALLET ERROR:",
+                    gmError
+                );
+
+            }
+
+        }
+
+
+        // =================================================
+        // จ่ายรางวัล 80% ให้ผู้ชนะ
+        // =================================================
 
         if (prize > 0) {
 
@@ -2885,7 +2942,17 @@ async function finishLocalBingo(
                             prize,
 
                         reason:
-                            "รางวัล Bingo",
+                            "รางวัล Bingo 80% รอบ " +
+                            (
+                                room.roundId ||
+                                currentRoundId
+                            ),
+
+                        pot:
+                            pot,
+
+                        gmFee:
+                            gmFee,
 
                         timestamp:
                             Date.now()
@@ -2907,6 +2974,10 @@ async function finishLocalBingo(
         }
 
 
+        // =================================================
+        // SYSTEM MESSAGE
+        // =================================================
+
         await addSystemMessage(
             "🎉 BINGO! " +
             winnerName +
@@ -2916,6 +2987,13 @@ async function finishLocalBingo(
                 prize > 0
                     ? " ได้รับ " +
                       prize +
+                      " 🪙"
+                    : ""
+            ) +
+            (
+                gmFee > 0
+                    ? " | GM Wallet +" +
+                      gmFee +
                       " 🪙"
                     : ""
             )
