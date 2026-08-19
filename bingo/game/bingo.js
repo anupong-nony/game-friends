@@ -73,17 +73,19 @@ const roomId =
 // SETTINGS
 // =====================================================
 
+const READY_FEE = 25;
+const PRIZE_PER_READY_PLAYER = 20;
+const GM_FEE_PER_READY_PLAYER = 5;
+
 const BOARD_PRICE = 20;
+
 const MAX_BOARDS = 4;
 const FREE_BOARDS = 1;
-const MAX_PLAYERS = 20;
-const COUNTDOWN_SECONDS = 60;
-const PRIZE_CUT_PERCENT = 20;
+const MAX_PURCHASED_BOARDS = 3;
 
-const ADMIN_UIDS = [
-    "bxCzpVvfq7gKIKDHUlki3R0Lbyp1",
-    "c59sCpa0siW5TBlkTG4oo5NYk6n1"
-];
+const MAX_PLAYERS = 20;
+
+const COUNTDOWN_SECONDS = 60;
 
 
 // =====================================================
@@ -93,7 +95,9 @@ const ADMIN_UIDS = [
 let currentUser = null;
 let currentUserData = null;
 let roomData = null;
+
 let isRoomOwner = false;
+
 let playerCoins = 0;
 
 let boards = [];
@@ -111,6 +115,7 @@ let currentRoundId = null;
 
 let countdownTimer = null;
 let advancingCountdown = false;
+
 
 // =====================================================
 // WINNER POPUP STATE
@@ -499,9 +504,11 @@ async function loadRoom() {
 async function joinRoom() {
 
     if (!currentUser || !roomId) {
+
         throw new Error(
             "ไม่พบข้อมูลผู้เล่นหรือ Room ID"
         );
+
     }
 
     const roomRef =
@@ -519,6 +526,7 @@ async function joinRoom() {
         throw new Error(
             "ไม่พบห้อง Bingo นี้"
         );
+
     }
 
     const room =
@@ -531,6 +539,7 @@ async function joinRoom() {
     ) {
 
         return;
+
     }
 
 
@@ -550,6 +559,7 @@ async function joinRoom() {
             MAX_PLAYERS +
             " คน)"
         );
+
     }
 
 
@@ -557,10 +567,13 @@ async function joinRoom() {
         currentUserData?.displayName ||
         "Player";
 
+
     const now =
         Date.now();
 
+
     const updates = {};
+
 
     updates[
         "players/" +
@@ -584,8 +597,10 @@ async function joinRoom() {
 
     };
 
+
     updates.playerCount =
         currentPlayers.length + 1;
+
 
     updates.updatedAt =
         now;
@@ -610,7 +625,9 @@ async function setupDisconnectHandler() {
         !currentUser ||
         !roomId
     ) {
+
         return;
+
     }
 
     try {
@@ -654,30 +671,61 @@ function getMyPhase() {
     const status =
         roomData.status || "waiting";
 
-    if (status === "waiting") return "lobby";
 
-    if (status === "countdown") return "countdown";
+    if (status === "waiting") {
 
-    if (status === "playing") return "playing";
+        return "lobby";
+
+    }
+
+
+    if (status === "countdown") {
+
+        return "countdown";
+
+    }
+
+
+    if (status === "playing") {
+
+        return "playing";
+
+    }
+
 
     if (status === "finished") {
 
         const me =
             roomData.players
-                ? roomData.players[currentUser?.uid]
+                ? roomData.players[
+                    currentUser?.uid
+                ]
                 : null;
+
+
+        const roundId =
+            roomData.winnerRoundId ||
+            roomData.roundId ||
+            currentRoundId;
+
 
         const acked =
             !!(
                 me &&
                 me.acknowledgedRoundId ===
-                currentRoundId
+                roundId
             );
 
-        return acked ? "lobby" : "finished";
+
+        return acked
+            ? "lobby"
+            : "finished";
+
     }
 
+
     return "lobby";
+
 }
 
 
@@ -691,12 +739,14 @@ function subscribeRoom() {
 
     roomListenerStarted = true;
 
+
     const roomRef =
         ref(
             database,
             "bingoRooms/" +
             roomId
         );
+
 
     onValue(
         roomRef,
@@ -711,17 +761,22 @@ function subscribeRoom() {
                 goBackToRoom();
 
                 return;
+
             }
+
 
             const oldRoundId =
                 currentRoundId;
 
+
             roomData =
                 snapshot.val();
+
 
             currentRoundId =
                 roomData.roundId ||
                 null;
+
 
             drawnNumbers =
                 Array.isArray(
@@ -731,6 +786,7 @@ function subscribeRoom() {
                     : Object.values(
                         roomData.drawnNumbers || {}
                     );
+
 
             latestNumbers =
                 Array.isArray(
@@ -806,6 +862,7 @@ function updateRoomInfo() {
 
 
     players = [];
+
 
     if (roomData.players) {
 
@@ -919,6 +976,7 @@ function updateRoomInfo() {
 
     }
 
+
     // =================================================
     // PLAYER
     // =================================================
@@ -972,7 +1030,8 @@ function updateRoomInfo() {
 
             readyBtn.disabled =
                 status !== "waiting" &&
-                status !== "finished";
+                status !== "finished" &&
+                status !== "countdown";
 
         }
 
@@ -1003,12 +1062,11 @@ function updateRoomInfo() {
     // WINNER POPUP
     // =================================================
     //
-    // สำคัญ:
-    // ใช้ status ของห้องโดยตรง
-    // ไม่ใช้ getMyPhase() ตัดสิน Popup
+    // ทุกคนที่อยู่ในห้องตอนเกมจบ
+    // ต้องเห็น Popup
     //
-    // เพราะ Firebase อาจส่งข้อมูล room และ players
-    // คนละจังหวะกัน ทำให้ Popup กระพริบแล้วหาย
+    // ไม่ใช้ getMyPhase()
+    // เป็นตัวตัดสิน Popup
     // =================================================
 
     if (status === "finished") {
@@ -1053,22 +1111,9 @@ function updateRoomInfo() {
 
     }
 
-    else {
+    else if (status === "waiting") {
 
-        /*
-         * ถ้าเกมกลับไป Lobby จริง ๆ
-         * และไม่มีรอบที่ต้องแสดงแล้ว
-         * จึงค่อยปิด Popup
-         */
-
-        if (
-            winnerPopupRoundId === null ||
-            status === "waiting"
-        ) {
-
-            hideWinnerPopup();
-
-        }
+        hideWinnerPopup();
 
     }
 
@@ -1091,6 +1136,7 @@ function stopCountdown() {
 
     }
 
+
     if (bingoCountdownOverlay) {
 
         bingoCountdownOverlay.hidden =
@@ -1104,13 +1150,14 @@ function stopCountdown() {
 function countdownTick() {
 
     if (
-        getMyPhase() !==
+        roomData?.status !==
         "countdown"
     ) {
 
         stopCountdown();
 
         return;
+
     }
 
 
@@ -1145,10 +1192,16 @@ function countdownTick() {
         bingoCountdownNumber.textContent =
             remain > 0
                 ? String(remain)
-                : "";
+                : "0";
 
     }
 
+
+    // =================================================
+    // เมื่อเหลือ 0
+    // Host เป็นคนปิด Countdown
+    // และหักเงินผู้เล่นที่พร้อม
+    // =================================================
 
     if (remain <= 0) {
 
@@ -1162,6 +1215,7 @@ function countdownTick() {
 function startCountdownDisplay() {
 
     if (!bingoCountdownOverlay) return;
+
 
     countdownTick();
 
@@ -1182,6 +1236,17 @@ function startCountdownDisplay() {
 // =====================================================
 // ADVANCE COUNTDOWN
 // =====================================================
+//
+// เมื่อ Countdown = 0
+//
+// ผู้เล่นที่ ready === true เท่านั้น
+//
+// 25 เหรียญ
+// ├── 20 → room.pot
+// └── 5  → GM Wallet
+//
+// จากนั้นจึงเปลี่ยนเป็น playing
+// =====================================================
 
 async function maybeAdvanceCountdown() {
 
@@ -1200,6 +1265,7 @@ async function maybeAdvanceCountdown() {
 
     if (advancingCountdown) return;
 
+
     advancingCountdown = true;
 
 
@@ -1217,7 +1283,11 @@ async function maybeAdvanceCountdown() {
             await get(roomRef);
 
 
-        if (!snapshot.exists()) return;
+        if (!snapshot.exists()) {
+
+            return;
+
+        }
 
 
         const room =
@@ -1225,24 +1295,377 @@ async function maybeAdvanceCountdown() {
 
 
         if (
-            room.status === "countdown" &&
-            room.roundId === currentRoundId
+            room.status !==
+            "countdown"
         ) {
 
+            return;
+
+        }
+
+
+        const roundId =
+            room.roundId ||
+            null;
+
+
+        if (!roundId) {
+
+            console.error(
+                "COUNTDOWN ERROR: ไม่พบ Round ID"
+            );
+
+            return;
+
+        }
+
+
+        // =================================================
+        // ป้องกันการหักเงินซ้ำ
+        // =================================================
+
+        if (
+            room.paymentProcessedRoundId ===
+            roundId
+        ) {
+
+            if (
+                room.status ===
+                "countdown"
+            ) {
+
+                await update(
+                    roomRef,
+                    {
+
+                        status:
+                            "playing",
+
+                        updatedAt:
+                            Date.now()
+
+                    }
+                );
+
+            }
+
+            return;
+
+        }
+
+
+        const roomPlayers =
+            room.players
+                ? Object.values(
+                    room.players
+                )
+                : [];
+
+
+        const readyPlayers =
+            roomPlayers.filter(
+                player =>
+                    player.ready === true
+            );
+
+
+        let totalPrize =
+            Number(room.pot || 0);
+
+
+        let totalGm =
+            0;
+
+
+        const walletUpdates = {};
+
+
+        // =================================================
+        // ตรวจเหรียญของผู้เล่นที่พร้อมก่อน
+        // =================================================
+
+        for (
+            const player of readyPlayers
+        ) {
+
+            const walletRef =
+                ref(
+                    database,
+                    "wallets/" +
+                    player.uid
+                );
+
+
+            const walletSnapshot =
+                await get(walletRef);
+
+
+            const wallet =
+                walletSnapshot.exists()
+                    ? walletSnapshot.val()
+                    : null;
+
+
+            const coins =
+                Number(
+                    wallet?.coins || 0
+                );
+
+
+            if (
+                coins <
+                READY_FEE
+            ) {
+
+                console.warn(
+                    "ผู้เล่นเหรียญไม่พอ:",
+                    player.uid
+                );
+
+                // ไม่ให้เข้ารอบ
+                player.ready = false;
+
+                continue;
+
+            }
+
+
+            const newCoins =
+                coins -
+                READY_FEE;
+
+
+            const txRef =
+                push(
+                    ref(
+                        database,
+                        "wallets/" +
+                        player.uid +
+                        "/transactions"
+                    )
+                );
+
+
+            walletUpdates[
+                player.uid
+            ] = {
+
+                coins:
+                    newCoins,
+
+                transactionKey:
+                    txRef.key,
+
+                transaction: {
+
+                    type:
+                        "debit",
+
+                    amount:
+                        READY_FEE,
+
+                    reason:
+                        "ค่าเข้าร่วม Bingo รอบ " +
+                        roundId,
+
+                    timestamp:
+                        Date.now()
+
+                }
+
+            };
+
+
+            totalPrize +=
+                PRIZE_PER_READY_PLAYER;
+
+
+            totalGm +=
+                GM_FEE_PER_READY_PLAYER;
+
+        }
+
+
+        // =================================================
+        // บันทึก Wallet ผู้เล่น
+        // =================================================
+
+        for (
+            const uid in walletUpdates
+        ) {
+
+            const item =
+                walletUpdates[uid];
+
+
             await update(
-                roomRef,
+                ref(
+                    database,
+                    "wallets/" +
+                    uid
+                ),
                 {
 
-                    status:
-                        "playing",
+                    coins:
+                        item.coins,
 
-                    updatedAt:
-                        Date.now()
+                    [
+                        "transactions/" +
+                        item.transactionKey
+                    ]:
+                        item.transaction
+
+                }
+            );
+
+
+            if (
+                uid ===
+                currentUser.uid
+            ) {
+
+                playerCoins =
+                    item.coins;
+
+                updateCoinDisplay();
+
+            }
+
+        }
+
+
+        // =================================================
+        // เพิ่มเงิน GM Wallet
+        // =================================================
+
+        if (totalGm > 0) {
+
+            const gmCoinsRef =
+                ref(
+                    database,
+                    "gmWallet/coins"
+                );
+
+
+            const gmSnapshot =
+                await get(
+                    gmCoinsRef
+                );
+
+
+            const currentGmCoins =
+                gmSnapshot.exists()
+                    ? Number(
+                        gmSnapshot.val() || 0
+                    )
+                    : 0;
+
+
+            const gmTxRef =
+                push(
+                    ref(
+                        database,
+                        "gmWallet/transactions"
+                    )
+                );
+
+
+            await update(
+                ref(
+                    database,
+                    "gmWallet"
+                ),
+                {
+
+                    coins:
+                        currentGmCoins +
+                        totalGm,
+
+                    [
+                        "transactions/" +
+                        gmTxRef.key
+                    ]: {
+
+                        type:
+                            "credit",
+
+                        amount:
+                            totalGm,
+
+                        reason:
+                            "ค่าธรรมเนียม Bingo รอบ " +
+                            roundId,
+
+                        timestamp:
+                            Date.now()
+
+                    }
 
                 }
             );
 
         }
+
+
+        // =================================================
+        // บันทึกเงินกองรางวัล
+        // =================================================
+
+        const updatedPlayers = {};
+
+
+        roomPlayers.forEach(
+            player => {
+
+                updatedPlayers[
+                    player.uid
+                ] = {
+
+                    ...player,
+
+                    ready:
+                        player.ready === true &&
+                        !!walletUpdates[
+                            player.uid
+                        ]
+
+                };
+
+            }
+        );
+
+
+        await update(
+            roomRef,
+            {
+
+                pot:
+                    totalPrize,
+
+                paymentProcessedRoundId:
+                    roundId,
+
+                paymentProcessedAt:
+                    Date.now(),
+
+                players:
+                    updatedPlayers,
+
+                status:
+                    "playing",
+
+                updatedAt:
+                    Date.now()
+
+            }
+        );
+
+
+        addSystemMessage(
+            "🎮 เริ่มเกมแล้ว! ผู้เล่นที่พร้อมถูกหัก " +
+            READY_FEE +
+            " เหรียญ"
+        );
 
     }
 
@@ -1257,7 +1680,8 @@ async function maybeAdvanceCountdown() {
 
     finally {
 
-        advancingCountdown = false;
+        advancingCountdown =
+            false;
 
     }
 
@@ -1387,6 +1811,11 @@ async function startGame() {
 
                     ...player,
 
+                    // ทุกคนต้องกดพร้อมใหม่
+                    // สำหรับรอบใหม่
+                    ready:
+                        false,
+
                     winnerAcknowledged:
                         false
 
@@ -1419,6 +1848,12 @@ async function startGame() {
 
                 pot:
                     0,
+
+                paymentProcessedRoundId:
+                    null,
+
+                paymentProcessedAt:
+                    null,
 
                 drawnNumbers:
                     [],
@@ -1483,6 +1918,14 @@ async function startGame() {
 // =====================================================
 // READY
 // =====================================================
+//
+// กดพร้อม = ยังไม่หักเงิน
+//
+// สามารถกดพร้อม / ยกเลิกพร้อมได้
+// ระหว่าง Countdown
+//
+// เงินจะถูกหักตอน Countdown = 0
+// =====================================================
 
 readyBtn?.addEventListener(
     "click",
@@ -1493,9 +1936,14 @@ readyBtn?.addEventListener(
         if (!currentUser || !roomId) return;
 
 
+        const status =
+            roomData?.status ||
+            "waiting";
+
+
         if (
-            getMyPhase() !==
-            "lobby"
+            status !== "waiting" &&
+            status !== "countdown"
         ) {
 
             return;
@@ -1584,6 +2032,7 @@ function updatePlayerCount() {
 
     if (!playerCount) return;
 
+
     playerCount.textContent =
         players.length +
         "/" +
@@ -1600,7 +2049,9 @@ function updatePlayerList() {
 
     if (!playerList) return;
 
-    playerList.innerHTML = "";
+
+    playerList.innerHTML =
+        "";
 
 
     players.forEach(
@@ -1609,6 +2060,7 @@ function updatePlayerList() {
             const item =
                 document.createElement("div");
 
+
             item.className =
                 "player-item";
 
@@ -1616,8 +2068,10 @@ function updatePlayerList() {
             const icon =
                 document.createElement("span");
 
+
             icon.className =
                 "player-owner";
+
 
             icon.textContent =
                 player.uid ===
@@ -1633,8 +2087,10 @@ function updatePlayerList() {
             const name =
                 document.createElement("span");
 
+
             name.className =
                 "player-name";
+
 
             name.textContent =
                 player.displayName ||
@@ -1643,6 +2099,7 @@ function updatePlayerList() {
 
             item.appendChild(icon);
             item.appendChild(name);
+
 
             playerList.appendChild(item);
 
@@ -1711,11 +2168,32 @@ playerModal?.addEventListener(
 function generateBoardNumbers() {
 
     const columns = [
-        { min: 1, max: 15 },
-        { min: 16, max: 30 },
-        { min: 31, max: 45 },
-        { min: 46, max: 60 },
-        { min: 61, max: 75 }
+
+        {
+            min: 1,
+            max: 15
+        },
+
+        {
+            min: 16,
+            max: 30
+        },
+
+        {
+            min: 31,
+            max: 45
+        },
+
+        {
+            min: 46,
+            max: 60
+        },
+
+        {
+            min: 61,
+            max: 75
+        }
+
     ];
 
 
@@ -1836,7 +2314,7 @@ function createBoard() {
 
 
 // =====================================================
-// INITIALIZE / RESET BOARDS
+// INITIALIZE BOARDS
 // =====================================================
 
 function initializeBoards() {
@@ -1844,17 +2322,10 @@ function initializeBoards() {
     boards = [];
 
 
-    for (
-        let i = 0;
-        i < FREE_BOARDS;
-        i++
-    ) {
-
-        boards.push(
-            createBoard()
-        );
-
-    }
+    // ฟรี 1 กระดานเท่านั้น
+    boards.push(
+        createBoard()
+    );
 
 
     renderBoards();
@@ -1862,22 +2333,19 @@ function initializeBoards() {
 }
 
 
+// =====================================================
+// RESET LOCAL BOARDS
+// =====================================================
+
 function resetLocalBoards() {
 
     boards = [];
 
 
-    for (
-        let i = 0;
-        i < FREE_BOARDS;
-        i++
-    ) {
-
-        boards.push(
-            createBoard()
-        );
-
-    }
+    // ฟรี 1 กระดาน
+    boards.push(
+        createBoard()
+    );
 
 
     drawnNumbers = [];
@@ -1923,7 +2391,9 @@ function renderBoards() {
 
     if (!boardsContainer) return;
 
-    boardsContainer.innerHTML = "";
+
+    boardsContainer.innerHTML =
+        "";
 
 
     boardsContainer.className =
@@ -1937,6 +2407,7 @@ function renderBoards() {
             const boardElement =
                 document.createElement("div");
 
+
             boardElement.className =
                 "bingo-board";
 
@@ -1944,18 +2415,24 @@ function renderBoards() {
             const title =
                 document.createElement("div");
 
+
             title.className =
                 "board-title";
+
 
             title.textContent =
                 "BINGO #" +
                 (boardIndex + 1);
 
-            boardElement.appendChild(title);
+
+            boardElement.appendChild(
+                title
+            );
 
 
             const letters =
                 document.createElement("div");
+
 
             letters.className =
                 "bingo-letters";
@@ -1973,11 +2450,14 @@ function renderBoards() {
                     const element =
                         document.createElement("div");
 
+
                     element.className =
                         "bingo-letter";
 
+
                     element.textContent =
                         letter;
+
 
                     letters.appendChild(
                         element
@@ -1995,6 +2475,7 @@ function renderBoards() {
             const grid =
                 document.createElement("div");
 
+
             grid.className =
                 "bingo-grid";
 
@@ -2011,11 +2492,14 @@ function renderBoards() {
                     const cell =
                         document.createElement("button");
 
+
                     cell.type =
                         "button";
 
+
                     cell.className =
                         "bingo-cell";
+
 
                     cell.textContent =
                         number;
@@ -2030,6 +2514,7 @@ function renderBoards() {
                             "free"
                         );
 
+
                         cell.disabled =
                             true;
 
@@ -2042,6 +2527,7 @@ function renderBoards() {
                         cell.classList.add(
                             "marked"
                         );
+
 
                         cell.disabled =
                             true;
@@ -2075,6 +2561,7 @@ function renderBoards() {
 
                         cell.disabled =
                             true;
+
 
                         cell.classList.add(
                             "not-drawn"
@@ -2145,6 +2632,7 @@ function markNumber(
 
 
     board.marked.add(number);
+
 
     renderBoards();
 
@@ -2375,6 +2863,7 @@ async function finishLocalBingo(
 
     if (gameFinished) return;
 
+
     gameFinished = true;
 
 
@@ -2416,7 +2905,11 @@ async function finishLocalBingo(
             await get(roomRef);
 
 
-        if (!snapshot.exists()) return;
+        if (!snapshot.exists()) {
+
+            return;
+
+        }
 
 
         const room =
@@ -2433,19 +2926,20 @@ async function finishLocalBingo(
         }
 
 
+        // =================================================
+        // เงินรางวัลทั้งหมดในกองกลาง
+        // ไม่มีหัก 20% ซ้ำ
+        // เพราะ 5 เหรียญ/คนถูกส่ง GM ไปแล้ว
+        // =================================================
+
         const pot =
-            Number(room.pot || 0);
-
-
-        const cut =
-            Math.round(
-                pot *
-                (PRIZE_CUT_PERCENT / 100)
+            Number(
+                room.pot || 0
             );
 
 
         const prize =
-            pot - cut;
+            pot;
 
 
         const winnerBoardData =
@@ -2490,9 +2984,9 @@ async function finishLocalBingo(
         );
 
 
-        // =============================================
-        // จ่ายรางวัลเข้า wallet ผู้ชนะ
-        // =============================================
+        // =================================================
+        // จ่ายรางวัลให้ผู้ชนะ
+        // =================================================
 
         if (prize > 0) {
 
@@ -2539,7 +3033,10 @@ async function finishLocalBingo(
                             currentCoins +
                             prize,
 
-                        ["transactions/" + txRef.key]: {
+                        [
+                            "transactions/" +
+                            txRef.key
+                        ]: {
 
                             type:
                                 "credit",
@@ -2567,77 +3064,6 @@ async function finishLocalBingo(
                 updateCoinDisplay();
 
             }
-
-        }
-
-
-        // =============================================
-        // หักส่วนแบ่งเข้ากระเป๋า GM
-        // =============================================
-
-        if (cut > 0) {
-
-            const gmCoinsRef =
-                ref(
-                    database,
-                    "gmWallet/coins"
-                );
-
-
-            const gmSnapshot =
-                await get(gmCoinsRef);
-
-
-            const currentGmCoins =
-                gmSnapshot.exists()
-                    ? Number(
-                        gmSnapshot.val() ||
-                        0
-                    )
-                    : 0;
-
-
-            const gmTxRef =
-                push(
-                    ref(
-                        database,
-                        "gmWallet/transactions"
-                    )
-                );
-
-
-            await update(
-                ref(
-                    database,
-                    "gmWallet"
-                ),
-                {
-
-                    coins:
-                        currentGmCoins +
-                        cut,
-
-                    ["transactions/" + gmTxRef.key]: {
-
-                        type:
-                            "credit",
-
-                        amount:
-                            cut,
-
-                        reason:
-                            "ส่วนแบ่งกองกลาง Bingo",
-
-                        actorUid:
-                            currentUser.uid,
-
-                        timestamp:
-                            Date.now()
-
-                    }
-
-                }
-            );
 
         }
 
@@ -2678,7 +3104,9 @@ function renderWinnerBoard() {
 
     if (!winnerBoardContainer) return;
 
-    winnerBoardContainer.innerHTML = "";
+
+    winnerBoardContainer.innerHTML =
+        "";
 
 
     const winnerData =
@@ -2734,12 +3162,14 @@ function renderWinnerBoard() {
     const board =
         document.createElement("div");
 
+
     board.className =
         "winner-bingo-board";
 
 
     const letters =
         document.createElement("div");
+
 
     letters.className =
         "winner-bingo-letters";
@@ -2757,11 +3187,14 @@ function renderWinnerBoard() {
             const element =
                 document.createElement("div");
 
+
             element.className =
                 "winner-bingo-letter";
 
+
             element.textContent =
                 letter;
+
 
             letters.appendChild(
                 element
@@ -2779,6 +3212,7 @@ function renderWinnerBoard() {
     const grid =
         document.createElement("div");
 
+
     grid.className =
         "winner-bingo-grid";
 
@@ -2788,6 +3222,7 @@ function renderWinnerBoard() {
 
             const cell =
                 document.createElement("div");
+
 
             cell.className =
                 "winner-bingo-cell";
@@ -2801,6 +3236,7 @@ function renderWinnerBoard() {
                 cell.classList.add(
                     "free"
                 );
+
 
                 cell.textContent =
                     "My Friend";
@@ -2894,7 +3330,11 @@ function showWinnerPopup() {
     if (winnerMessageEl) {
 
         winnerMessageEl.textContent =
-            (isMe ? "คุณ" : winnerName) +
+            (
+                isMe
+                    ? "คุณ"
+                    : winnerName
+            ) +
             " ได้ BINGO" +
             (
                 winnerBoard
@@ -2922,7 +3362,8 @@ function showWinnerPopup() {
 
 
     // =================================================
-    // แสดงกระดานจริงของผู้ชนะ
+    // กระดานผู้ชนะ
+    // ทุกคนเห็นกระดานนี้
     // =================================================
 
     renderWinnerBoard();
@@ -2944,7 +3385,7 @@ function showWinnerPopup() {
                           ? " (เข้ากระเป๋าคุณแล้ว)"
                           : ""
                   )
-                : "รอบนี้ไม่มีกองกลาง (ไม่มีใครซื้อกระดานเพิ่ม)";
+                : "รอบนี้ยังไม่มีเงินรางวัล";
 
     }
 
@@ -2952,7 +3393,7 @@ function showWinnerPopup() {
     if (winnerConfirmStatus) {
 
         winnerConfirmStatus.textContent =
-            "";
+            "กดตกลงเพื่อเตรียมเล่นรอบใหม่";
 
     }
 
@@ -2966,8 +3407,7 @@ function showWinnerPopup() {
 
 
     // =================================================
-    // สำคัญมาก
-    // เปิด Popup แล้วปล่อยค้าง
+    // เปิด Popup
     // =================================================
 
     winnerModal.hidden =
@@ -3077,21 +3517,23 @@ async function acknowledgeWinner() {
         );
 
 
-        // =============================================
-        // ปิด Popup หลัง Firebase บันทึกสำเร็จเท่านั้น
-        // =============================================
+        // =================================================
+        // ปิด Popup ของคนนี้เท่านั้น
+        // =================================================
 
         winnerPopupRoundId =
             null;
 
+
         hideWinnerPopup();
 
 
-        // =============================================
-        // เตรียมกระดานสำหรับ Lobby รอบต่อไป
-        // =============================================
+        // =================================================
+        // เตรียมกระดาน Lobby รอบต่อไป
+        // =================================================
 
         resetLocalBoards();
+
 
         gameFinished =
             false;
@@ -3149,6 +3591,11 @@ function updateBoardControls() {
     if (!buyBoardBtn) return;
 
 
+    // =================================================
+    // สูงสุด 4 กระดาน
+    // ฟรี 1 + ซื้อ 3
+    // =================================================
+
     if (
         boards.length >=
         MAX_BOARDS
@@ -3165,16 +3612,26 @@ function updateBoardControls() {
     }
 
 
+    const status =
+        roomData?.status ||
+        "waiting";
+
+
+    // =================================================
+    // WAITING / COUNTDOWN = ซื้อได้
+    // PLAYING / FINISHED = ล็อก
+    // =================================================
+
     if (
-        getMyPhase() !==
-        "lobby"
+        status !== "waiting" &&
+        status !== "countdown"
     ) {
 
         buyBoardBtn.disabled =
             true;
 
         buyBoardBtn.innerHTML =
-            "ล็อคระหว่างเกม";
+            "🔒 ล็อคระหว่างเกม";
 
         return;
 
@@ -3207,6 +3664,10 @@ buyBoardBtn?.addEventListener(
 
 async function buyBoard() {
 
+    // =================================================
+    // ฟรี 1 + ซื้อสูงสุด 3
+    // =================================================
+
     if (
         boards.length >=
         MAX_BOARDS
@@ -3217,9 +3678,18 @@ async function buyBoard() {
     }
 
 
+    const status =
+        roomData?.status ||
+        "waiting";
+
+
+    // =================================================
+    // ซื้อได้ทั้ง WAITING และ COUNTDOWN
+    // =================================================
+
     if (
-        getMyPhase() !==
-        "lobby"
+        status !== "waiting" &&
+        status !== "countdown"
     ) {
 
         return;
@@ -3289,6 +3759,7 @@ async function buyBoard() {
             playerCoins =
                 currentCoins;
 
+
             updateCoinDisplay();
 
 
@@ -3320,7 +3791,10 @@ async function buyBoard() {
                     currentCoins -
                     BOARD_PRICE,
 
-                ["transactions/" + txRef.key]: {
+                [
+                    "transactions/" +
+                    txRef.key
+                ]: {
 
                     type:
                         "debit",
@@ -3340,6 +3814,10 @@ async function buyBoard() {
         );
 
 
+        // =================================================
+        // เงินซื้อกระดานเข้า Prize Pot ทั้งหมด
+        // =================================================
+
         const roomRef =
             ref(
                 database,
@@ -3352,13 +3830,23 @@ async function buyBoard() {
             await get(roomRef);
 
 
+        if (!roomSnapshot.exists()) {
+
+            throw new Error(
+                "ไม่พบห้อง Bingo"
+            );
+
+        }
+
+
+        const currentRoom =
+            roomSnapshot.val();
+
+
         const currentPot =
-            roomSnapshot.exists()
-                ? Number(
-                    roomSnapshot.val().pot ||
-                    0
-                )
-                : 0;
+            Number(
+                currentRoom.pot || 0
+            );
 
 
         await update(
@@ -3380,6 +3868,10 @@ async function buyBoard() {
             currentCoins -
             BOARD_PRICE;
 
+
+        // =================================================
+        // เพิ่มกระดาน
+        // =================================================
 
         boards.push(
             createBoard()
@@ -3710,6 +4202,7 @@ function updateLatestNumbers() {
             span.textContent =
                 "-";
 
+
             span.classList.add(
                 "latest-empty"
             );
@@ -3784,7 +4277,9 @@ function subscribeChat() {
 
 
             if (!snapshot.exists()) {
+
                 return;
+
             }
 
 
