@@ -1700,10 +1700,51 @@ function addDetailRow(
 
 
 // =====================================================
+// Load User Wallet Coins
+// =====================================================
+
+async function loadUserWalletCoins(uid) {
+
+    try {
+
+        const snapshot =
+            await get(
+                ref(
+                    database,
+                    "wallets/" +
+                    uid +
+                    "/coins"
+                )
+            );
+
+
+        if (!snapshot.exists()) {
+            return 0;
+        }
+
+
+        return safeNumber(
+            snapshot.val()
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "LOAD USER WALLET COINS ERROR:",
+            error
+        );
+
+        return 0;
+    }
+}
+
+
+// =====================================================
 // Player Details
 // =====================================================
 
-function openPlayerDetails(
+async function openPlayerDetails(
     uid,
     data
 ) {
@@ -1711,6 +1752,18 @@ function openPlayerDetails(
     if (!playerDetailContent) {
         return;
     }
+
+
+    playerDetailContent.innerHTML =
+        `
+        <div class="admin-empty">
+            กำลังโหลดข้อมูล...
+        </div>
+        `;
+
+
+    const coins =
+        await loadUserWalletCoins(uid);
 
 
     playerDetailContent.innerHTML = "";
@@ -1756,8 +1809,7 @@ function openPlayerDetails(
     addDetailRow(
         card,
         "Coins",
-        safeNumber(data.coins)
-            .toLocaleString() +
+        coins.toLocaleString() +
         " 🪙"
     );
 
@@ -1791,7 +1843,7 @@ function openPlayerDetails(
 // GM Details
 // =====================================================
 
-function openGmDetails(
+async function openGmDetails(
     uid,
     data
 ) {
@@ -1799,6 +1851,18 @@ function openGmDetails(
     if (!gmDetailContent) {
         return;
     }
+
+
+    gmDetailContent.innerHTML =
+        `
+        <div class="admin-empty">
+            กำลังโหลดข้อมูล...
+        </div>
+        `;
+
+
+    const coins =
+        await loadUserWalletCoins(uid);
 
 
     gmDetailContent.innerHTML = "";
@@ -1844,8 +1908,7 @@ function openGmDetails(
     addDetailRow(
         card,
         "Coins",
-        safeNumber(data.coins)
-            .toLocaleString() +
+        coins.toLocaleString() +
         " 🪙"
     );
 
@@ -2454,7 +2517,7 @@ async function giveReward() {
             const targetCoinsRef =
                 ref(
                     database,
-                    "users/" +
+                    "wallets/" +
                     targetUid +
                     "/coins"
                 );
@@ -2622,10 +2685,6 @@ async function giveReward() {
 
         // =================================================
         // อ่านยอดจริงจาก Firebase ก่อน
-        //
-        // จุดสำคัญ:
-        // ไม่ใช้ค่าในหน้าจอ
-        // ไม่ใช้ค่าเก่าในตัวแปร
         // =================================================
 
         const walletSnapshot =
@@ -2672,12 +2731,6 @@ async function giveReward() {
 
         // =================================================
         // หัก GM Wallet ด้วย Transaction
-        //
-        // IMPORTANT:
-        // ห้าม return undefined เมื่อเงินไม่พอ
-        // เพราะจะทำให้ Transaction ถูกยกเลิกทันที
-        //
-        // เราจะคืนค่าเดิม แล้วตรวจผลหลัง Transaction
         // =================================================
 
         const walletResult =
@@ -2751,10 +2804,6 @@ async function giveReward() {
             expectedWalletAfter
         ) {
 
-            // =================================================
-            // ป้องกันกรณี Transaction เจอข้อมูลเปลี่ยนระหว่างทาง
-            // =================================================
-
             throw new Error(
                 "ยอด GM Wallet เปลี่ยนแปลงระหว่างการมอบเหรียญ\n\n" +
                 "กรุณาลองใหม่อีกครั้ง"
@@ -2765,12 +2814,15 @@ async function giveReward() {
 
         // =================================================
         // เพิ่มเหรียญให้ GM / Player
+        //
+        // แก้จาก users/{uid}/coins
+        // เป็น wallets/{uid}/coins
         // =================================================
 
         const targetCoinsRef =
             ref(
                 database,
-                "users/" +
+                "wallets/" +
                 targetUid +
                 "/coins"
             );
@@ -2794,6 +2846,25 @@ async function giveReward() {
 
             targetCommitted =
                 targetResult.committed;
+
+
+            console.log(
+                "TARGET WALLET RESULT:",
+                {
+                    targetUid,
+                    targetWalletPath:
+                        "wallets/" +
+                        targetUid +
+                        "/coins",
+                    targetCommitted,
+                    targetCoins:
+                        targetResult.snapshot.exists()
+                            ? safeNumber(
+                                targetResult.snapshot.val()
+                            )
+                            : 0
+                }
+            );
 
         }
         catch (targetError) {
