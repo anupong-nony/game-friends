@@ -117,6 +117,8 @@ let currentRoundId = null;
 let countdownTimer = null;
 let advancingCountdown = false;
 
+let buyingBoard = false;
+
 
 // =====================================================
 // WINNER POPUP STATE
@@ -377,7 +379,7 @@ async function loadPlayerCoins() {
                 snapshot.val();
 
             playerCoins =
-                Number(wallet.coins || 0);
+                Number(wallet?.coins || 0);
 
         } else {
 
@@ -399,6 +401,54 @@ async function loadPlayerCoins() {
 
 
 // =====================================================
+// REFRESH COINS
+// =====================================================
+
+async function refreshPlayerCoins() {
+
+    if (!currentUser) return;
+
+    try {
+
+        const snapshot =
+            await get(
+                ref(
+                    database,
+                    "wallets/" +
+                    currentUser.uid +
+                    "/coins"
+                )
+            );
+
+        if (snapshot.exists()) {
+
+            playerCoins =
+                Number(
+                    snapshot.val() || 0
+                );
+
+        } else {
+
+            playerCoins = 0;
+
+        }
+
+        updateCoinDisplay();
+
+        updateBoardControls();
+
+    } catch (error) {
+
+        console.error(
+            "REFRESH COINS ERROR:",
+            error
+        );
+
+    }
+}
+
+
+// =====================================================
 // COIN DISPLAY
 // =====================================================
 
@@ -407,7 +457,9 @@ function updateCoinDisplay() {
     if (!coinDisplay) return;
 
     coinDisplay.textContent =
-        playerCoins.toLocaleString();
+        Number(
+            playerCoins || 0
+        ).toLocaleString();
 
 }
 
@@ -1020,8 +1072,17 @@ function countdownTick() {
 
     }
 
+    const startedAt =
+        Number(
+            roomData.roundStartedAt || 0
+        );
+
+    if (!startedAt) {
+        return;
+    }
+
     const endAt =
-        Number(roomData.roundStartedAt || 0) +
+        startedAt +
         COUNTDOWN_SECONDS * 1000;
 
     const remainMs =
@@ -1041,8 +1102,15 @@ function countdownTick() {
 
     if (bingoCountdownNumber) {
 
-        bingoCountdownNumber.textContent =
-            String(remain);
+        /*
+         * ไม่ให้เลข 0 ค้างบนจอ
+         * เมื่อถึงเวลาให้รอ Firebase เปลี่ยน
+         * เป็น playing ก่อนซ่อน overlay
+         */
+        if (remain > 0) {
+            bingoCountdownNumber.textContent =
+                String(remain);
+        }
 
     }
 
@@ -1103,7 +1171,9 @@ async function maybeAdvanceCountdown() {
         const snapshot =
             await get(roomRef);
 
-        if (!snapshot.exists()) return;
+        if (!snapshot.exists()) {
+            return;
+        }
 
         const room =
             snapshot.val();
@@ -1119,14 +1189,18 @@ async function maybeAdvanceCountdown() {
             room.roundId || null;
 
         if (!roundId) {
+
             console.error(
                 "COUNTDOWN ERROR: ไม่พบ Round ID"
             );
+
             return;
         }
 
         const endAt =
-            Number(room.roundStartedAt || 0) +
+            Number(
+                room.roundStartedAt || 0
+            ) +
             COUNTDOWN_SECONDS * 1000;
 
         if (Date.now() < endAt) {
@@ -1135,8 +1209,7 @@ async function maybeAdvanceCountdown() {
 
 
         // =================================================
-        // ถ้าประมวลผลรอบนี้แล้ว ให้จบด้วย PLAYING
-        // โดยไม่หักซ้ำ
+        // ถ้าประมวลผลแล้ว → PLAYING
         // =================================================
 
         if (
@@ -1162,10 +1235,6 @@ async function maybeAdvanceCountdown() {
                 : [];
 
 
-        // =================================================
-        // อ่าน READY ใหม่จาก Firebase ตอน 0 วินาที
-        // =================================================
-
         const readyPlayers =
             roomPlayers.filter(
                 player =>
@@ -1182,7 +1251,7 @@ async function maybeAdvanceCountdown() {
 
 
         // =================================================
-        // หักเงินทีละคน
+        // หักเงินผู้เล่น
         // =================================================
 
         for (
@@ -1196,55 +1265,37 @@ async function maybeAdvanceCountdown() {
                     player.uid
                 );
 
-            const walletSnapshot =
-                await get(walletRef);
-
-            const wallet =
-                walletSnapshot.exists()
-                    ? walletSnapshot.val()
-                    : null;
-
-            const coins =
-                Number(wallet?.coins || 0);
-
-            if (coins < READY_FEE) {
-
-                continue;
-
-            }
-
-
-            // -------------------------------------------------
-            // ใช้ Transaction เพื่อไม่ให้ยอดเงินชนกัน
-            // -------------------------------------------------
-
+            /*
+             * สำคัญ:
+             * ทำ Transaction ที่ /coins โดยตรง
+             * ไม่ Transaction ทั้ง wallet
+             */
             const transactionResult =
                 await runTransaction(
-                    walletRef,
-                    currentWallet => {
+                    ref(
+                        database,
+                        "wallets/" +
+                        player.uid +
+                        "/coins"
+                    ),
+                    currentCoins => {
 
-                        if (!currentWallet) {
-                            return;
-                        }
-
-                        const currentCoins =
+                        const coins =
                             Number(
-                                currentWallet.coins || 0
+                                currentCoins || 0
                             );
 
                         if (
-                            currentCoins <
+                            coins <
                             READY_FEE
                         ) {
                             return;
                         }
 
-                        return {
-                            ...currentWallet,
-                            coins:
-                                currentCoins -
-                                READY_FEE
-                        };
+                        return (
+                            coins -
+                            READY_FEE
+                        );
 
                     }
                 );
@@ -1253,8 +1304,16 @@ async function maybeAdvanceCountdown() {
             if (
                 !transactionResult.committed
             ) {
+
                 continue;
+
             }
+
+
+            const chargedAmount =
+                Number(
+                    transactionResult.snapshot.val() || 0
+                );
 
 
             const txRef =
@@ -1307,8 +1366,7 @@ async function maybeAdvanceCountdown() {
             ) {
 
                 playerCoins =
-                    coins -
-                    READY_FEE;
+                    chargedAmount;
 
                 updateCoinDisplay();
 
@@ -1321,57 +1379,77 @@ async function maybeAdvanceCountdown() {
         // GM WALLET
         // =================================================
 
+        /*
+         * แยกออกจากการเปลี่ยนสถานะเกม
+         * เพื่อไม่ให้ GM Wallet มีปัญหาแล้ว
+         * Countdown ค้างที่ 0
+         */
         if (totalGm > 0) {
 
-            const gmCoinsRef =
-                ref(
-                    database,
-                    "gmWallet/coins"
-                );
+            try {
 
-            await runTransaction(
-                gmCoinsRef,
-                currentCoins => {
+                const gmCoinsRef =
+                    ref(
+                        database,
+                        "gmWallet/coins"
+                    );
 
-                    return (
-                        Number(
-                            currentCoins || 0
-                        ) +
-                        totalGm
+                const gmResult =
+                    await runTransaction(
+                        gmCoinsRef,
+                        currentCoins => {
+
+                            return (
+                                Number(
+                                    currentCoins || 0
+                                ) +
+                                totalGm
+                            );
+
+                        }
+                    );
+
+
+                if (gmResult.committed) {
+
+                    const gmTxRef =
+                        push(
+                            ref(
+                                database,
+                                "gmWallet/transactions"
+                            )
+                        );
+
+                    await set(
+                        gmTxRef,
+                        {
+
+                            type:
+                                "credit",
+
+                            amount:
+                                totalGm,
+
+                            reason:
+                                "ค่าธรรมเนียม Bingo รอบ " +
+                                roundId,
+
+                            timestamp:
+                                Date.now()
+
+                        }
                     );
 
                 }
-            );
 
+            } catch (gmError) {
 
-            const gmTxRef =
-                push(
-                    ref(
-                        database,
-                        "gmWallet/transactions"
-                    )
+                console.error(
+                    "GM WALLET ERROR:",
+                    gmError
                 );
 
-
-            await set(
-                gmTxRef,
-                {
-
-                    type:
-                        "credit",
-
-                    amount:
-                        totalGm,
-
-                    reason:
-                        "ค่าธรรมเนียม Bingo รอบ " +
-                        roundId,
-
-                    timestamp:
-                        Date.now()
-
-                }
-            );
+            }
 
         }
 
@@ -1418,7 +1496,8 @@ async function maybeAdvanceCountdown() {
 
 
         // =================================================
-        // COUNTDOWN → PLAYING
+        // สำคัญที่สุด
+        // เปลี่ยน COUNTDOWN → PLAYING
         // =================================================
 
         await update(
@@ -1449,12 +1528,12 @@ async function maybeAdvanceCountdown() {
 
         stopCountdown();
 
-
         addSystemMessage(
             "🎮 เริ่มเกมแล้ว! ผู้เล่นที่พร้อมถูกหัก " +
             READY_FEE +
             " เหรียญ"
         );
+
 
     } catch (error) {
 
@@ -1462,6 +1541,12 @@ async function maybeAdvanceCountdown() {
             "ADVANCE COUNTDOWN ERROR:",
             error
         );
+
+        /*
+         * ถ้าเกิดข้อผิดพลาดหลังหมดเวลา
+         * ให้ลองใหม่ใน tick ถัดไป
+         * โดยไม่ปล่อย overlay ค้างที่ 0
+         */
 
     } finally {
 
@@ -2521,30 +2606,25 @@ async function finishLocalBingo(
 
         if (prize > 0) {
 
-            const walletRef =
+            const walletCoinsRef =
                 ref(
                     database,
                     "wallets/" +
-                    currentUser.uid
+                    currentUser.uid +
+                    "/coins"
                 );
 
             const transactionResult =
                 await runTransaction(
-                    walletRef,
-                    wallet => {
+                    walletCoinsRef,
+                    currentCoins => {
 
-                        if (!wallet) {
-                            return;
-                        }
-
-                        return {
-                            ...wallet,
-                            coins:
-                                Number(
-                                    wallet.coins || 0
-                                ) +
-                                prize
-                        };
+                        return (
+                            Number(
+                                currentCoins || 0
+                            ) +
+                            prize
+                        );
 
                     }
                 );
@@ -2582,7 +2662,7 @@ async function finishLocalBingo(
 
                 playerCoins =
                     Number(
-                        transactionResult.snapshot.val().coins
+                        transactionResult.snapshot.val()
                     );
 
                 updateCoinDisplay();
@@ -2996,6 +3076,17 @@ function updateBoardControls() {
 
     if (!buyBoardBtn) return;
 
+    if (buyingBoard) {
+
+        buyBoardBtn.disabled = true;
+
+        buyBoardBtn.innerHTML =
+            "กำลังซื้อ...";
+
+        return;
+
+    }
+
     if (
         boards.length >=
         MAX_BOARDS
@@ -3028,9 +3119,18 @@ function updateBoardControls() {
 
     }
 
-    buyBoardBtn.disabled =
-        playerCoins <
-        BOARD_PRICE;
+    if (
+        Number(playerCoins || 0) <
+        BOARD_PRICE
+    ) {
+
+        buyBoardBtn.disabled = true;
+
+    } else {
+
+        buyBoardBtn.disabled = false;
+
+    }
 
     buyBoardBtn.innerHTML =
         "➕ ซื้อกระดาน " +
@@ -3053,10 +3153,16 @@ buyBoardBtn?.addEventListener(
 
 async function buyBoard() {
 
+    if (buyingBoard) return;
+
     if (
         boards.length >=
         MAX_BOARDS
     ) {
+        return;
+    }
+
+    if (!currentUser || !roomId) {
         return;
     }
 
@@ -3071,11 +3177,58 @@ async function buyBoard() {
         return;
     }
 
-    if (!currentUser || !roomId) return;
+    buyingBoard = true;
 
-    buyBoardBtn.disabled = true;
+    updateBoardControls();
 
     try {
+
+        // =================================================
+        // ตรวจ Wallet สดจาก Firebase
+        // =================================================
+
+        const walletCoinsRef =
+            ref(
+                database,
+                "wallets/" +
+                currentUser.uid +
+                "/coins"
+            );
+
+        const walletSnapshot =
+            await get(walletCoinsRef);
+
+        const actualCoins =
+            walletSnapshot.exists()
+                ? Number(
+                    walletSnapshot.val() || 0
+                )
+                : 0;
+
+        /*
+         * แก้ปัญหาหน้าจอค้าง/ยอด local ไม่ตรง
+         */
+        playerCoins =
+            actualCoins;
+
+        updateCoinDisplay();
+
+
+        if (
+            actualCoins <
+            BOARD_PRICE
+        ) {
+
+            throw new Error(
+                "เหรียญไม่เพียงพอ"
+            );
+
+        }
+
+
+        // =================================================
+        // ตรวจห้องสด
+        // =================================================
 
         const roomRef =
             ref(
@@ -3088,9 +3241,11 @@ async function buyBoard() {
             await get(roomRef);
 
         if (!roomSnapshot.exists()) {
+
             throw new Error(
                 "ไม่พบห้อง Bingo"
             );
+
         }
 
         const currentRoom =
@@ -3100,61 +3255,66 @@ async function buyBoard() {
             currentRoom.status !== "waiting" &&
             currentRoom.status !== "countdown"
         ) {
+
             throw new Error(
-                "ไม่สามารถซื้อกระดานในช่วงนี้ได้"
+                "เกมเริ่มแล้ว ไม่สามารถซื้อกระดานได้"
             );
+
         }
 
+
         // =================================================
-        // สำคัญ:
-        // สร้างกระดานไว้ก่อน
-        // แล้วค่อยทำธุรกรรมเงิน
+        // สร้างกระดานก่อน
         // =================================================
 
         const newBoard =
             createBoard();
 
-        const walletRef =
-            ref(
-                database,
-                "wallets/" +
-                currentUser.uid
-            );
+
+        // =================================================
+        // หักเหรียญจาก /coins โดยตรง
+        //
+        // ไม่ใช้ transaction ทั้ง wallet
+        // จึงไม่ชนกับ transaction/history field
+        // =================================================
 
         const transactionResult =
             await runTransaction(
-                walletRef,
-                wallet => {
-
-                    if (!wallet) {
-                        return;
-                    }
+                walletCoinsRef,
+                currentCoins => {
 
                     const coins =
                         Number(
-                            wallet.coins || 0
+                            currentCoins || 0
                         );
 
                     if (
                         coins <
                         BOARD_PRICE
                     ) {
+
                         return;
+
                     }
 
-                    return {
-                        ...wallet,
-                        coins:
-                            coins -
-                            BOARD_PRICE
-                    };
+                    return (
+                        coins -
+                        BOARD_PRICE
+                    );
 
                 }
             );
 
+
         if (
             !transactionResult.committed
         ) {
+
+            /*
+             * อ่านยอดจริงอีกครั้ง
+             * เพื่อไม่ให้แจ้งข้อความผิด
+             */
+            await refreshPlayerCoins();
 
             throw new Error(
                 "เหรียญไม่เพียงพอ หรือ Wallet ถูกเปลี่ยนแปลง"
@@ -3162,51 +3322,73 @@ async function buyBoard() {
 
         }
 
-        const newWallet =
-            transactionResult.snapshot.val();
+
+        // =================================================
+        // ยอดใหม่หลังซื้อ
+        // =================================================
 
         const newCoins =
             Number(
-                newWallet.coins || 0
+                transactionResult.snapshot.val() || 0
             );
 
+        playerCoins =
+            newCoins;
+
+        updateCoinDisplay();
+
 
         // =================================================
-        // บันทึกประวัติการซื้อ
+        // บันทึกประวัติ
         // =================================================
 
-        const txRef =
-            push(
-                ref(
-                    database,
-                    "wallets/" +
-                    currentUser.uid +
-                    "/transactions"
-                )
+        try {
+
+            const txRef =
+                push(
+                    ref(
+                        database,
+                        "wallets/" +
+                        currentUser.uid +
+                        "/transactions"
+                    )
+                );
+
+            await set(
+                txRef,
+                {
+
+                    type:
+                        "debit",
+
+                    amount:
+                        BOARD_PRICE,
+
+                    reason:
+                        "ซื้อกระดาน Bingo เพิ่ม",
+
+                    timestamp:
+                        Date.now()
+
+                }
             );
 
-        await set(
-            txRef,
-            {
+        } catch (historyError) {
 
-                type:
-                    "debit",
+            /*
+             * ประวัติพังไม่ให้ยกเลิกกระดาน
+             * เพราะเงินถูกหักสำเร็จแล้ว
+             */
+            console.error(
+                "BUY BOARD HISTORY ERROR:",
+                historyError
+            );
 
-                amount:
-                    BOARD_PRICE,
-
-                reason:
-                    "ซื้อกระดาน Bingo เพิ่ม",
-
-                timestamp:
-                    Date.now()
-
-            }
-        );
+        }
 
 
         // =================================================
-        // เพิ่มเงินเข้าห้อง
+        // ตรวจสถานะห้องอีกครั้งก่อนยืนยันกระดาน
         // =================================================
 
         const latestRoomSnapshot =
@@ -3214,24 +3396,24 @@ async function buyBoard() {
 
         if (!latestRoomSnapshot.exists()) {
 
-            // คืนเงินถ้าห้องหาย
+            /*
+             * คืนเงิน
+             */
             await runTransaction(
-                walletRef,
-                wallet => {
+                walletCoinsRef,
+                currentCoins => {
 
-                    if (!wallet) return;
-
-                    return {
-                        ...wallet,
-                        coins:
-                            Number(
-                                wallet.coins || 0
-                            ) +
-                            BOARD_PRICE
-                    };
+                    return (
+                        Number(
+                            currentCoins || 0
+                        ) +
+                        BOARD_PRICE
+                    );
 
                 }
             );
+
+            await refreshPlayerCoins();
 
             throw new Error(
                 "ไม่พบห้อง Bingo"
@@ -3247,24 +3429,25 @@ async function buyBoard() {
             latestRoom.status !== "countdown"
         ) {
 
-            // คืนเงินถ้าสถานะเปลี่ยนระหว่างซื้อ
+            /*
+             * คืนเงินถ้าเกมเปลี่ยนสถานะ
+             * ระหว่างการซื้อ
+             */
             await runTransaction(
-                walletRef,
-                wallet => {
+                walletCoinsRef,
+                currentCoins => {
 
-                    if (!wallet) return;
-
-                    return {
-                        ...wallet,
-                        coins:
-                            Number(
-                                wallet.coins || 0
-                            ) +
-                            BOARD_PRICE
-                    };
+                    return (
+                        Number(
+                            currentCoins || 0
+                        ) +
+                        BOARD_PRICE
+                    );
 
                 }
             );
+
+            await refreshPlayerCoins();
 
             throw new Error(
                 "เกมเริ่มแล้ว ไม่สามารถซื้อกระดานได้"
@@ -3273,41 +3456,27 @@ async function buyBoard() {
         }
 
 
-        const currentPot =
-            Number(
-                latestRoom.pot || 0
-            );
-
-        await update(
-            roomRef,
-            {
-
-                pot:
-                    currentPot +
-                    BOARD_PRICE,
-
-                updatedAt:
-                    Date.now()
-
-            }
-        );
+        // =================================================
+        // สำคัญ:
+        // ค่า BOARD_PRICE ไม่เพิ่มเข้า pot
+        //
+        // กระดานคือค่าใช้จ่ายของผู้เล่น
+        // ส่วนเงินรางวัลใช้ READY_FEE
+        // =================================================
 
 
         // =================================================
-        // สำคัญ:
-        // เพิ่มกระดานเฉพาะหลังธุรกรรมสำเร็จ
+        // เพิ่มกระดานในเครื่อง
         // =================================================
 
         boards.push(
             newBoard
         );
 
-        playerCoins =
-            newCoins;
-
-        updateCoinDisplay();
-
         renderBoards();
+
+        updateBoardControls();
+
 
     } catch (error) {
 
@@ -3316,12 +3485,19 @@ async function buyBoard() {
             error
         );
 
+        /*
+         * sync ยอดจริงจาก Firebase เสมอ
+         */
+        await refreshPlayerCoins();
+
         alert(
             "ซื้อกระดานไม่สำเร็จ\n" +
             error.message
         );
 
     } finally {
+
+        buyingBoard = false;
 
         updateBoardControls();
 
