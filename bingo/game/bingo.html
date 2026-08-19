@@ -18,6 +18,7 @@
     >
 
     <style>
+
         /* =====================================================
            BINGO COUNTDOWN
            ===================================================== */
@@ -78,8 +79,10 @@
         }
 
         .winner-modal {
-            width: 100%;
-            max-width: 360px;
+            width: calc(100% - 24px);
+            max-width: 390px;
+            max-height: calc(100vh - 24px);
+            overflow-y: auto;
             background: #282d37;
             border: 1px solid rgba(255,255,255,.12);
             border-radius: 14px;
@@ -106,7 +109,97 @@
             color: #c4c9d2;
             font-size: 12px;
             line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .winner-board-title {
+            color: #ffd45c;
+            font-size: 13px;
+            font-weight: 900;
+            margin: 8px 0 8px;
+        }
+
+        .winner-board-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
             margin-bottom: 12px;
+        }
+
+        .winner-bingo-board {
+            width: 100%;
+            max-width: 300px;
+            padding: 7px;
+            background: #20242d;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,.10);
+            box-sizing: border-box;
+        }
+
+        .winner-bingo-letters {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 3px;
+            margin-bottom: 3px;
+        }
+
+        .winner-bingo-letter {
+            min-height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #343a47;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .winner-bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 3px;
+        }
+
+        .winner-bingo-cell {
+            aspect-ratio: 1 / 1;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #303641;
+            border-radius: 4px;
+            color: #fff;
+            font-size: clamp(10px, 3.2vw, 14px);
+            font-weight: 800;
+            line-height: 1;
+            overflow: hidden;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .winner-bingo-cell.marked {
+            background: #57a773;
+            color: #fff;
+            box-shadow:
+                inset 0 0 0 2px rgba(255,255,255,.18),
+                0 0 5px rgba(87,167,115,.25);
+        }
+
+        .winner-bingo-cell.free {
+            background: #b88936;
+            color: #fff;
+            font-size: clamp(7px, 2.2vw, 11px);
+            padding: 2px;
+        }
+
+        .winner-board-missing {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            background: #20242d;
+            color: #aeb5c2;
+            font-size: 11px;
         }
 
         .winner-prize {
@@ -143,6 +236,7 @@
             font-size: 10px;
         }
 
+
         @media (max-width: 380px) {
 
             .bingo-countdown-number {
@@ -156,10 +250,17 @@
             }
 
             .winner-modal {
-                max-width: 320px;
+                width: calc(100% - 18px);
+                max-width: 340px;
                 padding: 15px;
             }
+
+            .winner-bingo-board {
+                max-width: 280px;
+            }
+
         }
+
     </style>
 
 </head>
@@ -402,14 +503,14 @@
             id="bingoCountdownNumber"
             class="bingo-countdown-number"
         >
-            60
+            5
         </div>
 
         <div
             id="bingoCountdownText"
             class="bingo-countdown-text"
         >
-            เตรียมตัวกดพร้อม
+            เตรียมตัวลุ้นเลข
         </div>
 
     </div>
@@ -565,6 +666,19 @@
             >
                 ชนะเกม Bingo
             </div>
+
+            <div
+                id="winnerBoardTitle"
+                class="winner-board-title"
+            >
+                🏆 กระดานที่ชนะ
+            </div>
+
+            <!-- กระดาน Bingo จริงของผู้ชนะ -->
+            <div
+                id="winnerBoardContainer"
+                class="winner-board-container"
+            ></div>
 
             <div
                 id="winnerPrize"

@@ -77,7 +77,7 @@ const BOARD_PRICE = 20;
 const MAX_BOARDS = 4;
 const FREE_BOARDS = 1;
 const MAX_PLAYERS = 20;
-const COUNTDOWN_SECONDS = 5;
+const COUNTDOWN_SECONDS = 60;
 const PRIZE_CUT_PERCENT = 20;
 
 const ADMIN_UIDS = [
@@ -224,6 +224,12 @@ const winnerConfirmBtn =
 
 const winnerConfirmStatus =
     document.getElementById("winnerConfirmStatus");
+
+const winnerBoardContainer =
+    document.getElementById("winnerBoardContainer");
+
+const winnerBoardTitle =
+    document.getElementById("winnerBoardTitle");
 
 const bingoCountdownOverlay =
     document.getElementById("bingoCountdownOverlay");
@@ -482,8 +488,6 @@ async function loadRoom() {
 
 // =====================================================
 // JOIN ROOM
-// (get + update แทน runTransaction เพื่อไม่ให้ถูก
-//  ยกเลิกเงียบๆ ตอน WebSocket ไม่เสถียร)
 // =====================================================
 
 async function joinRoom() {
@@ -635,11 +639,6 @@ async function setupDisconnectHandler() {
 
 // =====================================================
 // PHASE HELPER
-// -----------------------------------------------------
-// lobby      = เห็นปุ่มพร้อม / ซื้อกระดานได้ / host เริ่มเกมได้
-// countdown  = กำลังนับถอยหลัง ล็อคทุกปุ่ม
-// playing    = กำลังเล่น host สุ่มได้ ผู้เล่นกดตัวเลขได้
-// finished   = จบเกม ยังไม่ได้กดตกลง -> โชว์ popup ผู้ชนะ
 // =====================================================
 
 function getMyPhase() {
@@ -736,11 +735,6 @@ function subscribeRoom() {
                         roomData.latestNumbers || {}
                     );
 
-
-            /*
-             * รอบใหม่ (host กดเริ่มเกม)
-             * -> รีเซ็ตกระดานของทุกคนพร้อมกัน
-             */
 
             if (
                 oldRoundId &&
@@ -957,10 +951,6 @@ function updateRoomInfo() {
     }
 
 
-    // =================================================
-    // ล็อคปุ่มซื้อกระดาน
-    // =================================================
-
     updateBoardControls();
 
 
@@ -1092,8 +1082,7 @@ function startCountdownDisplay() {
 
 
 // =====================================================
-// เมื่อนับถอยหลังหมดเวลา
-// -> เฉพาะ host เท่านั้นที่เปลี่ยนสถานะเป็น playing
+// ADVANCE COUNTDOWN
 // =====================================================
 
 async function maybeAdvanceCountdown() {
@@ -1170,7 +1159,7 @@ async function maybeAdvanceCountdown() {
 
 
 // =====================================================
-// START GAME (HOST)
+// START GAME
 // =====================================================
 
 startGameBtn?.addEventListener(
@@ -1329,6 +1318,9 @@ async function startGame() {
                     null,
 
                 winnerBoard:
+                    null,
+
+                winnerBoardData:
                     null,
 
                 prizeAwarded:
@@ -1780,9 +1772,6 @@ function isNumberDrawn(number) {
 
 // =====================================================
 // RENDER BOARDS
-// -----------------------------------------------------
-// สำคัญ: ไม่ตั้ง cell.style.fontSize แบบ inline อีกต่อไป
-// ให้ CSS (.board-count-N .bingo-cell) เป็นคนคุมขนาด
 // =====================================================
 
 function renderBoards() {
@@ -2159,10 +2148,40 @@ function checkBoardForBingo(
 
 
 // =====================================================
+// CREATE WINNER BOARD DATA
+// =====================================================
+// เก็บกระดานจริงของผู้ชนะไว้ใน Firebase
+// เพื่อให้ผู้เล่นทุกคนเห็นกระดานเดียวกันใน Popup
+// =====================================================
+
+function createWinnerBoardData(
+    boardIndex
+) {
+
+    const board =
+        boards[boardIndex];
+
+    if (!board) return null;
+
+    return {
+
+        numbers:
+            Array.isArray(board.numbers)
+                ? [...board.numbers]
+                : [],
+
+        marked:
+            Array.from(
+                board.marked || []
+            )
+
+    };
+
+}
+
+
+// =====================================================
 // FINISH BINGO
-// -----------------------------------------------------
-// คำนวณกองกลาง (pot) หัก % ระบบเข้ากระเป๋า GM
-// ที่เหลือเข้า wallet ผู้ชนะจริง
 // =====================================================
 
 async function finishLocalBingo(
@@ -2213,7 +2232,6 @@ async function finishLocalBingo(
             "finished"
         ) {
 
-            // มีผู้ชนะไปแล้ว
             return;
 
         }
@@ -2230,6 +2248,12 @@ async function finishLocalBingo(
 
         const prize =
             pot - cut;
+
+
+        const winnerBoardData =
+            createWinnerBoardData(
+                boardIndex
+            );
 
 
         await update(
@@ -2251,6 +2275,9 @@ async function finishLocalBingo(
                 winnerRoundId:
                     room.roundId ||
                     currentRoundId,
+
+                winnerBoardData:
+                    winnerBoardData,
 
                 prizeAwarded:
                     prize,
@@ -2427,7 +2454,181 @@ async function finishLocalBingo(
 
 
 // =====================================================
-// WINNER POPUP (ใช้ #winnerModal จริงจาก HTML)
+// RENDER WINNER BOARD
+// =====================================================
+
+function renderWinnerBoard() {
+
+    if (!winnerBoardContainer) return;
+
+    winnerBoardContainer.innerHTML = "";
+
+
+    const winnerData =
+        roomData?.winnerBoardData;
+
+
+    if (!winnerData) {
+
+        winnerBoardContainer.innerHTML =
+            "<div class=\"winner-board-missing\">" +
+            "ไม่พบข้อมูลกระดานที่ชนะ" +
+            "</div>";
+
+        return;
+
+    }
+
+
+    const numbers =
+        Array.isArray(
+            winnerData.numbers
+        )
+            ? winnerData.numbers
+            : Object.values(
+                winnerData.numbers || {}
+            );
+
+
+    const marked =
+        new Set(
+            Array.isArray(
+                winnerData.marked
+            )
+                ? winnerData.marked
+                : Object.values(
+                    winnerData.marked || {}
+                )
+        );
+
+
+    if (numbers.length !== 25) {
+
+        winnerBoardContainer.innerHTML =
+            "<div class=\"winner-board-missing\">" +
+            "ข้อมูลกระดานไม่สมบูรณ์" +
+            "</div>";
+
+        return;
+
+    }
+
+
+    const board =
+        document.createElement("div");
+
+    board.className =
+        "winner-bingo-board";
+
+
+    const letters =
+        document.createElement("div");
+
+    letters.className =
+        "winner-bingo-letters";
+
+
+    [
+        "B",
+        "I",
+        "N",
+        "G",
+        "O"
+    ].forEach(
+        letter => {
+
+            const element =
+                document.createElement("div");
+
+            element.className =
+                "winner-bingo-letter";
+
+            element.textContent =
+                letter;
+
+            letters.appendChild(
+                element
+            );
+
+        }
+    );
+
+
+    board.appendChild(
+        letters
+    );
+
+
+    const grid =
+        document.createElement("div");
+
+    grid.className =
+        "winner-bingo-grid";
+
+
+    numbers.forEach(
+        number => {
+
+            const cell =
+                document.createElement("div");
+
+            cell.className =
+                "winner-bingo-cell";
+
+
+            if (
+                number ===
+                "My Friend"
+            ) {
+
+                cell.classList.add(
+                    "free"
+                );
+
+                cell.textContent =
+                    "My Friend";
+
+            }
+
+            else {
+
+                cell.textContent =
+                    number;
+
+                if (
+                    marked.has(number)
+                ) {
+
+                    cell.classList.add(
+                        "marked"
+                    );
+
+                }
+
+            }
+
+
+            grid.appendChild(
+                cell
+            );
+
+        }
+    );
+
+
+    board.appendChild(
+        grid
+    );
+
+    winnerBoardContainer.appendChild(
+        board
+    );
+
+}
+
+
+// =====================================================
+// WINNER POPUP
 // =====================================================
 
 function showWinnerPopup() {
@@ -2463,7 +2664,7 @@ function showWinnerPopup() {
 
         winnerMessageEl.textContent =
             (isMe ? "คุณ" : winnerName) +
-            "ได้ BINGO" +
+            " ได้ BINGO" +
             (
                 winnerBoard
                     ? " ด้วยกระดาน #" + winnerBoard
@@ -2471,6 +2672,20 @@ function showWinnerPopup() {
             );
 
     }
+
+
+    if (winnerBoardTitle) {
+
+        winnerBoardTitle.textContent =
+            winnerBoard
+                ? "🏆 กระดานที่ชนะ #" +
+                  winnerBoard
+                : "🏆 กระดานที่ชนะ";
+
+    }
+
+
+    renderWinnerBoard();
 
 
     if (winnerPrizeEl) {
@@ -2530,11 +2745,6 @@ winnerConfirmBtn?.addEventListener(
 
 // =====================================================
 // ACKNOWLEDGE WINNER
-// -----------------------------------------------------
-// กดตกลง = ยืนยันส่วนตัวเท่านั้น
-// รีเซ็ตแค่หน้าจอของ "ตัวเอง" กลับไปหน้ารอเริ่ม
-// ไม่แตะสถานะห้องทั้งห้อง (ห้องจะรีเซ็ตจริงตอน host
-// กดเริ่มเกมรอบใหม่เท่านั้น)
 // =====================================================
 
 async function acknowledgeWinner() {
@@ -2625,7 +2835,6 @@ async function acknowledgeWinner() {
 
 // =====================================================
 // BOARD CONTROLS
-// (ล็อคปุ่มซื้อกระดานเมื่อไม่ได้อยู่ phase lobby)
 // =====================================================
 
 function updateBoardControls() {
@@ -2691,9 +2900,6 @@ function updateBoardControls() {
 
 // =====================================================
 // BUY BOARD
-// -----------------------------------------------------
-// หักเหรียญจริงจาก wallet + สะสมเข้ากองกลาง (pot)
-// ของห้องจริง เพื่อใช้จ่ายรางวัลตอนบิงโก
 // =====================================================
 
 buyBoardBtn?.addEventListener(
@@ -3689,8 +3895,6 @@ leaveModal?.addEventListener(
 
 // =====================================================
 // LEAVE ROOM
-// (get + update แทน runTransaction เพื่อไม่ให้
-//  จำนวนผู้เล่นค้างเป็นเลขเก่าตอนออกจากห้อง)
 // =====================================================
 
 async function leaveRoom() {
