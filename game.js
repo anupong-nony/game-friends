@@ -514,11 +514,13 @@ function showGameCenterScreen() {
 // Thailand Date
 // =====================================================
 //
-// ใช้เวลาเครื่อง + บังคับ TimeZone เป็น Asia/Bangkok
-// เพื่อป้องกัน THAILAND DATE ERROR
+// ใช้ Asia/Bangkok
 //
 // รูปแบบ:
 // YYYYMMDD
+//
+// ตัวอย่าง:
+// 19/08/2026 → 20260819
 //
 // =====================================================
 
@@ -614,9 +616,6 @@ function getThailandDateKey() {
         );
 
 
-        // Fallback
-        // ใช้วันที่เครื่องโดยตรง
-
         const date =
             new Date();
 
@@ -656,14 +655,6 @@ function getThailandDateKey() {
 
 // =====================================================
 // Daily Login Reward
-// -----------------------------------------------------
-// get() + update() แทน runTransaction()
-// (transaction ล้มเหลวเงียบๆ บ่อยเมื่อ WebSocket ไม่นิ่ง)
-//
-// มีความเสี่ยงเล็กน้อยเรื่อง race condition ถ้าผู้เล่น
-// login พร้อมกันหลาย tab ในวินาทีเดียวกันเป๊ะ ๆ ซึ่งสำหรับ
-// กลุ่มเพื่อนความเสี่ยงนี้ต่ำมาก ยอมรับได้เพื่อแลกกับความ
-// เสถียรของระบบ
 // =====================================================
 
 async function requestLoginReward(user) {
@@ -708,8 +699,6 @@ async function requestLoginReward(user) {
         if (
             transactions[transactionId]
         ) {
-
-            // รับรางวัลวันนี้ไปแล้ว
 
             return false;
 
@@ -776,45 +765,188 @@ async function requestLoginReward(user) {
 // =====================================================
 // Format Registered Date
 // =====================================================
+//
+// Firebase เก็บ:
+// YYYYMMDD
+//
+// เช่น:
+// 20260819
+//
+// หน้า Profile แสดง:
+// 19/08/2026
+//
+// รองรับข้อมูลเก่าแบบ timestamp ด้วย
+// =====================================================
 
 function formatRegisteredDate(
-    timestamp
+    registeredDate
 ) {
 
-    const date =
-        new Date(
-            timestamp ||
-            Date.now()
-        );
+    if (!registeredDate) {
 
-    const day =
+        return "-";
+
+    }
+
+
+    const value =
         String(
-            date.getDate()
-        ).padStart(
-            2,
-            "0"
+            registeredDate
+        ).trim();
+
+
+    // ---------------------------------------------
+    // รูปแบบใหม่ YYYYMMDD
+    // ---------------------------------------------
+
+    if (
+        /^\d{8}$/.test(value)
+    ) {
+
+        const year =
+            value.substring(
+                0,
+                4
+            );
+
+        const month =
+            value.substring(
+                4,
+                6
+            );
+
+        const day =
+            value.substring(
+                6,
+                8
+            );
+
+
+        return (
+            day +
+            "/" +
+            month +
+            "/" +
+            year
         );
 
-    const month =
-        String(
-            date.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
+    }
+
+
+    // ---------------------------------------------
+    // รองรับ timestamp เดิม
+    // ---------------------------------------------
+
+    const timestamp =
+        Number(
+            registeredDate
         );
 
-    const year =
-        String(
-            date.getFullYear()
-        );
 
-    return (
-        day +
-        "/" +
-        month +
-        "/" +
-        year
-    );
+    if (
+        Number.isFinite(
+            timestamp
+        )
+    ) {
+
+        const date =
+            new Date(
+                timestamp
+            );
+
+
+        if (
+            !Number.isNaN(
+                date.getTime()
+            )
+        ) {
+
+            const parts =
+                new Intl.DateTimeFormat(
+                    "en-GB",
+                    {
+                        timeZone:
+                            "Asia/Bangkok",
+
+                        day:
+                            "2-digit",
+
+                        month:
+                            "2-digit",
+
+                        year:
+                            "numeric"
+                    }
+                ).formatToParts(
+                    date
+                );
+
+
+            let day = "";
+            let month = "";
+            let year = "";
+
+
+            for (
+                const part of parts
+            ) {
+
+                if (
+                    part.type === "day"
+                ) {
+
+                    day =
+                        part.value;
+
+                }
+
+                if (
+                    part.type === "month"
+                ) {
+
+                    month =
+                        part.value;
+
+                }
+
+                if (
+                    part.type === "year"
+                ) {
+
+                    year =
+                        part.value;
+
+                }
+
+            }
+
+
+            if (
+                day &&
+                month &&
+                year
+            ) {
+
+                return (
+                    day +
+                    "/" +
+                    month +
+                    "/" +
+                    year
+                );
+
+            }
+
+        }
+
+    }
+
+
+    // ---------------------------------------------
+    // ถ้าเป็นรูปแบบอื่น ให้แสดงค่าเดิม
+    // ---------------------------------------------
+
+    return value;
 
 }
 
@@ -1149,10 +1281,6 @@ function normalizeDisplayNameForRole(
 
 // =====================================================
 // Friend ID Counter
-// -----------------------------------------------------
-// get() + set() แทน runTransaction()
-// ความเสี่ยง race condition ต่ำมากสำหรับกลุ่มเพื่อน
-// (ไม่มีทางที่ 2 คนสมัครพร้อมกันในเสี้ยววินาทีเดียวกัน)
 // =====================================================
 
 async function createFriendId() {
@@ -1243,10 +1371,16 @@ async function createMissingUserData(
         const friendId =
             await createFriendId();
 
+
+        // =================================================
+        // แก้ตรงนี้:
+        // เก็บ registeredDate เป็น YYYYMMDD
+        // จากเวลาไทย เพื่อให้ตรงกับ Firebase Rules
+        // =================================================
+
         const registeredDate =
-            formatRegisteredDate(
-                Date.now()
-            );
+            getThailandDateKey();
+
 
         const username =
             (
@@ -1891,11 +2025,16 @@ if (profileBtn) {
                 }
 
 
+                // =================================================
+                // แก้ตรงนี้:
+                // Firebase เก็บ YYYYMMDD
+                // Profile แสดง DD/MM/YYYY
+                // =================================================
+
                 profilePreviewDate.textContent =
                     "สมัครเมื่อ: " +
-                    (
-                        userData.registeredDate ||
-                        "-"
+                    formatRegisteredDate(
+                        userData.registeredDate
                     );
 
 
