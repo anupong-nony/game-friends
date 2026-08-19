@@ -21,7 +21,8 @@ import {
     push,
     set,
     update,
-    onDisconnect
+    onDisconnect,
+    runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 
@@ -253,10 +254,8 @@ const bingoCountdownText =
 
 
 if (bingoCountdownText) {
-
     bingoCountdownText.textContent =
         "เตรียมตัวลุ้นเลข";
-
 }
 
 
@@ -295,10 +294,8 @@ onAuthStateChanged(
     async user => {
 
         if (!user) {
-
             window.location.href =
                 "../../index.html";
-
             return;
         }
 
@@ -332,21 +329,15 @@ async function loadCurrentUserData() {
             );
 
         if (snapshot.exists()) {
-
             currentUserData =
                 snapshot.val();
-
         } else {
-
             currentUserData = {
                 displayName: "Player"
             };
-
         }
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "LOAD USER ERROR:",
@@ -386,9 +377,7 @@ async function loadPlayerCoins() {
                 snapshot.val();
 
             playerCoins =
-                Number(
-                    wallet.coins || 0
-                );
+                Number(wallet.coins || 0);
 
         } else {
 
@@ -398,9 +387,7 @@ async function loadPlayerCoins() {
 
         updateCoinDisplay();
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "LOAD COINS ERROR:",
@@ -434,10 +421,9 @@ async function loadRoom() {
     if (!roomId) {
 
         alert("ไม่พบ Room ID");
-
         goBackToRoom();
-
         return;
+
     }
 
     try {
@@ -453,13 +439,10 @@ async function loadRoom() {
 
         if (!snapshot.exists()) {
 
-            alert(
-                "ไม่พบห้อง Bingo นี้"
-            );
-
+            alert("ไม่พบห้อง Bingo นี้");
             goBackToRoom();
-
             return;
+
         }
 
         roomData =
@@ -477,9 +460,7 @@ async function loadRoom() {
 
         subscribeChat();
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "LOAD ROOM ERROR:",
@@ -504,11 +485,9 @@ async function loadRoom() {
 async function joinRoom() {
 
     if (!currentUser || !roomId) {
-
         throw new Error(
             "ไม่พบข้อมูลผู้เล่นหรือ Room ID"
         );
-
     }
 
     const roomRef =
@@ -522,58 +501,45 @@ async function joinRoom() {
         await get(roomRef);
 
     if (!snapshot.exists()) {
-
         throw new Error(
             "ไม่พบห้อง Bingo นี้"
         );
-
     }
 
     const room =
         snapshot.val();
 
-
     if (
         room.players &&
         room.players[currentUser.uid]
     ) {
-
         return;
-
     }
-
 
     const currentPlayers =
         room.players
             ? Object.keys(room.players)
             : [];
 
-
     if (
         currentPlayers.length >=
         MAX_PLAYERS
     ) {
-
         throw new Error(
             "ห้องเต็มแล้ว (" +
             MAX_PLAYERS +
             " คน)"
         );
-
     }
-
 
     const displayName =
         currentUserData?.displayName ||
         "Player";
 
-
     const now =
         Date.now();
 
-
     const updates = {};
-
 
     updates[
         "players/" +
@@ -597,14 +563,11 @@ async function joinRoom() {
 
     };
 
-
     updates.playerCount =
         currentPlayers.length + 1;
 
-
     updates.updatedAt =
         now;
-
 
     await update(
         roomRef,
@@ -625,9 +588,7 @@ async function setupDisconnectHandler() {
         !currentUser ||
         !roomId
     ) {
-
         return;
-
     }
 
     try {
@@ -647,9 +608,7 @@ async function setupDisconnectHandler() {
 
         disconnectHandlerSet = true;
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "ON DISCONNECT ERROR:",
@@ -671,27 +630,17 @@ function getMyPhase() {
     const status =
         roomData.status || "waiting";
 
-
     if (status === "waiting") {
-
         return "lobby";
-
     }
-
 
     if (status === "countdown") {
-
         return "countdown";
-
     }
-
 
     if (status === "playing") {
-
         return "playing";
-
     }
-
 
     if (status === "finished") {
 
@@ -702,12 +651,10 @@ function getMyPhase() {
                 ]
                 : null;
 
-
         const roundId =
             roomData.winnerRoundId ||
             roomData.roundId ||
             currentRoundId;
-
 
         const acked =
             !!(
@@ -716,13 +663,11 @@ function getMyPhase() {
                 roundId
             );
 
-
         return acked
             ? "lobby"
             : "finished";
 
     }
-
 
     return "lobby";
 
@@ -739,14 +684,12 @@ function subscribeRoom() {
 
     roomListenerStarted = true;
 
-
     const roomRef =
         ref(
             database,
             "bingoRooms/" +
             roomId
         );
-
 
     onValue(
         roomRef,
@@ -759,24 +702,19 @@ function subscribeRoom() {
                 );
 
                 goBackToRoom();
-
                 return;
 
             }
 
-
             const oldRoundId =
                 currentRoundId;
-
 
             roomData =
                 snapshot.val();
 
-
             currentRoundId =
                 roomData.roundId ||
                 null;
-
 
             drawnNumbers =
                 Array.isArray(
@@ -787,7 +725,6 @@ function subscribeRoom() {
                         roomData.drawnNumbers || {}
                     );
 
-
             latestNumbers =
                 Array.isArray(
                     roomData.latestNumbers
@@ -797,22 +734,17 @@ function subscribeRoom() {
                         roomData.latestNumbers || {}
                     );
 
-
             if (
                 oldRoundId &&
                 oldRoundId !==
                 currentRoundId
             ) {
-
                 resetLocalBoards();
-
             }
-
 
             gameFinished =
                 roomData.status ===
                 "finished";
-
 
             updateRoomInfo();
 
@@ -845,43 +777,32 @@ function updateRoomInfo() {
 
     if (!roomData) return;
 
-
     isRoomOwner =
         currentUser &&
         roomData.hostUid ===
         currentUser.uid;
 
-
     if (roomNameElement) {
-
         roomNameElement.textContent =
             roomData.name ||
             "ห้อง Bingo";
-
     }
-
 
     players = [];
 
-
     if (roomData.players) {
-
         players =
             Object.values(
                 roomData.players
             );
-
     }
-
 
     updatePlayerCount();
     updatePlayerList();
 
-
     const status =
         roomData.status ||
         "waiting";
-
 
     if (roomStatusElement) {
 
@@ -889,29 +810,22 @@ function updateRoomInfo() {
             "room-status " +
             status;
 
-
         if (status === "finished") {
 
             roomStatusElement.textContent =
                 "🎉 จบเกม";
 
-        }
-
-        else if (status === "playing") {
+        } else if (status === "playing") {
 
             roomStatusElement.textContent =
                 "🎮 กำลังเล่น";
 
-        }
-
-        else if (status === "countdown") {
+        } else if (status === "countdown") {
 
             roomStatusElement.textContent =
                 "⏱️ เตรียมตัว";
 
-        }
-
-        else {
+        } else {
 
             roomStatusElement.textContent =
                 "⏳ รอผู้เล่น";
@@ -928,27 +842,18 @@ function updateRoomInfo() {
     if (isRoomOwner) {
 
         if (hostControls) {
-
-            hostControls.hidden =
-                false;
-
+            hostControls.hidden = false;
         }
-
 
         if (gameControls) {
-
-            gameControls.style.display =
-                "none";
-
+            gameControls.style.display = "none";
         }
-
 
         const readyPlayers =
             players.filter(
                 player =>
                     player.ready === true
             );
-
 
         const canStart =
             (
@@ -957,21 +862,15 @@ function updateRoomInfo() {
             ) &&
             readyPlayers.length > 0;
 
-
         if (startGameBtn) {
-
             startGameBtn.disabled =
                 !canStart;
-
         }
 
-
         if (drawNumberBtn) {
-
             drawNumberBtn.disabled =
                 status !== "playing" ||
                 gameFinished;
-
         }
 
     }
@@ -984,20 +883,12 @@ function updateRoomInfo() {
     else {
 
         if (hostControls) {
-
-            hostControls.hidden =
-                true;
-
+            hostControls.hidden = true;
         }
-
 
         if (gameControls) {
-
-            gameControls.style.display =
-                "";
-
+            gameControls.style.display = "";
         }
-
 
         const myPlayer =
             roomData.players
@@ -1006,13 +897,11 @@ function updateRoomInfo() {
                 ]
                 : null;
 
-
         const isReady =
             !!(
                 myPlayer &&
                 myPlayer.ready
             );
-
 
         if (readyBtn) {
 
@@ -1021,17 +910,10 @@ function updateRoomInfo() {
                     ? "✅ พร้อมแล้ว"
                     : "พร้อม";
 
-
             readyBtn.classList.toggle(
                 "ready-active",
                 isReady
             );
-
-
-            // -----------------------------------------
-            // ผู้เล่นกดพร้อม/ยกเลิกได้ใน WAITING
-            // และ COUNTDOWN
-            // -----------------------------------------
 
             readyBtn.disabled =
                 status !== "waiting" &&
@@ -1041,7 +923,6 @@ function updateRoomInfo() {
 
     }
 
-
     updateBoardControls();
 
 
@@ -1050,24 +931,14 @@ function updateRoomInfo() {
     // =================================================
 
     if (status === "countdown") {
-
         startCountdownDisplay();
-
-    }
-
-    else {
-
+    } else {
         stopCountdown();
-
     }
 
 
     // =================================================
     // WINNER POPUP
-    // =================================================
-    //
-    // ทุกคนที่อยู่ในห้องตอนเกมจบ
-    // ต้องเห็น Popup
     // =================================================
 
     if (status === "finished") {
@@ -1077,14 +948,12 @@ function updateRoomInfo() {
             roomData.roundId ||
             null;
 
-
         const myPlayer =
             roomData.players
                 ? roomData.players[
                     currentUser?.uid
                 ]
                 : null;
-
 
         const acknowledged =
             !!(
@@ -1094,7 +963,6 @@ function updateRoomInfo() {
                 finishedRoundId
             );
 
-
         if (!acknowledged) {
 
             winnerPopupRoundId =
@@ -1102,17 +970,13 @@ function updateRoomInfo() {
 
             showWinnerPopup();
 
-        }
-
-        else {
+        } else {
 
             hideWinnerPopup();
 
         }
 
-    }
-
-    else if (status === "waiting") {
+    } else if (status === "waiting") {
 
         hideWinnerPopup();
 
@@ -1137,12 +1001,8 @@ function stopCountdown() {
 
     }
 
-
     if (bingoCountdownOverlay) {
-
-        bingoCountdownOverlay.hidden =
-            true;
-
+        bingoCountdownOverlay.hidden = true;
     }
 
 }
@@ -1156,20 +1016,16 @@ function countdownTick() {
     ) {
 
         stopCountdown();
-
         return;
 
     }
 
-
     const endAt =
-        (roomData.roundStartedAt || 0) +
+        Number(roomData.roundStartedAt || 0) +
         COUNTDOWN_SECONDS * 1000;
-
 
     const remainMs =
         endAt - Date.now();
-
 
     const remain =
         Math.max(
@@ -1179,36 +1035,19 @@ function countdownTick() {
             )
         );
 
-
     if (bingoCountdownOverlay) {
-
-        bingoCountdownOverlay.hidden =
-            false;
-
+        bingoCountdownOverlay.hidden = false;
     }
-
 
     if (bingoCountdownNumber) {
 
         bingoCountdownNumber.textContent =
-            remain > 0
-                ? String(remain)
-                : "0";
+            String(remain);
 
     }
 
-
-    // =================================================
-    // COUNTDOWN = 0
-    //
-    // ให้ Host เป็นคนประมวลผล
-    // หักเงินเฉพาะผู้เล่นที่ ready ตอนนี้
-    // =================================================
-
     if (remain <= 0) {
-
         maybeAdvanceCountdown();
-
     }
 
 }
@@ -1218,9 +1057,7 @@ function startCountdownDisplay() {
 
     if (!bingoCountdownOverlay) return;
 
-
     countdownTick();
-
 
     if (!countdownTimer) {
 
@@ -1238,42 +1075,21 @@ function startCountdownDisplay() {
 // =====================================================
 // ADVANCE COUNTDOWN
 // =====================================================
-//
-// Countdown = 0
-//
-// ผู้เล่นที่ ready === true เท่านั้น
-//
-// 25 เหรียญ
-// ├── 20 → room.pot
-// └── 5  → GM Wallet
-//
-// จากนั้นเปลี่ยนเป็น playing
-//
-// สำคัญ:
-// ห้ามล้าง ready ตอน Host กดเริ่ม
-// เพราะต้องรอให้ถึง 0 ก่อนจึงหักเงิน
-// =====================================================
 
 async function maybeAdvanceCountdown() {
 
     if (!isRoomOwner) return;
 
-
     if (
         roomData?.status !==
         "countdown"
     ) {
-
         return;
-
     }
-
 
     if (advancingCountdown) return;
 
-
     advancingCountdown = true;
-
 
     try {
 
@@ -1284,71 +1100,43 @@ async function maybeAdvanceCountdown() {
                 roomId
             );
 
-
         const snapshot =
             await get(roomRef);
 
-
-        if (!snapshot.exists()) {
-
-            return;
-
-        }
-
+        if (!snapshot.exists()) return;
 
         const room =
             snapshot.val();
-
 
         if (
             room.status !==
             "countdown"
         ) {
-
             return;
-
         }
 
-
         const roundId =
-            room.roundId ||
-            null;
-
+            room.roundId || null;
 
         if (!roundId) {
-
             console.error(
                 "COUNTDOWN ERROR: ไม่พบ Round ID"
             );
-
             return;
-
         }
-
-
-        // =================================================
-        // ตรวจว่าเวลาถึง 0 จริง
-        // =================================================
 
         const endAt =
-            Number(
-                room.roundStartedAt || 0
-            ) +
+            Number(room.roundStartedAt || 0) +
             COUNTDOWN_SECONDS * 1000;
 
-
-        if (
-            Date.now() <
-            endAt
-        ) {
-
+        if (Date.now() < endAt) {
             return;
-
         }
 
 
         // =================================================
-        // ป้องกันการหักเงินซ้ำ
+        // ถ้าประมวลผลรอบนี้แล้ว ให้จบด้วย PLAYING
+        // โดยไม่หักซ้ำ
         // =================================================
 
         if (
@@ -1359,36 +1147,23 @@ async function maybeAdvanceCountdown() {
             await update(
                 roomRef,
                 {
-
-                    status:
-                        "playing",
-
-                    updatedAt:
-                        Date.now()
-
+                    status: "playing",
+                    updatedAt: Date.now()
                 }
             );
 
             return;
-
         }
 
 
         const roomPlayers =
             room.players
-                ? Object.values(
-                    room.players
-                )
+                ? Object.values(room.players)
                 : [];
 
 
         // =================================================
-        // สำคัญมาก
-        //
-        // อ่าน ready จาก Firebase "ตอนถึง 0"
-        //
-        // คนที่ยกเลิกพร้อมก่อน 0 จะไม่ถูกหัก
-        // คนที่ยัง ready ตอน 0 จะถูกหัก
+        // อ่าน READY ใหม่จาก Firebase ตอน 0 วินาที
         // =================================================
 
         const readyPlayers =
@@ -1399,20 +1174,15 @@ async function maybeAdvanceCountdown() {
 
 
         let totalPrize =
-            Number(
-                room.pot || 0
-            );
+            Number(room.pot || 0);
 
+        let totalGm = 0;
 
-        let totalGm =
-            0;
-
-
-        const walletUpdates = {};
+        const chargedPlayers = [];
 
 
         // =================================================
-        // ตรวจเหรียญของผู้เล่นที่พร้อม
+        // หักเงินทีละคน
         // =================================================
 
         for (
@@ -1426,46 +1196,65 @@ async function maybeAdvanceCountdown() {
                     player.uid
                 );
 
-
             const walletSnapshot =
                 await get(walletRef);
-
 
             const wallet =
                 walletSnapshot.exists()
                     ? walletSnapshot.val()
                     : null;
 
-
             const coins =
-                Number(
-                    wallet?.coins || 0
-                );
+                Number(wallet?.coins || 0);
 
-
-            // ---------------------------------------------
-            // เหรียญไม่พอ
-            // ไม่เข้ารอบ
-            // ---------------------------------------------
-
-            if (
-                coins <
-                READY_FEE
-            ) {
-
-                console.warn(
-                    "ผู้เล่นเหรียญไม่พอ:",
-                    player.uid
-                );
+            if (coins < READY_FEE) {
 
                 continue;
 
             }
 
 
-            const newCoins =
-                coins -
-                READY_FEE;
+            // -------------------------------------------------
+            // ใช้ Transaction เพื่อไม่ให้ยอดเงินชนกัน
+            // -------------------------------------------------
+
+            const transactionResult =
+                await runTransaction(
+                    walletRef,
+                    currentWallet => {
+
+                        if (!currentWallet) {
+                            return;
+                        }
+
+                        const currentCoins =
+                            Number(
+                                currentWallet.coins || 0
+                            );
+
+                        if (
+                            currentCoins <
+                            READY_FEE
+                        ) {
+                            return;
+                        }
+
+                        return {
+                            ...currentWallet,
+                            coins:
+                                currentCoins -
+                                READY_FEE
+                        };
+
+                    }
+                );
+
+
+            if (
+                !transactionResult.committed
+            ) {
+                continue;
+            }
 
 
             const txRef =
@@ -1479,17 +1268,9 @@ async function maybeAdvanceCountdown() {
                 );
 
 
-            walletUpdates[
-                player.uid
-            ] = {
-
-                coins:
-                    newCoins,
-
-                transactionKey:
-                    txRef.key,
-
-                transaction: {
+            await set(
+                txRef,
+                {
 
                     type:
                         "debit",
@@ -1505,60 +1286,29 @@ async function maybeAdvanceCountdown() {
                         Date.now()
 
                 }
+            );
 
-            };
+
+            chargedPlayers.push(
+                player.uid
+            );
 
 
             totalPrize +=
                 PRIZE_PER_READY_PLAYER;
 
-
             totalGm +=
                 GM_FEE_PER_READY_PLAYER;
 
-        }
-
-
-        // =================================================
-        // บันทึก Wallet ผู้เล่น
-        // =================================================
-
-        for (
-            const uid in walletUpdates
-        ) {
-
-            const item =
-                walletUpdates[uid];
-
-
-            await update(
-                ref(
-                    database,
-                    "wallets/" +
-                    uid
-                ),
-                {
-
-                    coins:
-                        item.coins,
-
-                    [
-                        "transactions/" +
-                        item.transactionKey
-                    ]:
-                        item.transaction
-
-                }
-            );
-
 
             if (
-                uid ===
+                player.uid ===
                 currentUser.uid
             ) {
 
                 playerCoins =
-                    item.coins;
+                    coins -
+                    READY_FEE;
 
                 updateCoinDisplay();
 
@@ -1568,7 +1318,7 @@ async function maybeAdvanceCountdown() {
 
 
         // =================================================
-        // เพิ่มเงิน GM Wallet
+        // GM WALLET
         // =================================================
 
         if (totalGm > 0) {
@@ -1579,19 +1329,19 @@ async function maybeAdvanceCountdown() {
                     "gmWallet/coins"
                 );
 
+            await runTransaction(
+                gmCoinsRef,
+                currentCoins => {
 
-            const gmSnapshot =
-                await get(
-                    gmCoinsRef
-                );
+                    return (
+                        Number(
+                            currentCoins || 0
+                        ) +
+                        totalGm
+                    );
 
-
-            const currentGmCoins =
-                gmSnapshot.exists()
-                    ? Number(
-                        gmSnapshot.val() || 0
-                    )
-                    : 0;
+                }
+            );
 
 
             const gmTxRef =
@@ -1603,36 +1353,22 @@ async function maybeAdvanceCountdown() {
                 );
 
 
-            await update(
-                ref(
-                    database,
-                    "gmWallet"
-                ),
+            await set(
+                gmTxRef,
                 {
 
-                    coins:
-                        currentGmCoins +
+                    type:
+                        "credit",
+
+                    amount:
                         totalGm,
 
-                    [
-                        "transactions/" +
-                        gmTxRef.key
-                    ]: {
+                    reason:
+                        "ค่าธรรมเนียม Bingo รอบ " +
+                        roundId,
 
-                        type:
-                            "credit",
-
-                        amount:
-                            totalGm,
-
-                        reason:
-                            "ค่าธรรมเนียม Bingo รอบ " +
-                            roundId,
-
-                        timestamp:
-                            Date.now()
-
-                    }
+                    timestamp:
+                        Date.now()
 
                 }
             );
@@ -1641,28 +1377,18 @@ async function maybeAdvanceCountdown() {
 
 
         // =================================================
-        // อัปเดตสถานะผู้เล่น
-        //
-        // คนที่ถูกหักเงินจริง:
-        // ready = false
-        //
-        // คนที่เหรียญไม่พอ:
-        // ready = false
-        //
-        // หลังเริ่มเกม ทุกคนจะเข้าสู่ playing
+        // UPDATE PLAYERS
         // =================================================
 
         const updatedPlayers = {};
-
 
         roomPlayers.forEach(
             player => {
 
                 const wasCharged =
-                    !!walletUpdates[
+                    chargedPlayers.includes(
                         player.uid
-                    ];
-
+                    );
 
                 updatedPlayers[
                     player.uid
@@ -1683,7 +1409,6 @@ async function maybeAdvanceCountdown() {
 
                 };
 
-
                 delete updatedPlayers[
                     player.uid
                 ].acknowledgedRoundId;
@@ -1693,12 +1418,7 @@ async function maybeAdvanceCountdown() {
 
 
         // =================================================
-        // เปลี่ยน COUNTDOWN → PLAYING
-        //
-        // สำคัญ:
-        // Update นี้อยู่ท้ายสุด
-        // ดังนั้น Countdown จะไม่เปลี่ยนเป็น
-        // playing จนกว่าการหักเงินจะเสร็จ
+        // COUNTDOWN → PLAYING
         // =================================================
 
         await update(
@@ -1727,10 +1447,6 @@ async function maybeAdvanceCountdown() {
         );
 
 
-        // =================================================
-        // ปิด Overlay ทันทีสำหรับ Host
-        // =================================================
-
         stopCountdown();
 
 
@@ -1740,18 +1456,14 @@ async function maybeAdvanceCountdown() {
             " เหรียญ"
         );
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "ADVANCE COUNTDOWN ERROR:",
             error
         );
 
-    }
-
-    finally {
+    } finally {
 
         advancingCountdown =
             false;
@@ -1777,7 +1489,6 @@ async function startGame() {
 
     if (!currentUser || !roomId) return;
 
-
     const roomRef =
         ref(
             database,
@@ -1785,62 +1496,46 @@ async function startGame() {
             roomId
         );
 
-
     try {
 
         const snapshot =
             await get(roomRef);
 
-
         if (!snapshot.exists()) {
-
             throw new Error(
                 "ไม่พบห้อง Bingo นี้"
             );
-
         }
-
 
         const room =
             snapshot.val();
-
 
         if (
             room.hostUid !==
             currentUser.uid
         ) {
-
             throw new Error(
                 "คุณไม่มีสิทธิ์เปิดเกม"
             );
-
         }
-
 
         if (
             room.status === "countdown" ||
             room.status === "playing"
         ) {
-
             return;
-
         }
-
 
         const currentPlayers =
             room.players
-                ? Object.values(
-                    room.players
-                )
+                ? Object.values(room.players)
                 : [];
-
 
         const readyPlayers =
             currentPlayers.filter(
                 player =>
                     player.ready === true
             );
-
 
         if (
             readyPlayers.length === 0
@@ -1851,19 +1546,15 @@ async function startGame() {
             );
 
             return;
-
         }
-
 
         const oldRound =
             Number(
                 room.roundNumber || 0
             );
 
-
         const newRound =
             oldRound + 1;
-
 
         const newRoundId =
             "round-" +
@@ -1871,9 +1562,7 @@ async function startGame() {
             "-" +
             Date.now();
 
-
         const updatedPlayers = {};
-
 
         currentPlayers.forEach(
             player => {
@@ -1884,19 +1573,6 @@ async function startGame() {
 
                     ...player,
 
-                    // =================================================
-                    // สำคัญมาก
-                    //
-                    // ห้ามตั้ง ready:false ตรงนี้
-                    //
-                    // เพราะคนที่กดพร้อมต้องยังคงพร้อม
-                    // จน Countdown ถึง 0
-                    //
-                    // ถ้าผู้เล่นต้องการยกเลิก
-                    // สามารถกดปุ่มพร้อมอีกครั้งได้
-                    // ระหว่าง Countdown
-                    // =================================================
-
                     ready:
                         player.ready === true,
 
@@ -1905,14 +1581,12 @@ async function startGame() {
 
                 };
 
-
                 delete updatedPlayers[
                     player.uid
                 ].acknowledgedRoundId;
 
             }
         );
-
 
         await update(
             roomRef,
@@ -1975,14 +1649,11 @@ async function startGame() {
             }
         );
 
-
         addSystemMessage(
             "🎮 Host เปิดเกมรอบใหม่แล้ว เตรียมตัว!"
         );
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "START GAME ERROR:",
@@ -2002,15 +1673,6 @@ async function startGame() {
 // =====================================================
 // READY
 // =====================================================
-//
-// กดพร้อม
-// = ยังไม่หักเงิน
-//
-// กดพร้อมอีกครั้ง
-// = ยกเลิกพร้อม
-//
-// หักเงินจริงเมื่อ Countdown = 0 เท่านั้น
-// =====================================================
 
 readyBtn?.addEventListener(
     "click",
@@ -2020,21 +1682,16 @@ readyBtn?.addEventListener(
 
         if (!currentUser || !roomId) return;
 
-
         const status =
             roomData?.status ||
             "waiting";
-
 
         if (
             status !== "waiting" &&
             status !== "countdown"
         ) {
-
             return;
-
         }
-
 
         if (
             boards.length <
@@ -2046,9 +1703,7 @@ readyBtn?.addEventListener(
             );
 
             return;
-
         }
-
 
         const myPlayer =
             roomData?.players
@@ -2057,17 +1712,12 @@ readyBtn?.addEventListener(
                 ]
                 : null;
 
-
         if (!myPlayer) return;
-
 
         const newReady =
             !myPlayer.ready;
 
-
-        readyBtn.disabled =
-            true;
-
+        readyBtn.disabled = true;
 
         try {
 
@@ -2080,25 +1730,19 @@ readyBtn?.addEventListener(
                     currentUser.uid
                 ),
                 {
-
                     ready:
                         newReady
-
                 }
             );
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "READY ERROR:",
                 error
             );
 
-        }
-
-        finally {
+        } finally {
 
             readyBtn.disabled =
                 false;
@@ -2117,7 +1761,6 @@ function updatePlayerCount() {
 
     if (!playerCount) return;
 
-
     playerCount.textContent =
         players.length +
         "/" +
@@ -2134,10 +1777,7 @@ function updatePlayerList() {
 
     if (!playerList) return;
 
-
-    playerList.innerHTML =
-        "";
-
+    playerList.innerHTML = "";
 
     players.forEach(
         player => {
@@ -2145,18 +1785,14 @@ function updatePlayerList() {
             const item =
                 document.createElement("div");
 
-
             item.className =
                 "player-item";
-
 
             const icon =
                 document.createElement("span");
 
-
             icon.className =
                 "player-owner";
-
 
             icon.textContent =
                 player.uid ===
@@ -2168,23 +1804,18 @@ function updatePlayerList() {
                             : "👤"
                     );
 
-
             const name =
                 document.createElement("span");
 
-
             name.className =
                 "player-name";
-
 
             name.textContent =
                 player.displayName ||
                 "Player";
 
-
             item.appendChild(icon);
             item.appendChild(name);
-
 
             playerList.appendChild(item);
 
@@ -2203,10 +1834,7 @@ playerCountBtn?.addEventListener(
     () => {
 
         if (playerModal) {
-
-            playerModal.hidden =
-                false;
-
+            playerModal.hidden = false;
         }
 
     }
@@ -2218,10 +1846,7 @@ closePlayerModalBtn?.addEventListener(
     () => {
 
         if (playerModal) {
-
-            playerModal.hidden =
-                true;
-
+            playerModal.hidden = true;
         }
 
     }
@@ -2236,10 +1861,7 @@ playerModal?.addEventListener(
             event.target ===
             playerModal
         ) {
-
-            playerModal.hidden =
-                true;
-
+            playerModal.hidden = true;
         }
 
     }
@@ -2254,53 +1876,28 @@ function generateBoardNumbers() {
 
     const columns = [
 
-        {
-            min: 1,
-            max: 15
-        },
-
-        {
-            min: 16,
-            max: 30
-        },
-
-        {
-            min: 31,
-            max: 45
-        },
-
-        {
-            min: 46,
-            max: 60
-        },
-
-        {
-            min: 61,
-            max: 75
-        }
+        { min: 1, max: 15 },
+        { min: 16, max: 30 },
+        { min: 31, max: 45 },
+        { min: 46, max: 60 },
+        { min: 61, max: 75 }
 
     ];
 
-
     const columnNumbers = [];
-
 
     columns.forEach(
         column => {
 
             const numbers = [];
 
-
             for (
                 let number = column.min;
                 number <= column.max;
                 number++
             ) {
-
                 numbers.push(number);
-
             }
-
 
             for (
                 let i = numbers.length - 1;
@@ -2314,7 +1911,6 @@ function generateBoardNumbers() {
                         (i + 1)
                     );
 
-
                 [
                     numbers[i],
                     numbers[j]
@@ -2326,7 +1922,6 @@ function generateBoardNumbers() {
 
             }
 
-
             columnNumbers.push(
                 numbers.slice(0, 5)
             );
@@ -2334,9 +1929,7 @@ function generateBoardNumbers() {
         }
     );
 
-
     const board = [];
-
 
     for (
         let row = 0;
@@ -2359,9 +1952,7 @@ function generateBoardNumbers() {
                     "My Friend"
                 );
 
-            }
-
-            else {
+            } else {
 
                 board.push(
                     columnNumbers[col][row]
@@ -2372,7 +1963,6 @@ function generateBoardNumbers() {
         }
 
     }
-
 
     return board;
 
@@ -2406,12 +1996,9 @@ function initializeBoards() {
 
     boards = [];
 
-
-    // ฟรี 1 กระดาน
     boards.push(
         createBoard()
     );
-
 
     renderBoards();
 
@@ -2426,26 +2013,18 @@ function resetLocalBoards() {
 
     boards = [];
 
-
-    // ฟรี 1 กระดาน
     boards.push(
         createBoard()
     );
-
 
     drawnNumbers = [];
     latestNumbers = [];
 
     gameFinished = false;
 
-
     if (drawResult) {
-
-        drawResult.textContent =
-            "-";
-
+        drawResult.textContent = "-";
     }
-
 
     updateLatestDraw();
     updateLatestNumbers();
@@ -2476,15 +2055,11 @@ function renderBoards() {
 
     if (!boardsContainer) return;
 
-
-    boardsContainer.innerHTML =
-        "";
-
+    boardsContainer.innerHTML = "";
 
     boardsContainer.className =
         "boards-container board-count-" +
         boards.length;
-
 
     boards.forEach(
         (board, boardIndex) => {
@@ -2492,36 +2067,26 @@ function renderBoards() {
             const boardElement =
                 document.createElement("div");
 
-
             boardElement.className =
                 "bingo-board";
-
 
             const title =
                 document.createElement("div");
 
-
             title.className =
                 "board-title";
-
 
             title.textContent =
                 "BINGO #" +
                 (boardIndex + 1);
 
-
-            boardElement.appendChild(
-                title
-            );
-
+            boardElement.appendChild(title);
 
             const letters =
                 document.createElement("div");
 
-
             letters.className =
                 "bingo-letters";
-
 
             [
                 "B",
@@ -2535,14 +2100,11 @@ function renderBoards() {
                     const element =
                         document.createElement("div");
 
-
                     element.className =
                         "bingo-letter";
 
-
                     element.textContent =
                         letter;
-
 
                     letters.appendChild(
                         element
@@ -2551,25 +2113,20 @@ function renderBoards() {
                 }
             );
 
-
             boardElement.appendChild(
                 letters
             );
 
-
             const grid =
                 document.createElement("div");
 
-
             grid.className =
                 "bingo-grid";
-
 
             const canPlay =
                 roomData?.status ===
                 "playing" &&
                 !gameFinished;
-
 
             board.numbers.forEach(
                 number => {
@@ -2577,18 +2134,13 @@ function renderBoards() {
                     const cell =
                         document.createElement("button");
 
-
-                    cell.type =
-                        "button";
-
+                    cell.type = "button";
 
                     cell.className =
                         "bingo-cell";
 
-
                     cell.textContent =
                         number;
-
 
                     if (
                         number ===
@@ -2599,13 +2151,9 @@ function renderBoards() {
                             "free"
                         );
 
+                        cell.disabled = true;
 
-                        cell.disabled =
-                            true;
-
-                    }
-
-                    else if (
+                    } else if (
                         board.marked.has(number)
                     ) {
 
@@ -2613,20 +2161,14 @@ function renderBoards() {
                             "marked"
                         );
 
+                        cell.disabled = true;
 
-                        cell.disabled =
-                            true;
-
-                    }
-
-                    else if (
+                    } else if (
                         isNumberDrawn(number) &&
                         canPlay
                     ) {
 
-                        cell.disabled =
-                            false;
-
+                        cell.disabled = false;
 
                         cell.addEventListener(
                             "click",
@@ -2640,20 +2182,15 @@ function renderBoards() {
                             }
                         );
 
-                    }
+                    } else {
 
-                    else {
-
-                        cell.disabled =
-                            true;
-
+                        cell.disabled = true;
 
                         cell.classList.add(
                             "not-drawn"
                         );
 
                     }
-
 
                     grid.appendChild(
                         cell
@@ -2662,11 +2199,7 @@ function renderBoards() {
                 }
             );
 
-
-            boardElement.appendChild(
-                grid
-            );
-
+            boardElement.appendChild(grid);
 
             boardsContainer.appendChild(
                 boardElement
@@ -2674,7 +2207,6 @@ function renderBoards() {
 
         }
     );
-
 
     updateBoardControls();
 
@@ -2692,35 +2224,25 @@ function markNumber(
 
     if (gameFinished) return;
 
-
     if (
         roomData?.status !==
         "playing"
     ) {
-
         return;
-
     }
-
 
     const board =
         boards[boardIndex];
 
-
     if (!board) return;
-
 
     if (!isNumberDrawn(number)) return;
 
-
     if (board.marked.has(number)) return;
-
 
     board.marked.add(number);
 
-
     renderBoards();
-
 
     if (
         checkBoardForBingo(
@@ -2748,37 +2270,26 @@ function checkBoardForBingo(
     const board =
         boards[boardIndex];
 
-
     if (!board) return false;
 
-
-    function complete(
-        row,
-        col
-    ) {
+    function complete(row, col) {
 
         const index =
             row * 5 + col;
 
-
         const value =
             board.numbers[index];
-
 
         if (
             value ===
             "My Friend"
         ) {
-
             return true;
-
         }
-
 
         return board.marked.has(value);
 
     }
-
 
     for (
         let row = 0;
@@ -2786,9 +2297,7 @@ function checkBoardForBingo(
         row++
     ) {
 
-        let completeRow =
-            true;
-
+        let completeRow = true;
 
         for (
             let col = 0;
@@ -2800,20 +2309,16 @@ function checkBoardForBingo(
                 !complete(row, col)
             ) {
 
-                completeRow =
-                    false;
-
+                completeRow = false;
                 break;
 
             }
 
         }
 
-
         if (completeRow) return true;
 
     }
-
 
     for (
         let col = 0;
@@ -2821,9 +2326,7 @@ function checkBoardForBingo(
         col++
     ) {
 
-        let completeColumn =
-            true;
-
+        let completeColumn = true;
 
         for (
             let row = 0;
@@ -2835,24 +2338,18 @@ function checkBoardForBingo(
                 !complete(row, col)
             ) {
 
-                completeColumn =
-                    false;
-
+                completeColumn = false;
                 break;
 
             }
 
         }
 
-
         if (completeColumn) return true;
 
     }
 
-
-    let diagonalOne =
-        true;
-
+    let diagonalOne = true;
 
     for (
         let i = 0;
@@ -2864,22 +2361,16 @@ function checkBoardForBingo(
             !complete(i, i)
         ) {
 
-            diagonalOne =
-                false;
-
+            diagonalOne = false;
             break;
 
         }
 
     }
 
-
     if (diagonalOne) return true;
 
-
-    let diagonalTwo =
-        true;
-
+    let diagonalTwo = true;
 
     for (
         let i = 0;
@@ -2891,15 +2382,12 @@ function checkBoardForBingo(
             !complete(i, 4 - i)
         ) {
 
-            diagonalTwo =
-                false;
-
+            diagonalTwo = false;
             break;
 
         }
 
     }
-
 
     return diagonalTwo;
 
@@ -2917,9 +2405,7 @@ function createWinnerBoardData(
     const board =
         boards[boardIndex];
 
-
     if (!board) return null;
-
 
     return {
 
@@ -2948,33 +2434,21 @@ async function finishLocalBingo(
 
     if (gameFinished) return;
 
-
     gameFinished = true;
-
 
     const winnerName =
         currentUserData?.displayName ||
         "Player";
 
-
     if (drawNumberBtn) {
-
-        drawNumberBtn.disabled =
-            true;
-
+        drawNumberBtn.disabled = true;
     }
-
 
     if (readyBtn) {
-
-        readyBtn.disabled =
-            true;
-
+        readyBtn.disabled = true;
     }
 
-
     renderBoards();
-
 
     try {
 
@@ -2985,51 +2459,30 @@ async function finishLocalBingo(
                 roomId
             );
 
-
         const snapshot =
             await get(roomRef);
 
-
-        if (!snapshot.exists()) {
-
-            return;
-
-        }
-
+        if (!snapshot.exists()) return;
 
         const room =
             snapshot.val();
-
 
         if (
             room.status ===
             "finished"
         ) {
-
             return;
-
         }
 
-
-        // =================================================
-        // เงินรางวัลทั้งหมดในกองกลาง
-        // =================================================
-
         const pot =
-            Number(
-                room.pot || 0
-            );
+            Number(room.pot || 0);
 
-
-        const prize =
-            pot;
-
+        const prize = pot;
 
         const winnerBoardData =
             createWinnerBoardData(
                 boardIndex
             );
-
 
         await update(
             roomRef,
@@ -3066,11 +2519,6 @@ async function finishLocalBingo(
             }
         );
 
-
-        // =================================================
-        // จ่ายรางวัลให้ผู้ชนะ
-        // =================================================
-
         if (prize > 0) {
 
             const walletRef =
@@ -3080,22 +2528,28 @@ async function finishLocalBingo(
                     currentUser.uid
                 );
 
+            const transactionResult =
+                await runTransaction(
+                    walletRef,
+                    wallet => {
 
-            const walletSnapshot =
-                await get(walletRef);
+                        if (!wallet) {
+                            return;
+                        }
 
+                        return {
+                            ...wallet,
+                            coins:
+                                Number(
+                                    wallet.coins || 0
+                                ) +
+                                prize
+                        };
 
-            if (walletSnapshot.exists()) {
+                    }
+                );
 
-                const wallet =
-                    walletSnapshot.val();
-
-
-                const currentCoins =
-                    Number(
-                        wallet.coins || 0
-                    );
-
+            if (transactionResult.committed) {
 
                 const txRef =
                     push(
@@ -3107,49 +2561,35 @@ async function finishLocalBingo(
                         )
                     );
 
-
-                await update(
-                    walletRef,
+                await set(
+                    txRef,
                     {
 
-                        coins:
-                            currentCoins +
+                        type:
+                            "credit",
+
+                        amount:
                             prize,
 
-                        [
-                            "transactions/" +
-                            txRef.key
-                        ]: {
+                        reason:
+                            "รางวัล Bingo",
 
-                            type:
-                                "credit",
-
-                            amount:
-                                prize,
-
-                            reason:
-                                "รางวัล Bingo",
-
-                            timestamp:
-                                Date.now()
-
-                        }
+                        timestamp:
+                            Date.now()
 
                     }
                 );
 
-
                 playerCoins =
-                    currentCoins +
-                    prize;
-
+                    Number(
+                        transactionResult.snapshot.val().coins
+                    );
 
                 updateCoinDisplay();
 
             }
 
         }
-
 
         addSystemMessage(
             "🎉 BINGO! " +
@@ -3165,9 +2605,7 @@ async function finishLocalBingo(
             )
         );
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "FINISH BINGO ERROR:",
@@ -3187,14 +2625,10 @@ function renderWinnerBoard() {
 
     if (!winnerBoardContainer) return;
 
-
-    winnerBoardContainer.innerHTML =
-        "";
-
+    winnerBoardContainer.innerHTML = "";
 
     const winnerData =
         roomData?.winnerBoardData;
-
 
     if (!winnerData) {
 
@@ -3207,7 +2641,6 @@ function renderWinnerBoard() {
 
     }
 
-
     const numbers =
         Array.isArray(
             winnerData.numbers
@@ -3216,7 +2649,6 @@ function renderWinnerBoard() {
             : Object.values(
                 winnerData.numbers || {}
             );
-
 
     const marked =
         new Set(
@@ -3229,7 +2661,6 @@ function renderWinnerBoard() {
                 )
         );
 
-
     if (numbers.length !== 25) {
 
         winnerBoardContainer.innerHTML =
@@ -3241,22 +2672,17 @@ function renderWinnerBoard() {
 
     }
 
-
     const board =
         document.createElement("div");
-
 
     board.className =
         "winner-bingo-board";
 
-
     const letters =
         document.createElement("div");
 
-
     letters.className =
         "winner-bingo-letters";
-
 
     [
         "B",
@@ -3270,14 +2696,11 @@ function renderWinnerBoard() {
             const element =
                 document.createElement("div");
 
-
             element.className =
                 "winner-bingo-letter";
 
-
             element.textContent =
                 letter;
-
 
             letters.appendChild(
                 element
@@ -3286,19 +2709,13 @@ function renderWinnerBoard() {
         }
     );
 
-
-    board.appendChild(
-        letters
-    );
-
+    board.appendChild(letters);
 
     const grid =
         document.createElement("div");
 
-
     grid.className =
         "winner-bingo-grid";
-
 
     numbers.forEach(
         number => {
@@ -3306,10 +2723,8 @@ function renderWinnerBoard() {
             const cell =
                 document.createElement("div");
 
-
             cell.className =
                 "winner-bingo-cell";
-
 
             if (
                 number ===
@@ -3320,17 +2735,13 @@ function renderWinnerBoard() {
                     "free"
                 );
 
-
                 cell.textContent =
                     "My Friend";
 
-            }
-
-            else {
+            } else {
 
                 cell.textContent =
                     number;
-
 
                 if (
                     marked.has(number)
@@ -3344,19 +2755,12 @@ function renderWinnerBoard() {
 
             }
 
-
-            grid.appendChild(
-                cell
-            );
+            grid.appendChild(cell);
 
         }
     );
 
-
-    board.appendChild(
-        grid
-    );
-
+    board.appendChild(grid);
 
     winnerBoardContainer.appendChild(
         board
@@ -3373,34 +2777,26 @@ function showWinnerPopup() {
 
     if (!winnerModal) return;
 
-
     const winnerName =
         roomData?.winnerName ||
         "ผู้เล่น";
 
-
     const winnerBoard =
         roomData?.winnerBoard;
-
 
     const isMe =
         roomData?.winnerUid ===
         currentUser?.uid;
-
 
     const prize =
         Number(
             roomData?.prizeAwarded || 0
         );
 
-
     if (winnerNameEl) {
-
         winnerNameEl.textContent =
             winnerName;
-
     }
-
 
     if (winnerMessageEl) {
 
@@ -3420,7 +2816,6 @@ function showWinnerPopup() {
 
     }
 
-
     if (winnerBoardTitle) {
 
         winnerBoardTitle.textContent =
@@ -3431,9 +2826,7 @@ function showWinnerPopup() {
 
     }
 
-
     renderWinnerBoard();
-
 
     if (winnerPrizeEl) {
 
@@ -3451,7 +2844,6 @@ function showWinnerPopup() {
 
     }
 
-
     if (winnerConfirmStatus) {
 
         winnerConfirmStatus.textContent =
@@ -3459,17 +2851,11 @@ function showWinnerPopup() {
 
     }
 
-
     if (winnerConfirmBtn) {
-
-        winnerConfirmBtn.disabled =
-            false;
-
+        winnerConfirmBtn.disabled = false;
     }
 
-
-    winnerModal.hidden =
-        false;
+    winnerModal.hidden = false;
 
 }
 
@@ -3481,10 +2867,7 @@ function showWinnerPopup() {
 function hideWinnerPopup() {
 
     if (winnerModal) {
-
-        winnerModal.hidden =
-            true;
-
+        winnerModal.hidden = true;
     }
 
 }
@@ -3510,18 +2893,14 @@ async function acknowledgeWinner() {
         !currentUser ||
         !roomId
     ) {
-
         return;
-
     }
-
 
     const roundId =
         roomData?.winnerRoundId ||
         roomData?.roundId ||
         currentRoundId ||
         null;
-
 
     if (!roundId) {
 
@@ -3533,22 +2912,14 @@ async function acknowledgeWinner() {
 
     }
 
-
     if (winnerConfirmBtn) {
-
-        winnerConfirmBtn.disabled =
-            true;
-
+        winnerConfirmBtn.disabled = true;
     }
-
 
     if (winnerConfirmStatus) {
-
         winnerConfirmStatus.textContent =
             "กำลังบันทึก...";
-
     }
-
 
     try {
 
@@ -3574,32 +2945,22 @@ async function acknowledgeWinner() {
             }
         );
 
-
-        winnerPopupRoundId =
-            null;
-
+        winnerPopupRoundId = null;
 
         hideWinnerPopup();
 
-
         resetLocalBoards();
 
-
-        gameFinished =
-            false;
-
+        gameFinished = false;
 
         updateRoomInfo();
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "ACKNOWLEDGE WINNER ERROR:",
             error
         );
-
 
         if (winnerConfirmStatus) {
 
@@ -3608,12 +2969,8 @@ async function acknowledgeWinner() {
 
         }
 
-
         if (winnerConfirmBtn) {
-
-            winnerConfirmBtn.disabled =
-                false;
-
+            winnerConfirmBtn.disabled = false;
         }
 
     }
@@ -3637,17 +2994,14 @@ function updateBoardControls() {
 
     }
 
-
     if (!buyBoardBtn) return;
-
 
     if (
         boards.length >=
         MAX_BOARDS
     ) {
 
-        buyBoardBtn.disabled =
-            true;
+        buyBoardBtn.disabled = true;
 
         buyBoardBtn.innerHTML =
             "ครบ 4 กระดานแล้ว";
@@ -3656,19 +3010,16 @@ function updateBoardControls() {
 
     }
 
-
     const status =
         roomData?.status ||
         "waiting";
-
 
     if (
         status !== "waiting" &&
         status !== "countdown"
     ) {
 
-        buyBoardBtn.disabled =
-            true;
+        buyBoardBtn.disabled = true;
 
         buyBoardBtn.innerHTML =
             "🔒 ล็อคระหว่างเกม";
@@ -3677,11 +3028,9 @@ function updateBoardControls() {
 
     }
 
-
     buyBoardBtn.disabled =
         playerCoins <
         BOARD_PRICE;
-
 
     buyBoardBtn.innerHTML =
         "➕ ซื้อกระดาน " +
@@ -3708,49 +3057,62 @@ async function buyBoard() {
         boards.length >=
         MAX_BOARDS
     ) {
-
         return;
-
     }
-
 
     const status =
         roomData?.status ||
         "waiting";
 
-
     if (
         status !== "waiting" &&
         status !== "countdown"
     ) {
-
         return;
-
     }
-
 
     if (!currentUser || !roomId) return;
 
-
-    if (
-        playerCoins <
-        BOARD_PRICE
-    ) {
-
-        alert(
-            "เหรียญไม่เพียงพอ"
-        );
-
-        return;
-
-    }
-
-
-    buyBoardBtn.disabled =
-        true;
-
+    buyBoardBtn.disabled = true;
 
     try {
+
+        const roomRef =
+            ref(
+                database,
+                "bingoRooms/" +
+                roomId
+            );
+
+        const roomSnapshot =
+            await get(roomRef);
+
+        if (!roomSnapshot.exists()) {
+            throw new Error(
+                "ไม่พบห้อง Bingo"
+            );
+        }
+
+        const currentRoom =
+            roomSnapshot.val();
+
+        if (
+            currentRoom.status !== "waiting" &&
+            currentRoom.status !== "countdown"
+        ) {
+            throw new Error(
+                "ไม่สามารถซื้อกระดานในช่วงนี้ได้"
+            );
+        }
+
+        // =================================================
+        // สำคัญ:
+        // สร้างกระดานไว้ก่อน
+        // แล้วค่อยทำธุรกรรมเงิน
+        // =================================================
+
+        const newBoard =
+            createBoard();
 
         const walletRef =
             ref(
@@ -3759,50 +3121,59 @@ async function buyBoard() {
                 currentUser.uid
             );
 
+        const transactionResult =
+            await runTransaction(
+                walletRef,
+                wallet => {
 
-        const snapshot =
-            await get(walletRef);
+                    if (!wallet) {
+                        return;
+                    }
 
+                    const coins =
+                        Number(
+                            wallet.coins || 0
+                        );
 
-        if (!snapshot.exists()) {
+                    if (
+                        coins <
+                        BOARD_PRICE
+                    ) {
+                        return;
+                    }
 
-            throw new Error(
-                "ไม่พบ Wallet"
+                    return {
+                        ...wallet,
+                        coins:
+                            coins -
+                            BOARD_PRICE
+                    };
+
+                }
             );
-
-        }
-
-
-        const wallet =
-            snapshot.val();
-
-
-        const currentCoins =
-            Number(
-                wallet.coins || 0
-            );
-
 
         if (
-            currentCoins <
-            BOARD_PRICE
+            !transactionResult.committed
         ) {
 
-            playerCoins =
-                currentCoins;
-
-
-            updateCoinDisplay();
-
-
-            alert(
-                "เหรียญไม่เพียงพอ"
+            throw new Error(
+                "เหรียญไม่เพียงพอ หรือ Wallet ถูกเปลี่ยนแปลง"
             );
-
-            return;
 
         }
 
+        const newWallet =
+            transactionResult.snapshot.val();
+
+        const newCoins =
+            Number(
+                newWallet.coins || 0
+            );
+
+
+        // =================================================
+        // บันทึกประวัติการซื้อ
+        // =================================================
 
         const txRef =
             push(
@@ -3814,51 +3185,53 @@ async function buyBoard() {
                 )
             );
 
-
-        await update(
-            walletRef,
+        await set(
+            txRef,
             {
 
-                coins:
-                    currentCoins -
+                type:
+                    "debit",
+
+                amount:
                     BOARD_PRICE,
 
-                [
-                    "transactions/" +
-                    txRef.key
-                ]: {
+                reason:
+                    "ซื้อกระดาน Bingo เพิ่ม",
 
-                    type:
-                        "debit",
-
-                    amount:
-                        BOARD_PRICE,
-
-                    reason:
-                        "ซื้อกระดาน Bingo เพิ่ม",
-
-                    timestamp:
-                        Date.now()
-
-                }
+                timestamp:
+                    Date.now()
 
             }
         );
 
 
-        const roomRef =
-            ref(
-                database,
-                "bingoRooms/" +
-                roomId
-            );
+        // =================================================
+        // เพิ่มเงินเข้าห้อง
+        // =================================================
 
-
-        const roomSnapshot =
+        const latestRoomSnapshot =
             await get(roomRef);
 
+        if (!latestRoomSnapshot.exists()) {
 
-        if (!roomSnapshot.exists()) {
+            // คืนเงินถ้าห้องหาย
+            await runTransaction(
+                walletRef,
+                wallet => {
+
+                    if (!wallet) return;
+
+                    return {
+                        ...wallet,
+                        coins:
+                            Number(
+                                wallet.coins || 0
+                            ) +
+                            BOARD_PRICE
+                    };
+
+                }
+            );
 
             throw new Error(
                 "ไม่พบห้อง Bingo"
@@ -3866,16 +3239,44 @@ async function buyBoard() {
 
         }
 
+        const latestRoom =
+            latestRoomSnapshot.val();
 
-        const currentRoom =
-            roomSnapshot.val();
+        if (
+            latestRoom.status !== "waiting" &&
+            latestRoom.status !== "countdown"
+        ) {
+
+            // คืนเงินถ้าสถานะเปลี่ยนระหว่างซื้อ
+            await runTransaction(
+                walletRef,
+                wallet => {
+
+                    if (!wallet) return;
+
+                    return {
+                        ...wallet,
+                        coins:
+                            Number(
+                                wallet.coins || 0
+                            ) +
+                            BOARD_PRICE
+                    };
+
+                }
+            );
+
+            throw new Error(
+                "เกมเริ่มแล้ว ไม่สามารถซื้อกระดานได้"
+            );
+
+        }
 
 
         const currentPot =
             Number(
-                currentRoom.pot || 0
+                latestRoom.pot || 0
             );
-
 
         await update(
             roomRef,
@@ -3892,38 +3293,35 @@ async function buyBoard() {
         );
 
 
-        playerCoins =
-            currentCoins -
-            BOARD_PRICE;
-
+        // =================================================
+        // สำคัญ:
+        // เพิ่มกระดานเฉพาะหลังธุรกรรมสำเร็จ
+        // =================================================
 
         boards.push(
-            createBoard()
+            newBoard
         );
 
+        playerCoins =
+            newCoins;
 
         updateCoinDisplay();
 
         renderBoards();
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "BUY BOARD ERROR:",
             error
         );
 
-
         alert(
             "ซื้อกระดานไม่สำเร็จ\n" +
             error.message
         );
 
-    }
-
-    finally {
+    } finally {
 
         updateBoardControls();
 
@@ -3948,19 +3346,14 @@ async function drawNumber() {
 
     if (!currentUser || !roomId) return;
 
-
     if (
         roomData?.status !==
         "playing"
     ) {
-
         return;
-
     }
 
-
     if (gameFinished) return;
-
 
     const roomRef =
         ref(
@@ -3969,47 +3362,35 @@ async function drawNumber() {
             roomId
         );
 
-
     try {
 
         const snapshot =
             await get(roomRef);
 
-
         if (!snapshot.exists()) {
-
             throw new Error(
                 "ไม่พบห้อง Bingo นี้"
             );
-
         }
-
 
         const room =
             snapshot.val();
-
 
         if (
             room.hostUid !==
             currentUser.uid
         ) {
-
             throw new Error(
                 "คุณไม่มีสิทธิ์สุ่มเลข"
             );
-
         }
-
 
         if (
             room.status !==
             "playing"
         ) {
-
             return;
-
         }
-
 
         const numbers =
             Array.isArray(
@@ -4020,9 +3401,7 @@ async function drawNumber() {
                     room.drawnNumbers || {}
                 );
 
-
         const availableNumbers = [];
-
 
         for (
             let number = 1;
@@ -4042,7 +3421,6 @@ async function drawNumber() {
 
         }
 
-
         if (
             availableNumbers.length === 0
         ) {
@@ -4055,26 +3433,20 @@ async function drawNumber() {
 
         }
 
-
         const randomIndex =
             Math.floor(
                 Math.random() *
                 availableNumbers.length
             );
 
-
         const number =
-            availableNumbers[
-                randomIndex
-            ];
-
+            availableNumbers[randomIndex];
 
         const newNumbers =
             [
                 ...numbers,
                 number
             ];
-
 
         let newLatest =
             Array.isArray(
@@ -4085,13 +3457,11 @@ async function drawNumber() {
                     room.latestNumbers || {}
                 );
 
-
         newLatest =
             [
                 number,
                 ...newLatest
             ].slice(0, 5);
-
 
         await update(
             roomRef,
@@ -4109,31 +3479,24 @@ async function drawNumber() {
             }
         );
 
-
         if (drawResult) {
 
             drawResult.textContent =
-                formatBingoNumber(
-                    number
-                );
+                formatBingoNumber(number);
 
         }
-
 
         addSystemMessage(
             "🎲 ออกเลข " +
             formatBingoNumber(number)
         );
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "DRAW NUMBER ERROR:",
             error
         );
-
 
         alert(
             "ออกเลขไม่สำเร็จ\n" +
@@ -4153,12 +3516,10 @@ function updateLatestDraw() {
 
     if (!latestDrawNumber) return;
 
-
     const number =
         latestNumbers.length > 0
             ? latestNumbers[0]
             : null;
-
 
     if (
         typeof number !==
@@ -4175,14 +3536,11 @@ function updateLatestDraw() {
 
     }
 
-
     const letter =
         getBingoLetter(number);
 
-
     latestDrawNumber.textContent =
         formatBingoNumber(number);
-
 
     latestDrawNumber.className =
         "latest-draw-number latest-" +
@@ -4199,10 +3557,7 @@ function updateLatestNumbers() {
 
     if (!latestNumbersElement) return;
 
-
-    latestNumbersElement.innerHTML =
-        "";
-
+    latestNumbersElement.innerHTML = "";
 
     for (
         let i = 0;
@@ -4213,35 +3568,27 @@ function updateLatestNumbers() {
         const span =
             document.createElement("span");
 
-
         const number =
             latestNumbers[i];
-
 
         if (
             typeof number !==
             "number"
         ) {
 
-            span.textContent =
-                "-";
-
+            span.textContent = "-";
 
             span.classList.add(
                 "latest-empty"
             );
 
-        }
-
-        else {
+        } else {
 
             const letter =
                 getBingoLetter(number);
 
-
             span.textContent =
                 formatBingoNumber(number);
-
 
             span.classList.add(
                 "latest-" +
@@ -4249,7 +3596,6 @@ function updateLatestNumbers() {
             );
 
         }
-
 
         latestNumbersElement.appendChild(
             span
@@ -4270,15 +3616,10 @@ function subscribeChat() {
         !roomId ||
         chatListenerStarted
     ) {
-
         return;
-
     }
 
-
-    chatListenerStarted =
-        true;
-
+    chatListenerStarted = true;
 
     const chatRef =
         ref(
@@ -4288,24 +3629,17 @@ function subscribeChat() {
             "/chat"
         );
 
-
     onValue(
         chatRef,
         snapshot => {
 
             if (!chatMessages) return;
 
-
-            chatMessages.innerHTML =
-                "";
-
+            chatMessages.innerHTML = "";
 
             if (!snapshot.exists()) {
-
                 return;
-
             }
-
 
             const messages =
                 Object.values(
@@ -4321,10 +3655,8 @@ function subscribeChat() {
                         )
                 );
 
-
             const latest =
                 messages.slice(-5);
-
 
             latest.forEach(
                 message => {
@@ -4335,7 +3667,6 @@ function subscribeChat() {
 
                 }
             );
-
 
             chatMessages.scrollTop =
                 chatMessages.scrollHeight;
@@ -4365,15 +3696,10 @@ function openChatModal() {
         !chatModal ||
         !expandedChatMessages
     ) {
-
         return;
-
     }
 
-
-    expandedChatMessages.innerHTML =
-        "";
-
+    expandedChatMessages.innerHTML = "";
 
     if (chatMessages) {
 
@@ -4382,13 +3708,11 @@ function openChatModal() {
                 ".chat-message"
             );
 
-
         messages.forEach(
             message => {
 
                 const clone =
                     message.cloneNode(true);
-
 
                 expandedChatMessages.appendChild(
                     clone
@@ -4399,10 +3723,7 @@ function openChatModal() {
 
     }
 
-
-    chatModal.hidden =
-        false;
-
+    chatModal.hidden = false;
 
     expandedChatMessages.scrollTop =
         expandedChatMessages.scrollHeight;
@@ -4413,10 +3734,7 @@ function openChatModal() {
 function closeChatModal() {
 
     if (chatModal) {
-
-        chatModal.hidden =
-            true;
-
+        chatModal.hidden = true;
     }
 
 }
@@ -4431,11 +3749,8 @@ chatSection?.addEventListener(
                 ".chat-input-row"
             )
         ) {
-
             return;
-
         }
-
 
         openChatModal();
 
@@ -4457,9 +3772,7 @@ chatModal?.addEventListener(
             event.target ===
             chatModal
         ) {
-
             closeChatModal();
-
         }
 
     }
@@ -4500,19 +3813,14 @@ async function sendChat() {
     const text =
         chatInput?.value.trim();
 
-
     if (!text) return;
-
 
     if (
         !currentUser ||
         !roomId
     ) {
-
         return;
-
     }
-
 
     try {
 
@@ -4524,10 +3832,8 @@ async function sendChat() {
                 "/chat"
             );
 
-
         const messageRef =
             push(chatRef);
-
 
         await set(
             messageRef,
@@ -4549,13 +3855,9 @@ async function sendChat() {
             }
         );
 
+        chatInput.value = "";
 
-        chatInput.value =
-            "";
-
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "SEND CHAT ERROR:",
@@ -4577,14 +3879,11 @@ function renderChatMessage(
 
     if (!chatMessages) return;
 
-
     const element =
         document.createElement("div");
 
-
     element.className =
         "chat-message";
-
 
     if (
         message.uid ===
@@ -4595,9 +3894,7 @@ function renderChatMessage(
             "my-message"
         );
 
-    }
-
-    else {
+    } else {
 
         element.classList.add(
             "other-message"
@@ -4605,20 +3902,16 @@ function renderChatMessage(
 
     }
 
-
     const nameElement =
         document.createElement("b");
-
 
     nameElement.textContent =
         message.displayName ||
         "Player";
 
-
     element.appendChild(
         nameElement
     );
-
 
     element.appendChild(
         document.createTextNode(
@@ -4626,7 +3919,6 @@ function renderChatMessage(
             (message.text || "")
         )
     );
-
 
     chatMessages.appendChild(
         element
@@ -4647,11 +3939,8 @@ async function addSystemMessage(
         !currentUser ||
         !roomId
     ) {
-
         return;
-
     }
-
 
     try {
 
@@ -4663,10 +3952,8 @@ async function addSystemMessage(
                 "/chat"
             );
 
-
         const messageRef =
             push(chatRef);
-
 
         await set(
             messageRef,
@@ -4687,9 +3974,7 @@ async function addSystemMessage(
             }
         );
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "SYSTEM MESSAGE ERROR:",
@@ -4710,10 +3995,7 @@ leaveRoomBtn?.addEventListener(
     () => {
 
         if (leaveModal) {
-
-            leaveModal.hidden =
-                false;
-
+            leaveModal.hidden = false;
         }
 
     }
@@ -4725,10 +4007,7 @@ cancelLeaveBtn?.addEventListener(
     () => {
 
         if (leaveModal) {
-
-            leaveModal.hidden =
-                true;
-
+            leaveModal.hidden = true;
         }
 
     }
@@ -4740,12 +4019,8 @@ confirmLeaveBtn?.addEventListener(
     async () => {
 
         if (leaveModal) {
-
-            leaveModal.hidden =
-                true;
-
+            leaveModal.hidden = true;
         }
-
 
         await leaveRoom();
 
@@ -4761,10 +4036,7 @@ leaveModal?.addEventListener(
             event.target ===
             leaveModal
         ) {
-
-            leaveModal.hidden =
-                true;
-
+            leaveModal.hidden = true;
         }
 
     }
@@ -4783,11 +4055,9 @@ async function leaveRoom() {
     ) {
 
         goBackToRoom();
-
         return;
 
     }
-
 
     try {
 
@@ -4798,7 +4068,6 @@ async function leaveRoom() {
                 roomId
             );
 
-
         const playerRef =
             ref(
                 database,
@@ -4808,16 +4077,13 @@ async function leaveRoom() {
                 currentUser.uid
             );
 
-
         try {
 
             await onDisconnect(
                 playerRef
             ).cancel();
 
-        }
-
-        catch (disconnectError) {
+        } catch (disconnectError) {
 
             console.warn(
                 "CANCEL DISCONNECT WARNING:",
@@ -4826,22 +4092,18 @@ async function leaveRoom() {
 
         }
 
-
         const snapshot =
             await get(roomRef);
-
 
         if (snapshot.exists()) {
 
             const room =
                 snapshot.val();
 
-
             const currentPlayers =
                 {
                     ...(room.players || {})
                 };
-
 
             if (
                 currentPlayers[
@@ -4853,12 +4115,10 @@ async function leaveRoom() {
                     currentUser.uid
                 ];
 
-
                 const remainingIds =
                     Object.keys(
                         currentPlayers
                     );
-
 
                 if (
                     remainingIds.length === 0
@@ -4869,17 +4129,13 @@ async function leaveRoom() {
                         null
                     );
 
-                }
-
-                else {
+                } else {
 
                     let newHostUid =
                         room.hostUid;
 
-
                     let newHostName =
                         room.hostName;
-
 
                     if (
                         currentUser.uid ===
@@ -4889,7 +4145,6 @@ async function leaveRoom() {
                         newHostUid =
                             remainingIds[0];
 
-
                         newHostName =
                             currentPlayers[
                                 newHostUid
@@ -4897,7 +4152,6 @@ async function leaveRoom() {
                             "Player";
 
                     }
-
 
                     await update(
                         roomRef,
@@ -4927,9 +4181,7 @@ async function leaveRoom() {
 
         }
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "LEAVE ROOM ERROR:",
@@ -4937,7 +4189,6 @@ async function leaveRoom() {
         );
 
     }
-
 
     goBackToRoom();
 
@@ -4955,7 +4206,6 @@ function goBackToRoom() {
             "../room/bingo-room.html",
             window.location.href
         );
-
 
     window.location.assign(
         roomUrl.href
