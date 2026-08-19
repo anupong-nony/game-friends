@@ -4,11 +4,9 @@
 // admin.js
 // =====================================================
 
-
 import {
     initializeApp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
 
 import {
     getAuth,
@@ -17,14 +15,14 @@ import {
     browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-
 import {
     getDatabase,
     ref,
     get,
+    set,
     update,
-    increment,
-    push
+    push,
+    runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 
@@ -34,7 +32,8 @@ import {
 
 const firebaseConfig = {
 
-    apiKey: "AIzaSyAcRatG8t0HBhUVjIGYyey6OCAi14iNAos",
+    apiKey:
+        "AIzaSyAcRatG8t0HBhUVjIGYyey6OCAi14iNAos",
 
     authDomain:
         "game-friends-58035.firebaseapp.com",
@@ -58,21 +57,15 @@ const firebaseConfig = {
 
 
 const app =
-    initializeApp(
-        firebaseConfig
-    );
+    initializeApp(firebaseConfig);
 
 
 const auth =
-    getAuth(
-        app
-    );
+    getAuth(app);
 
 
 const database =
-    getDatabase(
-        app
-    );
+    getDatabase(app);
 
 
 // =====================================================
@@ -98,87 +91,46 @@ const GM_UIDS =
 // =====================================================
 
 const panelUsername =
-    document.getElementById(
-        "panelUsername"
-    );
-
+    document.getElementById("panelUsername");
 
 const playerCount =
-    document.getElementById(
-        "playerCount"
-    );
-
+    document.getElementById("playerCount");
 
 const playerOnlineCount =
-    document.getElementById(
-        "playerOnlineCount"
-    );
-
+    document.getElementById("playerOnlineCount");
 
 const gmCount =
-    document.getElementById(
-        "gmCount"
-    );
-
+    document.getElementById("gmCount");
 
 const gmOnlineCount =
-    document.getElementById(
-        "gmOnlineCount"
-    );
-
+    document.getElementById("gmOnlineCount");
 
 const gmWalletBalance =
-    document.getElementById(
-        "gmWalletBalance"
-    );
-
+    document.getElementById("gmWalletBalance");
 
 const gmWalletModalBalance =
-    document.getElementById(
-        "gmWalletModalBalance"
-    );
-
+    document.getElementById("gmWalletModalBalance");
 
 const compensationCount =
-    document.getElementById(
-        "compensationCount"
-    );
-
+    document.getElementById("compensationCount");
 
 const transactionPreview =
-    document.getElementById(
-        "transactionPreview"
-    );
-
+    document.getElementById("transactionPreview");
 
 const allTransactionsList =
-    document.getElementById(
-        "allTransactionsList"
-    );
-
+    document.getElementById("allTransactionsList");
 
 const playersList =
-    document.getElementById(
-        "playersList"
-    );
-
+    document.getElementById("playersList");
 
 const gmList =
-    document.getElementById(
-        "gmList"
-    );
-
+    document.getElementById("gmList");
 
 const playerDetailContent =
-    document.getElementById(
-        "playerDetailContent"
-    );
-
+    document.getElementById("playerDetailContent");
 
 const gmDetailContent =
-    document.getElementById(
-        "gmDetailContent"
-    );
+    document.getElementById("gmDetailContent");
 
 
 // =====================================================
@@ -186,97 +138,93 @@ const gmDetailContent =
 // =====================================================
 
 const transactionsModal =
-    document.getElementById(
-        "transactionsModal"
-    );
-
+    document.getElementById("transactionsModal");
 
 const compensationModal =
-    document.getElementById(
-        "compensationModal"
-    );
-
+    document.getElementById("compensationModal");
 
 const gmWalletModal =
-    document.getElementById(
-        "gmWalletModal"
-    );
-
+    document.getElementById("gmWalletModal");
 
 const playersModal =
-    document.getElementById(
-        "playersModal"
-    );
-
+    document.getElementById("playersModal");
 
 const playerDetailModal =
-    document.getElementById(
-        "playerDetailModal"
-    );
-
+    document.getElementById("playerDetailModal");
 
 const gmModal =
-    document.getElementById(
-        "gmModal"
-    );
-
+    document.getElementById("gmModal");
 
 const gmDetailModal =
-    document.getElementById(
-        "gmDetailModal"
-    );
-
+    document.getElementById("gmDetailModal");
 
 const announcementModal =
-    document.getElementById(
-        "announcementModal"
-    );
-
+    document.getElementById("announcementModal");
 
 const rewardModal =
-    document.getElementById(
-        "rewardModal"
-    );
-
+    document.getElementById("rewardModal");
 
 const notificationModal =
-    document.getElementById(
-        "notificationModal"
-    );
+    document.getElementById("notificationModal");
 
 
 // =====================================================
-// GM WALLET FORM
+// GM WALLET
 // =====================================================
 
 const gmWalletForm =
-    document.getElementById(
-        "gmWalletForm"
-    );
-
+    document.getElementById("gmWalletForm");
 
 const gmWalletAmount =
-    document.getElementById(
-        "gmWalletAmount"
-    );
-
+    document.getElementById("gmWalletAmount");
 
 const gmWalletReason =
-    document.getElementById(
-        "gmWalletReason"
-    );
-
+    document.getElementById("gmWalletReason");
 
 const gmWalletDepositBtn =
-    document.getElementById(
-        "gmWalletDepositBtn"
-    );
-
+    document.getElementById("gmWalletDepositBtn");
 
 const gmWalletWithdrawBtn =
-    document.getElementById(
-        "gmWalletWithdrawBtn"
-    );
+    document.getElementById("gmWalletWithdrawBtn");
+
+
+// =====================================================
+// Reward
+// =====================================================
+
+const rewardForm =
+    document.getElementById("rewardForm");
+
+const rewardTarget =
+    document.getElementById("rewardTarget");
+
+const rewardAmount =
+    document.getElementById("rewardAmount");
+
+const rewardReason =
+    document.getElementById("rewardReason");
+
+
+// =====================================================
+// Announcement
+// =====================================================
+
+const announcementForm =
+    document.getElementById("announcementForm");
+
+const announcementTitle =
+    document.getElementById("announcementTitle");
+
+const announcementMessage =
+    document.getElementById("announcementMessage");
+
+
+// =====================================================
+// Notification
+// =====================================================
+
+const notificationList =
+    document.getElementById("notificationList");
 
 
 // =====================================================
@@ -285,26 +233,31 @@ const gmWalletWithdrawBtn =
 
 function getUserRole(uid) {
 
-    if (
-        ADMIN_UIDS.has(uid)
-    ) {
-
+    if (ADMIN_UIDS.has(uid)) {
         return "Admin";
-
     }
 
-
-    if (
-        GM_UIDS.has(uid)
-    ) {
-
+    if (GM_UIDS.has(uid)) {
         return "GM";
-
     }
-
 
     return "Player";
+}
 
+
+// =====================================================
+// Admin Check
+// =====================================================
+
+function isCurrentAdmin() {
+
+    const user =
+        auth.currentUser;
+
+    return !!(
+        user &&
+        ADMIN_UIDS.has(user.uid)
+    );
 }
 
 
@@ -318,10 +271,7 @@ function openModal(modal) {
         return;
     }
 
-    modal.classList.add(
-        "show"
-    );
-
+    modal.classList.add("show");
 }
 
 
@@ -335,10 +285,7 @@ function closeModal(modal) {
         return;
     }
 
-    modal.classList.remove(
-        "show"
-    );
-
+    modal.classList.remove("show");
 }
 
 
@@ -350,9 +297,7 @@ document
     .getElementById("closeTransactionsBtn")
     ?.addEventListener(
         "click",
-        () => closeModal(
-            transactionsModal
-        )
+        () => closeModal(transactionsModal)
     );
 
 
@@ -360,9 +305,7 @@ document
     .getElementById("closeCompensationBtn")
     ?.addEventListener(
         "click",
-        () => closeModal(
-            compensationModal
-        )
+        () => closeModal(compensationModal)
     );
 
 
@@ -370,9 +313,7 @@ document
     .getElementById("closeGmWalletBtn")
     ?.addEventListener(
         "click",
-        () => closeModal(
-            gmWalletModal
-        )
+        () => closeModal(gmWalletModal)
     );
 
 
@@ -380,9 +321,7 @@ document
     .getElementById("closePlayersBtn")
     ?.addEventListener(
         "click",
-        () => closeModal(
-            playersModal
-        )
+        () => closeModal(playersModal)
     );
 
 
@@ -390,9 +329,7 @@ document
     .getElementById("closePlayerDetailBtn")
     ?.addEventListener(
         "click",
-        () => closeModal(
-            playerDetailModal
-        )
+        () => closeModal(playerDetailModal)
     );
 
 
@@ -400,9 +337,7 @@ document
     .getElementById("closeGmBtn")
     ?.addEventListener(
         "click",
-        () => closeModal(
-            gmModal
-        )
+        () => closeModal(gmModal)
     );
 
 
@@ -410,9 +345,7 @@ document
     .getElementById("closeGmDetailBtn")
     ?.addEventListener(
         "click",
-        () => closeModal(
-            gmDetailModal
-        )
+        () => closeModal(gmDetailModal)
     );
 
 
@@ -420,9 +353,7 @@ document
     .getElementById("closeAnnouncementBtn")
     ?.addEventListener(
         "click",
-        () => closeModal(
-            announcementModal
-        )
+        () => closeModal(announcementModal)
     );
 
 
@@ -430,9 +361,7 @@ document
     .getElementById("closeRewardBtn")
     ?.addEventListener(
         "click",
-        () => closeModal(
-            rewardModal
-        )
+        () => closeModal(rewardModal)
     );
 
 
@@ -440,9 +369,7 @@ document
     .getElementById("closeNotificationBtn")
     ?.addEventListener(
         "click",
-        () => closeModal(
-            notificationModal
-        )
+        () => closeModal(notificationModal)
     );
 
 
@@ -480,9 +407,7 @@ document
                         event.target === modal
                     ) {
 
-                        closeModal(
-                            modal
-                        );
+                        closeModal(modal);
 
                     }
 
@@ -504,25 +429,25 @@ function formatDate(timestamp) {
     }
 
     const date =
-        new Date(
-            timestamp
-        );
+        new Date(Number(timestamp));
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+        return "-";
+    }
 
     const day =
         String(
             date.getDate()
-        ).padStart(
-            2,
-            "0"
-        );
+        ).padStart(2, "0");
 
     const month =
         String(
             date.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
-        );
+        ).padStart(2, "0");
 
     const year =
         date.getFullYear();
@@ -530,18 +455,12 @@ function formatDate(timestamp) {
     const hour =
         String(
             date.getHours()
-        ).padStart(
-            2,
-            "0"
-        );
+        ).padStart(2, "0");
 
     const minute =
         String(
             date.getMinutes()
-        ).padStart(
-            2,
-            "0"
-        );
+        ).padStart(2, "0");
 
     return (
         day +
@@ -554,7 +473,25 @@ function formatDate(timestamp) {
         ":" +
         minute
     );
+}
 
+
+// =====================================================
+// Safe Number
+// =====================================================
+
+function safeNumber(value) {
+
+    const number =
+        Number(value);
+
+    if (
+        !Number.isFinite(number)
+    ) {
+        return 0;
+    }
+
+    return number;
 }
 
 
@@ -563,32 +500,25 @@ function formatDate(timestamp) {
 // =====================================================
 
 function createTransactionElement(
-    transaction,
-    full = false
+    transaction
 ) {
 
     const item =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
     item.className =
         "admin-transaction";
 
 
     const left =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
     left.className =
         "transaction-left";
 
 
     const title =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
     title.className =
         "transaction-title";
@@ -618,6 +548,24 @@ function createTransactionElement(
     }
     else if (
         transaction.type ===
+        "reward"
+    ) {
+
+        titleText =
+            "🎁 Admin → Player";
+
+    }
+    else if (
+        transaction.type ===
+        "compensation"
+    ) {
+
+        titleText =
+            "🎁 Compensation";
+
+    }
+    else if (
+        transaction.type ===
         "transfer"
     ) {
 
@@ -630,10 +578,7 @@ function createTransactionElement(
     title.textContent =
         titleText;
 
-
-    left.appendChild(
-        title
-    );
+    left.appendChild(title);
 
 
     if (
@@ -641,9 +586,7 @@ function createTransactionElement(
     ) {
 
         const actor =
-            document.createElement(
-                "div"
-            );
+            document.createElement("div");
 
         actor.className =
             "transaction-detail";
@@ -652,9 +595,7 @@ function createTransactionElement(
             "ผู้ดำเนินการ: " +
             transaction.actorName;
 
-        left.appendChild(
-            actor
-        );
+        left.appendChild(actor);
 
     }
 
@@ -664,9 +605,7 @@ function createTransactionElement(
     ) {
 
         const target =
-            document.createElement(
-                "div"
-            );
+            document.createElement("div");
 
         target.className =
             "transaction-detail";
@@ -675,9 +614,7 @@ function createTransactionElement(
             "ผู้รับ: " +
             transaction.targetName;
 
-        left.appendChild(
-            target
-        );
+        left.appendChild(target);
 
     }
 
@@ -687,9 +624,7 @@ function createTransactionElement(
     ) {
 
         const reason =
-            document.createElement(
-                "div"
-            );
+            document.createElement("div");
 
         reason.className =
             "transaction-detail";
@@ -698,17 +633,13 @@ function createTransactionElement(
             "เหตุผล: " +
             transaction.reason;
 
-        left.appendChild(
-            reason
-        );
+        left.appendChild(reason);
 
     }
 
 
     const date =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
     date.className =
         "transaction-date";
@@ -718,44 +649,36 @@ function createTransactionElement(
             transaction.timestamp
         );
 
-    left.appendChild(
-        date
-    );
+    left.appendChild(date);
 
 
     const amount =
-        document.createElement(
-            "div"
-        );
-
+        document.createElement("div");
 
     const number =
-        Number(
-            transaction.amount || 0
+        safeNumber(
+            transaction.amount
         );
 
 
-    let prefix =
-        "+";
+    const negative =
+        transaction.type === "debit" ||
+        transaction.type === "reward" ||
+        transaction.type === "compensation";
 
 
-    if (
-        transaction.type ===
-        "debit"
-    ) {
-
-        prefix =
-            "-";
-
-    }
+    const prefix =
+        negative
+            ? "-"
+            : "+";
 
 
     amount.className =
         "transaction-amount " +
         (
-            prefix === "+"
-                ? "credit"
-                : "debit"
+            negative
+                ? "debit"
+                : "credit"
         );
 
 
@@ -765,17 +688,11 @@ function createTransactionElement(
         " 🪙";
 
 
-    item.appendChild(
-        left
-    );
+    item.appendChild(left);
 
-    item.appendChild(
-        amount
-    );
-
+    item.appendChild(amount);
 
     return item;
-
 }
 
 
@@ -785,25 +702,9 @@ function createTransactionElement(
 
 async function loadGmTransactions() {
 
-    const user =
-        auth.currentUser;
-
-
-    if (!user) {
+    if (!isCurrentAdmin()) {
         return [];
     }
-
-
-    if (
-        !ADMIN_UIDS.has(
-            user.uid
-        )
-    ) {
-
-        return [];
-
-    }
-
 
     try {
 
@@ -828,25 +729,17 @@ async function loadGmTransactions() {
         const transactions =
             Object.entries(data)
                 .map(
-                    ([id, transaction]) => {
-
-                        return {
-                            id,
-                            ...transaction
-                        };
-
-                    }
+                    ([id, transaction]) => ({
+                        id,
+                        ...transaction
+                    })
                 );
 
 
         transactions.sort(
             (a, b) =>
-                Number(
-                    b.timestamp || 0
-                ) -
-                Number(
-                    a.timestamp || 0
-                )
+                safeNumber(b.timestamp) -
+                safeNumber(a.timestamp)
         );
 
 
@@ -861,9 +754,7 @@ async function loadGmTransactions() {
         );
 
         return [];
-
     }
-
 }
 
 
@@ -878,8 +769,7 @@ async function renderTransactionPreview() {
     }
 
 
-    transactionPreview.innerHTML =
-        "";
+    transactionPreview.innerHTML = "";
 
 
     const transactions =
@@ -906,9 +796,7 @@ async function renderTransactionPreview() {
     ) {
 
         const empty =
-            document.createElement(
-                "div"
-            );
+            document.createElement("div");
 
         empty.className =
             "admin-transaction-empty";
@@ -916,12 +804,9 @@ async function renderTransactionPreview() {
         empty.textContent =
             "ยังไม่มีรายการ Transaction";
 
-        transactionPreview.appendChild(
-            empty
-        );
+        transactionPreview.appendChild(empty);
 
     }
-
 }
 
 
@@ -937,11 +822,18 @@ async function renderAllTransactions() {
 
 
     allTransactionsList.innerHTML =
-        "";
+        `
+        <div class="admin-empty">
+            กำลังโหลด Transaction...
+        </div>
+        `;
 
 
     const transactions =
         await loadGmTransactions();
+
+
+    allTransactionsList.innerHTML = "";
 
 
     transactions.forEach(
@@ -949,8 +841,7 @@ async function renderAllTransactions() {
 
             allTransactionsList.appendChild(
                 createTransactionElement(
-                    transaction,
-                    true
+                    transaction
                 )
             );
 
@@ -962,23 +853,14 @@ async function renderAllTransactions() {
         transactions.length === 0
     ) {
 
-        const empty =
-            document.createElement(
-                "div"
-            );
-
-        empty.className =
-            "admin-empty";
-
-        empty.textContent =
-            "ยังไม่มีรายการ Transaction";
-
-        allTransactionsList.appendChild(
-            empty
-        );
+        allTransactionsList.innerHTML =
+            `
+            <div class="admin-empty">
+                ยังไม่มีรายการ Transaction
+            </div>
+            `;
 
     }
-
 }
 
 
@@ -1002,12 +884,8 @@ async function loadGmMembers() {
             );
 
 
-        if (
-            !snapshot.exists()
-        ) {
-
+        if (!snapshot.exists()) {
             return {};
-
         }
 
 
@@ -1015,25 +893,22 @@ async function loadGmMembers() {
             snapshot.val();
 
 
-        Object.entries(
-            data
-        ).forEach(
-            ([uid, member]) => {
+        Object.entries(data)
+            .forEach(
+                ([uid, member]) => {
 
-                if (
-                    member &&
-                    member.role === "gm" &&
-                    member.status === "active"
-                ) {
+                    if (
+                        member &&
+                        member.role === "gm" &&
+                        member.status === "active"
+                    ) {
 
-                    GM_UIDS.add(
-                        uid
-                    );
+                        GM_UIDS.add(uid);
+
+                    }
 
                 }
-
-            }
-        );
+            );
 
 
         return data;
@@ -1047,14 +922,12 @@ async function loadGmMembers() {
         );
 
         return {};
-
     }
-
 }
 
 
 // =====================================================
-// Online Users
+// Online Counts
 // =====================================================
 
 async function loadOnlineCounts() {
@@ -1075,60 +948,51 @@ async function loadOnlineCounts() {
         let gmsOnline = 0;
 
 
-        if (
-            snapshot.exists()
-        ) {
+        if (snapshot.exists()) {
 
             const onlineUsers =
                 snapshot.val();
 
 
-            Object.entries(
-                onlineUsers
-            ).forEach(
-                ([uid, data]) => {
+            Object.entries(onlineUsers)
+                .forEach(
+                    ([uid, data]) => {
 
-                    if (!data) {
-                        return;
-                    }
-
-
-                    if (
-                        data.online === false
-                    ) {
-
-                        return;
-
-                    }
+                        if (!data) {
+                            return;
+                        }
 
 
-                    if (
-                        ADMIN_UIDS.has(
-                            uid
-                        )
-                    ) {
-
-                        return;
-
-                    }
+                        if (
+                            data.online === false
+                        ) {
+                            return;
+                        }
 
 
-                    if (
-                        GM_UIDS.has(uid) ||
-                        data.role === "gm"
-                    ) {
+                        if (
+                            ADMIN_UIDS.has(uid)
+                        ) {
+                            return;
+                        }
 
-                        gmsOnline++;
 
-                    }
-                    else {
+                        if (
+                            GM_UIDS.has(uid) ||
+                            data.role === "gm"
+                        ) {
 
-                        playersOnline++;
+                            gmsOnline++;
+
+                        }
+                        else {
+
+                            playersOnline++;
+
+                        }
 
                     }
-
-                }
-            );
+                );
 
         }
 
@@ -1160,22 +1024,15 @@ async function loadOnlineCounts() {
 
 
         if (playerOnlineCount) {
-
             playerOnlineCount.textContent =
                 "Online —";
-
         }
-
 
         if (gmOnlineCount) {
-
             gmOnlineCount.textContent =
                 "Online —";
-
         }
-
     }
-
 }
 
 
@@ -1196,18 +1053,14 @@ async function loadUserCounter() {
             );
 
 
-        if (
-            snapshot.exists()
-        ) {
-
-            return Number(
-                snapshot.val()
-            ) || 0;
-
+        if (!snapshot.exists()) {
+            return 0;
         }
 
 
-        return 0;
+        return safeNumber(
+            snapshot.val()
+        );
 
     }
     catch (error) {
@@ -1218,14 +1071,12 @@ async function loadUserCounter() {
         );
 
         return 0;
-
     }
-
 }
 
 
 // =====================================================
-// Dashboard Player / GM Count
+// Dashboard Counts
 // =====================================================
 
 async function loadDashboardCounts() {
@@ -1243,23 +1094,22 @@ async function loadDashboardCounts() {
         let totalGms = 0;
 
 
-        Object.entries(
-            gmMembers
-        ).forEach(
-            ([uid, data]) => {
+        Object.entries(gmMembers)
+            .forEach(
+                ([uid, data]) => {
 
-                if (
-                    data &&
-                    data.role === "gm" &&
-                    data.status === "active"
-                ) {
+                    if (
+                        data &&
+                        data.role === "gm" &&
+                        data.status === "active"
+                    ) {
 
-                    totalGms++;
+                        totalGms++;
+
+                    }
 
                 }
-
-            }
-        );
+            );
 
 
         const playerTotal =
@@ -1272,18 +1122,14 @@ async function loadDashboardCounts() {
 
 
         if (playerCount) {
-
             playerCount.textContent =
                 playerTotal;
-
         }
 
 
         if (gmCount) {
-
             gmCount.textContent =
                 totalGms;
-
         }
 
 
@@ -1296,9 +1142,7 @@ async function loadDashboardCounts() {
             "LOAD DASHBOARD COUNTS ERROR:",
             error
         );
-
     }
-
 }
 
 
@@ -1307,6 +1151,11 @@ async function loadDashboardCounts() {
 // =====================================================
 
 async function loadGmWalletDetails() {
+
+    if (!isCurrentAdmin()) {
+        return 0;
+    }
+
 
     try {
 
@@ -1322,17 +1171,14 @@ async function loadGmWalletDetails() {
         let coins = 0;
 
 
-        if (
-            snapshot.exists()
-        ) {
+        if (snapshot.exists()) {
 
             const data =
                 snapshot.val();
 
-
             coins =
-                Number(
-                    data.coins || 0
+                safeNumber(
+                    data.coins
                 );
 
         }
@@ -1354,6 +1200,9 @@ async function loadGmWalletDetails() {
 
         }
 
+
+        return coins;
+
     }
     catch (error) {
 
@@ -1362,8 +1211,8 @@ async function loadGmWalletDetails() {
             error
         );
 
+        return 0;
     }
-
 }
 
 
@@ -1378,36 +1227,27 @@ function createUserListItem(
 ) {
 
     const button =
-        document.createElement(
-            "button"
-        );
-
+        document.createElement("button");
 
     button.type =
         "button";
-
 
     button.className =
         "user-list-item";
 
 
     const main =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
     main.className =
         "user-main";
 
 
     const name =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
     name.className =
         "user-name";
-
 
     name.textContent =
         data.displayName ||
@@ -1416,41 +1256,30 @@ function createUserListItem(
 
 
     const id =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
     id.className =
         "user-id";
-
 
     id.textContent =
         "UID: " +
         uid;
 
 
-    main.appendChild(
-        name
-    );
+    main.appendChild(name);
 
-    main.appendChild(
-        id
-    );
+    main.appendChild(id);
 
 
     const right =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
     right.className =
         "user-right";
 
 
     const online =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
 
     const isOnline =
@@ -1469,27 +1298,19 @@ function createUserListItem(
             : "Offline";
 
 
-    right.appendChild(
-        online
-    );
+    right.appendChild(online);
 
 
-    button.appendChild(
-        main
-    );
+    button.appendChild(main);
 
-    button.appendChild(
-        right
-    );
+    button.appendChild(right);
 
 
     button.addEventListener(
         "click",
         () => {
 
-            if (
-                type === "gm"
-            ) {
+            if (type === "gm") {
 
                 openGmDetails(
                     uid,
@@ -1511,7 +1332,6 @@ function createUserListItem(
 
 
     return button;
-
 }
 
 
@@ -1545,9 +1365,7 @@ async function loadAllPlayers() {
             );
 
 
-        if (
-            !snapshot.exists()
-        ) {
+        if (!snapshot.exists()) {
 
             playersList.innerHTML =
                 `
@@ -1557,7 +1375,6 @@ async function loadAllPlayers() {
                 `;
 
             return;
-
         }
 
 
@@ -1566,37 +1383,26 @@ async function loadAllPlayers() {
 
 
         const entries =
-            Object.entries(
-                users
-            )
-            .filter(
-                ([uid, data]) => {
+            Object.entries(users)
+                .filter(
+                    ([uid, data]) => {
 
-                    if (
-                        ADMIN_UIDS.has(
-                            uid
-                        )
-                    ) {
+                        if (
+                            ADMIN_UIDS.has(uid)
+                        ) {
+                            return false;
+                        }
 
-                        return false;
+                        if (
+                            data &&
+                            data.role === "gm"
+                        ) {
+                            return false;
+                        }
 
+                        return true;
                     }
-
-
-                    if (
-                        data &&
-                        data.role === "gm"
-                    ) {
-
-                        return false;
-
-                    }
-
-
-                    return true;
-
-                }
-            );
+                );
 
 
         entries.sort(
@@ -1621,20 +1427,15 @@ async function loadAllPlayers() {
                 return nameA.localeCompare(
                     nameB
                 );
-
             }
         );
 
 
-        playersList.innerHTML =
-            "";
+        playersList.innerHTML = "";
 
 
         const list =
-            document.createElement(
-                "div"
-            );
-
+            document.createElement("div");
 
         list.className =
             "user-list";
@@ -1655,9 +1456,7 @@ async function loadAllPlayers() {
         );
 
 
-        playersList.appendChild(
-            list
-        );
+        playersList.appendChild(list);
 
 
         if (
@@ -1688,9 +1487,7 @@ async function loadAllPlayers() {
                 โหลดรายชื่อผู้เล่นไม่สำเร็จ
             </div>
             `;
-
     }
-
 }
 
 
@@ -1727,9 +1524,7 @@ async function loadAllGm() {
             );
 
 
-        if (
-            !snapshot.exists()
-        ) {
+        if (!snapshot.exists()) {
 
             gmList.innerHTML =
                 `
@@ -1739,7 +1534,6 @@ async function loadAllGm() {
                 `;
 
             return;
-
         }
 
 
@@ -1748,13 +1542,11 @@ async function loadAllGm() {
 
 
         const entries =
-            Object.entries(
-                users
-            )
-            .filter(
-                ([uid]) =>
-                    GM_UIDS.has(uid)
-            );
+            Object.entries(users)
+                .filter(
+                    ([uid]) =>
+                        GM_UIDS.has(uid)
+                );
 
 
         entries.sort(
@@ -1779,20 +1571,15 @@ async function loadAllGm() {
                 return nameA.localeCompare(
                     nameB
                 );
-
             }
         );
 
 
-        gmList.innerHTML =
-            "";
+        gmList.innerHTML = "";
 
 
         const list =
-            document.createElement(
-                "div"
-            );
-
+            document.createElement("div");
 
         list.className =
             "user-list";
@@ -1813,9 +1600,7 @@ async function loadAllGm() {
         );
 
 
-        gmList.appendChild(
-            list
-        );
+        gmList.appendChild(list);
 
 
         if (
@@ -1846,14 +1631,12 @@ async function loadAllGm() {
                 โหลดรายชื่อ GM ไม่สำเร็จ
             </div>
             `;
-
     }
-
 }
 
 
 // =====================================================
-// Detail Helper
+// Detail Row
 // =====================================================
 
 function addDetailRow(
@@ -1863,18 +1646,14 @@ function addDetailRow(
 ) {
 
     const row =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
     row.className =
         "detail-row";
 
 
     const labelElement =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
     labelElement.className =
         "detail-label";
@@ -1884,9 +1663,7 @@ function addDetailRow(
 
 
     const valueElement =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
     valueElement.className =
         "detail-value";
@@ -1895,19 +1672,11 @@ function addDetailRow(
         value ?? "-";
 
 
-    row.appendChild(
-        labelElement
-    );
+    row.appendChild(labelElement);
 
-    row.appendChild(
-        valueElement
-    );
+    row.appendChild(valueElement);
 
-
-    container.appendChild(
-        row
-    );
-
+    container.appendChild(row);
 }
 
 
@@ -1925,14 +1694,11 @@ function openPlayerDetails(
     }
 
 
-    playerDetailContent.innerHTML =
-        "";
+    playerDetailContent.innerHTML = "";
 
 
     const card =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
     card.className =
         "detail-card";
@@ -1941,16 +1707,14 @@ function openPlayerDetails(
     addDetailRow(
         card,
         "Display Name",
-        data.displayName ||
-        "-"
+        data.displayName || "-"
     );
 
 
     addDetailRow(
         card,
         "Username",
-        data.username ||
-        "-"
+        data.username || "-"
     );
 
 
@@ -1973,9 +1737,8 @@ function openPlayerDetails(
     addDetailRow(
         card,
         "Coins",
-        Number(
-            data.coins || 0
-        ).toLocaleString() +
+        safeNumber(data.coins)
+            .toLocaleString() +
         " 🪙"
     );
 
@@ -1999,15 +1762,9 @@ function openPlayerDetails(
     );
 
 
-    playerDetailContent.appendChild(
-        card
-    );
+    playerDetailContent.appendChild(card);
 
-
-    openModal(
-        playerDetailModal
-    );
-
+    openModal(playerDetailModal);
 }
 
 
@@ -2025,14 +1782,11 @@ function openGmDetails(
     }
 
 
-    gmDetailContent.innerHTML =
-        "";
+    gmDetailContent.innerHTML = "";
 
 
     const card =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
     card.className =
         "detail-card";
@@ -2041,16 +1795,14 @@ function openGmDetails(
     addDetailRow(
         card,
         "Display Name",
-        data.displayName ||
-        "-"
+        data.displayName || "-"
     );
 
 
     addDetailRow(
         card,
         "Username",
-        data.username ||
-        "-"
+        data.username || "-"
     );
 
 
@@ -2073,9 +1825,8 @@ function openGmDetails(
     addDetailRow(
         card,
         "Coins",
-        Number(
-            data.coins || 0
-        ).toLocaleString() +
+        safeNumber(data.coins)
+            .toLocaleString() +
         " 🪙"
     );
 
@@ -2106,174 +1857,137 @@ function openGmDetails(
     );
 
 
-    gmDetailContent.appendChild(
-        card
-    );
+    gmDetailContent.appendChild(card);
 
-
-    openModal(
-        gmDetailModal
-    );
-
+    openModal(gmDetailModal);
 }
 
 
 // =====================================================
-// Players Card
+// Find User
 // =====================================================
 
-document
-    .getElementById("playersCard")
-    ?.addEventListener(
-        "click",
-        async () => {
+async function findUser(
+    target
+) {
 
-            openModal(
-                playersModal
-            );
+    const search =
+        String(
+            target || ""
+        ).trim()
+        .toLowerCase();
 
 
-            await loadAllPlayers();
+    if (!search) {
+        return null;
+    }
+
+
+    const usersSnapshot =
+        await get(
+            ref(
+                database,
+                "users"
+            )
+        );
+
+
+    if (!usersSnapshot.exists()) {
+        return null;
+    }
+
+
+    const users =
+        usersSnapshot.val();
+
+
+    for (
+        const [uid, user] of
+        Object.entries(users)
+    ) {
+
+        if (!user) {
+            continue;
+        }
+
+
+        if (
+            uid.toLowerCase() === search
+        ) {
+
+            return {
+                uid,
+                data: user
+            };
 
         }
-    );
 
 
-// =====================================================
-// GM Card
-// =====================================================
+        if (
+            String(
+                user.username || ""
+            ).toLowerCase() === search
+        ) {
 
-document
-    .getElementById("gmCard")
-    ?.addEventListener(
-        "click",
-        async () => {
-
-            openModal(
-                gmModal
-            );
-
-
-            await loadAllGm();
+            return {
+                uid,
+                data: user
+            };
 
         }
-    );
 
 
-// =====================================================
-// GM Wallet Card
-// =====================================================
+        if (
+            String(
+                user.friendId ||
+                user.memberId ||
+                ""
+            ).toLowerCase() === search
+        ) {
 
-document
-    .getElementById("gmWalletCard")
-    ?.addEventListener(
-        "click",
-        async () => {
-
-            await loadGmWalletDetails();
-
-            openModal(
-                gmWalletModal
-            );
+            return {
+                uid,
+                data: user
+            };
 
         }
-    );
+
+    }
+
+
+    return null;
+}
 
 
 // =====================================================
-// Compensation Card
+// Set Button Loading
 // =====================================================
 
-document
-    .getElementById("compensationCard")
-    ?.addEventListener(
-        "click",
-        () => {
+function setButtonLoading(
+    button,
+    loading,
+    normalText,
+    loadingText
+) {
 
-            openModal(
-                compensationModal
-            );
-
-        }
-    );
+    if (!button) {
+        return;
+    }
 
 
-// =====================================================
-// Transactions
-// =====================================================
+    button.disabled =
+        loading;
 
-document
-    .getElementById("viewAllTransactionsBtn")
-    ?.addEventListener(
-        "click",
-        async () => {
 
-            await renderAllTransactions();
-
-            openModal(
-                transactionsModal
-            );
-
-        }
-    );
+    button.textContent =
+        loading
+            ? loadingText
+            : normalText;
+}
 
 
 // =====================================================
-// Announcement
-// =====================================================
-
-document
-    .getElementById("announcementBtn")
-    ?.addEventListener(
-        "click",
-        () => {
-
-            openModal(
-                announcementModal
-            );
-
-        }
-    );
-
-
-// =====================================================
-// Reward
-// =====================================================
-
-document
-    .getElementById("rewardBtn")
-    ?.addEventListener(
-        "click",
-        () => {
-
-            openModal(
-                rewardModal
-            );
-
-        }
-    );
-
-
-// =====================================================
-// Notifications
-// =====================================================
-
-document
-    .getElementById("notificationBtn")
-    ?.addEventListener(
-        "click",
-        () => {
-
-            openModal(
-                notificationModal
-            );
-
-        }
-    );
-
-
-// =====================================================
-// GM WALLET - ADD / REMOVE COINS
+// Change GM Wallet
 // =====================================================
 
 async function changeGmWallet(
@@ -2284,21 +1998,9 @@ async function changeGmWallet(
         auth.currentUser;
 
 
-    if (!user) {
-
-        alert(
-            "กรุณา Login ก่อน"
-        );
-
-        return;
-
-    }
-
-
     if (
-        !ADMIN_UIDS.has(
-            user.uid
-        )
+        !user ||
+        !ADMIN_UIDS.has(user.uid)
     ) {
 
         alert(
@@ -2306,20 +2008,17 @@ async function changeGmWallet(
         );
 
         return;
-
     }
 
 
     const amount =
-        Number(
+        safeNumber(
             gmWalletAmount?.value
         );
 
 
     if (
-        !Number.isInteger(
-            amount
-        ) ||
+        !Number.isInteger(amount) ||
         amount <= 0
     ) {
 
@@ -2328,7 +2027,6 @@ async function changeGmWallet(
         );
 
         return;
-
     }
 
 
@@ -2344,7 +2042,6 @@ async function changeGmWallet(
         );
 
         return;
-
     }
 
 
@@ -2354,87 +2051,66 @@ async function changeGmWallet(
             : gmWalletWithdrawBtn;
 
 
-    if (button) {
-
-        button.disabled =
-            true;
-
-        button.textContent =
-            type === "credit"
-                ? "กำลังเติม..."
-                : "กำลังลบ...";
-
-    }
+    setButtonLoading(
+        button,
+        true,
+        type === "credit"
+            ? "🪙 เติม"
+            : "🪙 ลบ",
+        type === "credit"
+            ? "กำลังเติม..."
+            : "กำลังลบ..."
+    );
 
 
     try {
 
-        // =================================================
-        // อ่านยอดปัจจุบัน
-        // =================================================
-
-        const walletSnapshot =
-            await get(
-                ref(
-                    database,
-                    "gmWallet"
-                )
+        const walletRef =
+            ref(
+                database,
+                "gmWallet/coins"
             );
 
 
-        let currentCoins = 0;
+        const result =
+            await runTransaction(
+                walletRef,
+                currentValue => {
+
+                    const current =
+                        safeNumber(
+                            currentValue
+                        );
 
 
-        if (
-            walletSnapshot.exists()
-        ) {
+                    if (
+                        type === "debit" &&
+                        amount > current
+                    ) {
 
-            const walletData =
-                walletSnapshot.val();
+                        return;
 
-
-            currentCoins =
-                Number(
-                    walletData.coins || 0
-                );
-
-        }
+                    }
 
 
-        // =================================================
-        // ตรวจสอบก่อนลบ
-        // =================================================
+                    return (
+                        type === "credit"
+                            ? current + amount
+                            : current - amount
+                    );
 
-        if (
-            type === "debit" &&
-            amount > currentCoins
-        ) {
-
-            alert(
-                "เหรียญใน GM Wallet ไม่เพียงพอ\n\n" +
-                "ยอดปัจจุบัน: " +
-                currentCoins.toLocaleString() +
-                " 🪙"
+                }
             );
 
-            return;
+
+        if (!result.committed) {
+
+            throw new Error(
+                "ยอด GM Wallet เปลี่ยนแปลงไม่สำเร็จ"
+            );
 
         }
 
-
-        // =================================================
-        // คำนวณยอดใหม่
-        // =================================================
-
-        const newCoins =
-            type === "credit"
-                ? currentCoins + amount
-                : currentCoins - amount;
-
-
-        // =================================================
-        // Transaction ID
-        // =================================================
 
         const transactionRef =
             push(
@@ -2445,124 +2121,60 @@ async function changeGmWallet(
             );
 
 
-        const transactionId =
-            transactionRef.key;
+        await set(
+            transactionRef,
+            {
 
-
-        const updates = {};
-
-
-        // =================================================
-        // อัปเดตยอด GM Wallet
-        // =================================================
-
-        updates[
-            "gmWallet/coins"
-        ] =
-            newCoins;
-
-
-        // =================================================
-        // บันทึก Transaction
-        // =================================================
-
-        updates[
-            "gmWallet/transactions/" +
-            transactionId
-        ] = {
-
-            type:
                 type,
 
-            amount:
                 amount,
 
-            reason:
                 reason,
 
-            actorUid:
-                user.uid,
+                actorUid:
+                    user.uid,
 
-            actorName:
-                panelUsername?.textContent ||
-                "Admin",
+                actorName:
+                    panelUsername?.textContent ||
+                    "Admin",
 
-            targetUid:
-                null,
+                targetUid:
+                    null,
 
-            targetName:
-                null,
+                targetName:
+                    null,
 
-            timestamp:
-                Date.now()
+                timestamp:
+                    Date.now()
 
-        };
-
-
-        // =================================================
-        // เขียน Firebase
-        // =================================================
-
-        await update(
-            ref(database),
-            updates
+            }
         );
 
 
-        // =================================================
-        // Refresh
-        // =================================================
-
         await loadGmWalletDetails();
-
 
         await renderTransactionPreview();
 
 
-        // =================================================
-        // ล้างช่อง
-        // =================================================
-
         if (gmWalletAmount) {
-
-            gmWalletAmount.value =
-                "";
-
+            gmWalletAmount.value = "";
         }
 
 
         if (gmWalletReason) {
-
-            gmWalletReason.value =
-                "";
-
+            gmWalletReason.value = "";
         }
 
 
-        // =================================================
-        // Success
-        // =================================================
-
-        if (
+        alert(
             type === "credit"
-        ) {
-
-            alert(
-                "เติมเหรียญสำเร็จ\n\n+" +
-                amount.toLocaleString() +
-                " 🪙"
-            );
-
-        }
-        else {
-
-            alert(
-                "ลบเหรียญสำเร็จ\n\n-" +
-                amount.toLocaleString() +
-                " 🪙"
-            );
-
-        }
+                ? "เติมเหรียญสำเร็จ\n\n+" +
+                  amount.toLocaleString() +
+                  " 🪙"
+                : "ลบเหรียญสำเร็จ\n\n-" +
+                  amount.toLocaleString() +
+                  " 🪙"
+        );
 
     }
     catch (error) {
@@ -2574,12 +2186,7 @@ async function changeGmWallet(
 
 
         alert(
-            (
-                type === "credit"
-                    ? "เติมเหรียญไม่สำเร็จ"
-                    : "ลบเหรียญไม่สำเร็จ"
-            ) +
-            "\n\n" +
+            "ดำเนินการไม่สำเร็จ\n\n" +
             (
                 error?.message ||
                 "เกิดข้อผิดพลาด"
@@ -2611,38 +2218,857 @@ async function changeGmWallet(
         }
 
     }
-
 }
 
 
 // =====================================================
-// GM WALLET - ADD BUTTON
+// GM Wallet Buttons
 // =====================================================
 
 gmWalletDepositBtn
     ?.addEventListener(
         "click",
-        async () => {
-
-            await changeGmWallet(
-                "credit"
-            );
-
-        }
+        () =>
+            changeGmWallet("credit")
     );
 
-
-// =====================================================
-// GM WALLET - REMOVE BUTTON
-// =====================================================
 
 gmWalletWithdrawBtn
     ?.addEventListener(
         "click",
+        () =>
+            changeGmWallet("debit")
+    );
+
+
+// =====================================================
+// REWARD
+// =====================================================
+//
+// Admin มอบเหรียญให้ Player
+// เงินออกจาก GM Wallet
+// เงินเข้า users/{uid}/coins
+//
+// =====================================================
+
+async function giveReward() {
+
+    const user =
+        auth.currentUser;
+
+
+    if (
+        !user ||
+        !ADMIN_UIDS.has(user.uid)
+    ) {
+
+        alert(
+            "คุณไม่มีสิทธิ์ Admin"
+        );
+
+        return;
+    }
+
+
+    const target =
+        rewardTarget?.value
+            ?.trim();
+
+
+    const amount =
+        safeNumber(
+            rewardAmount?.value
+        );
+
+
+    const reason =
+        rewardReason?.value
+            ?.trim();
+
+
+    if (!target) {
+
+        alert(
+            "กรุณาระบุ Friend ID / Username"
+        );
+
+        return;
+    }
+
+
+    if (
+        !Number.isInteger(amount) ||
+        amount <= 0
+    ) {
+
+        alert(
+            "จำนวนเหรียญต้องเป็นจำนวนเต็มมากกว่า 0"
+        );
+
+        return;
+    }
+
+
+    if (!reason) {
+
+        alert(
+            "กรุณาระบุเหตุผล"
+        );
+
+        return;
+    }
+
+
+    const submitButton =
+        rewardForm?.querySelector(
+            "button[type='submit']"
+        );
+
+
+    if (submitButton) {
+
+        submitButton.disabled =
+            true;
+
+        submitButton.textContent =
+            "กำลังมอบรางวัล...";
+
+    }
+
+
+    try {
+
+        const found =
+            await findUser(target);
+
+
+        if (!found) {
+
+            alert(
+                "ไม่พบผู้เล่น\n\n" +
+                "กรุณาตรวจสอบ Friend ID / Username"
+            );
+
+            return;
+        }
+
+
+        const targetUid =
+            found.uid;
+
+
+        const targetData =
+            found.data || {};
+
+
+        if (
+            ADMIN_UIDS.has(targetUid)
+        ) {
+
+            alert(
+                "ไม่สามารถมอบรางวัลให้ Admin ได้"
+            );
+
+            return;
+        }
+
+
+        if (
+            GM_UIDS.has(targetUid) ||
+            targetData.role === "gm"
+        ) {
+
+            alert(
+                "ไม่สามารถใช้ระบบนี้มอบเหรียญให้ GM ได้"
+            );
+
+            return;
+        }
+
+
+        const walletRef =
+            ref(
+                database,
+                "gmWallet/coins"
+            );
+
+
+        const walletResult =
+            await runTransaction(
+                walletRef,
+                currentValue => {
+
+                    const current =
+                        safeNumber(
+                            currentValue
+                        );
+
+
+                    if (
+                        current < amount
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    return current - amount;
+
+                }
+            );
+
+
+        if (
+            !walletResult.committed
+        ) {
+
+            throw new Error(
+                "GM Wallet มีเหรียญไม่เพียงพอ"
+            );
+
+        }
+
+
+        const playerCoinsRef =
+            ref(
+                database,
+                "users/" +
+                targetUid +
+                "/coins"
+            );
+
+
+        const playerResult =
+            await runTransaction(
+                playerCoinsRef,
+                currentValue =>
+                    safeNumber(
+                        currentValue
+                    ) + amount
+            );
+
+
+        if (
+            !playerResult.committed
+        ) {
+
+            throw new Error(
+                "เพิ่มเหรียญให้ผู้เล่นไม่สำเร็จ"
+            );
+
+        }
+
+
+        const transactionRef =
+            push(
+                ref(
+                    database,
+                    "gmWallet/transactions"
+                )
+            );
+
+
+        await set(
+            transactionRef,
+            {
+
+                type:
+                    "reward",
+
+                amount,
+
+                reason,
+
+                actorUid:
+                    user.uid,
+
+                actorName:
+                    panelUsername?.textContent ||
+                    "Admin",
+
+                targetUid,
+
+                targetName:
+                    targetData.displayName ||
+                    targetData.username ||
+                    targetData.friendId ||
+                    targetUid,
+
+                timestamp:
+                    Date.now()
+
+            }
+        );
+
+
+        const notificationRef =
+            push(
+                ref(
+                    database,
+                    "notifications/" +
+                    targetUid
+                )
+            );
+
+
+        await set(
+            notificationRef,
+            {
+
+                type:
+                    "reward",
+
+                title:
+                    "🎁 ได้รับรางวัล",
+
+                message:
+                    "คุณได้รับ " +
+                    amount.toLocaleString() +
+                    " 🪙\nเหตุผล: " +
+                    reason,
+
+                amount,
+
+                reason,
+
+                read:
+                    false,
+
+                createdAt:
+                    Date.now(),
+
+                fromUid:
+                    user.uid,
+
+                fromName:
+                    panelUsername?.textContent ||
+                    "Admin"
+
+            }
+        );
+
+
+        await loadGmWalletDetails();
+
+        await renderTransactionPreview();
+
+
+        if (rewardTarget) {
+            rewardTarget.value = "";
+        }
+
+        if (rewardAmount) {
+            rewardAmount.value = "";
+        }
+
+        if (rewardReason) {
+            rewardReason.value = "";
+        }
+
+
+        alert(
+            "มอบรางวัลสำเร็จ\n\n" +
+            "ผู้รับ: " +
+            (
+                targetData.displayName ||
+                targetData.username ||
+                targetData.friendId ||
+                targetUid
+            ) +
+            "\n+" +
+            amount.toLocaleString() +
+            " 🪙"
+        );
+
+
+        closeModal(rewardModal);
+
+    }
+    catch (error) {
+
+        console.error(
+            "GIVE REWARD ERROR:",
+            error
+        );
+
+
+        alert(
+            "มอบรางวัลไม่สำเร็จ\n\n" +
+            (
+                error?.message ||
+                "เกิดข้อผิดพลาด"
+            )
+        );
+
+    }
+    finally {
+
+        if (submitButton) {
+
+            submitButton.disabled =
+                false;
+
+            submitButton.textContent =
+                "🎁 มอบรางวัล";
+
+        }
+
+    }
+}
+
+
+// =====================================================
+// Reward Form
+// =====================================================
+
+rewardForm
+    ?.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+            await giveReward();
+
+        }
+    );
+
+
+// =====================================================
+// ANNOUNCEMENT
+// =====================================================
+
+async function createAnnouncement() {
+
+    const user =
+        auth.currentUser;
+
+
+    if (
+        !user ||
+        !ADMIN_UIDS.has(user.uid)
+    ) {
+
+        alert(
+            "คุณไม่มีสิทธิ์ Admin"
+        );
+
+        return;
+    }
+
+
+    const title =
+        announcementTitle?.value
+            ?.trim();
+
+
+    const message =
+        announcementMessage?.value
+            ?.trim();
+
+
+    if (!title) {
+
+        alert(
+            "กรุณาระบุหัวข้อประกาศ"
+        );
+
+        return;
+    }
+
+
+    if (!message) {
+
+        alert(
+            "กรุณาระบุข้อความประกาศ"
+        );
+
+        return;
+    }
+
+
+    const submitButton =
+        announcementForm?.querySelector(
+            "button[type='submit']"
+        );
+
+
+    if (submitButton) {
+
+        submitButton.disabled =
+            true;
+
+        submitButton.textContent =
+            "กำลังสร้างประกาศ...";
+
+    }
+
+
+    try {
+
+        const announcementRef =
+            push(
+                ref(
+                    database,
+                    "announcements"
+                )
+            );
+
+
+        await set(
+            announcementRef,
+            {
+
+                title,
+
+                message,
+
+                createdAt:
+                    Date.now(),
+
+                createdBy:
+                    user.uid,
+
+                createdByName:
+                    panelUsername?.textContent ||
+                    "Admin",
+
+                active:
+                    true
+
+            }
+        );
+
+
+        if (announcementTitle) {
+            announcementTitle.value = "";
+        }
+
+        if (announcementMessage) {
+            announcementMessage.value = "";
+        }
+
+
+        alert(
+            "สร้างประกาศสำเร็จ"
+        );
+
+
+        closeModal(announcementModal);
+
+    }
+    catch (error) {
+
+        console.error(
+            "CREATE ANNOUNCEMENT ERROR:",
+            error
+        );
+
+
+        alert(
+            "สร้างประกาศไม่สำเร็จ\n\n" +
+            (
+                error?.message ||
+                "เกิดข้อผิดพลาด"
+            )
+        );
+
+    }
+    finally {
+
+        if (submitButton) {
+
+            submitButton.disabled =
+                false;
+
+            submitButton.textContent =
+                "📢 สร้างประกาศ";
+
+        }
+
+    }
+}
+
+
+// =====================================================
+// Announcement Form
+// =====================================================
+
+announcementForm
+    ?.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+            await createAnnouncement();
+
+        }
+    );
+
+
+// =====================================================
+// Load Notifications
+// =====================================================
+
+async function loadNotifications() {
+
+    if (!notificationList) {
+        return;
+    }
+
+
+    notificationList.innerHTML =
+        `
+        <div class="admin-empty">
+            กำลังโหลด Notifications...
+        </div>
+        `;
+
+
+    try {
+
+        const snapshot =
+            await get(
+                ref(
+                    database,
+                    "notifications"
+                )
+            );
+
+
+        notificationList.innerHTML = "";
+
+
+        if (!snapshot.exists()) {
+
+            notificationList.innerHTML =
+                `
+                <div class="admin-empty">
+                    ยังไม่มี Notifications
+                </div>
+                `;
+
+            return;
+        }
+
+
+        const all =
+            snapshot.val();
+
+
+        const items = [];
+
+
+        Object.entries(all)
+            .forEach(
+                ([uid, userNotifications]) => {
+
+                    if (!userNotifications) {
+                        return;
+                    }
+
+
+                    Object.entries(
+                        userNotifications
+                    )
+                    .forEach(
+                        ([id, notification]) => {
+
+                            items.push({
+
+                                uid,
+
+                                id,
+
+                                ...notification
+
+                            });
+
+                        }
+                    );
+
+                }
+            );
+
+
+        items.sort(
+            (a, b) =>
+                safeNumber(b.createdAt) -
+                safeNumber(a.createdAt)
+        );
+
+
+        items
+            .slice(0, 100)
+            .forEach(
+                notification => {
+
+                    const item =
+                        document.createElement("div");
+
+                    item.className =
+                        "admin-transaction";
+
+
+                    const left =
+                        document.createElement("div");
+
+                    left.className =
+                        "transaction-left";
+
+
+                    const title =
+                        document.createElement("div");
+
+                    title.className =
+                        "transaction-title";
+
+                    title.textContent =
+                        notification.title ||
+                        "🔔 Notification";
+
+
+                    const message =
+                        document.createElement("div");
+
+                    message.className =
+                        "transaction-detail";
+
+                    message.textContent =
+                        notification.message ||
+                        "-";
+
+
+                    const date =
+                        document.createElement("div");
+
+                    date.className =
+                        "transaction-date";
+
+                    date.textContent =
+                        formatDate(
+                            notification.createdAt
+                        );
+
+
+                    left.appendChild(title);
+
+                    left.appendChild(message);
+
+                    left.appendChild(date);
+
+
+                    item.appendChild(left);
+
+
+                    notificationList.appendChild(item);
+
+                }
+            );
+
+
+    }
+    catch (error) {
+
+        console.error(
+            "LOAD NOTIFICATIONS ERROR:",
+            error
+        );
+
+
+        notificationList.innerHTML =
+            `
+            <div class="admin-empty">
+                โหลด Notifications ไม่สำเร็จ
+            </div>
+            `;
+    }
+}
+
+
+// =====================================================
+// Compensation Count
+// =====================================================
+
+async function loadCompensationCount() {
+
+    if (!compensationCount) {
+        return;
+    }
+
+
+    try {
+
+        const snapshot =
+            await get(
+                ref(
+                    database,
+                    "compensations"
+                )
+            );
+
+
+        let count = 0;
+
+
+        if (snapshot.exists()) {
+
+            const data =
+                snapshot.val();
+
+
+            Object.values(data)
+                .forEach(
+                    compensation => {
+
+                        if (
+                            compensation &&
+                            compensation.active === true
+                        ) {
+
+                            count++;
+
+                        }
+
+                    }
+                );
+
+        }
+
+
+        compensationCount.textContent =
+            count;
+
+    }
+    catch (error) {
+
+        console.error(
+            "LOAD COMPENSATION COUNT ERROR:",
+            error
+        );
+
+        compensationCount.textContent =
+            "—";
+    }
+}
+
+
+// =====================================================
+// Compensation Modal
+// =====================================================
+
+document
+    .getElementById("compensationCard")
+    ?.addEventListener(
+        "click",
         async () => {
 
-            await changeGmWallet(
-                "debit"
+            await loadCompensationCount();
+
+            openModal(
+                compensationModal
             );
 
         }
@@ -2650,20 +3076,91 @@ gmWalletWithdrawBtn
 
 
 // =====================================================
-// Announcement
+// Players Card
 // =====================================================
 
 document
-    .getElementById("announcementForm")
+    .getElementById("playersCard")
     ?.addEventListener(
-        "submit",
-        event => {
+        "click",
+        async () => {
 
-            event.preventDefault();
+            openModal(playersModal);
+
+            await loadAllPlayers();
+
+        }
+    );
 
 
-            alert(
-                "ระบบประกาศจะเชื่อมต่อ Firebase ในขั้นตอนถัดไป"
+// =====================================================
+// GM Card
+// =====================================================
+
+document
+    .getElementById("gmCard")
+    ?.addEventListener(
+        "click",
+        async () => {
+
+            openModal(gmModal);
+
+            await loadAllGm();
+
+        }
+    );
+
+
+// =====================================================
+// GM Wallet Card
+// =====================================================
+
+document
+    .getElementById("gmWalletCard")
+    ?.addEventListener(
+        "click",
+        async () => {
+
+            await loadGmWalletDetails();
+
+            openModal(gmWalletModal);
+
+        }
+    );
+
+
+// =====================================================
+// Transactions
+// =====================================================
+
+document
+    .getElementById("viewAllTransactionsBtn")
+    ?.addEventListener(
+        "click",
+        async () => {
+
+            openModal(
+                transactionsModal
+            );
+
+            await renderAllTransactions();
+
+        }
+    );
+
+
+// =====================================================
+// Announcement Button
+// =====================================================
+
+document
+    .getElementById("announcementBtn")
+    ?.addEventListener(
+        "click",
+        () => {
+
+            openModal(
+                announcementModal
             );
 
         }
@@ -2671,21 +3168,38 @@ document
 
 
 // =====================================================
-// Reward
+// Reward Button
 // =====================================================
 
 document
-    .getElementById("rewardForm")
+    .getElementById("rewardBtn")
     ?.addEventListener(
-        "submit",
-        event => {
+        "click",
+        () => {
 
-            event.preventDefault();
-
-
-            alert(
-                "ระบบมอบรางวัลจะเชื่อมต่อ Firebase ในขั้นตอนถัดไป"
+            openModal(
+                rewardModal
             );
+
+        }
+    );
+
+
+// =====================================================
+// Notification Button
+// =====================================================
+
+document
+    .getElementById("notificationBtn")
+    ?.addEventListener(
+        "click",
+        async () => {
+
+            openModal(
+                notificationModal
+            );
+
+            await loadNotifications();
 
         }
     );
@@ -2697,35 +3211,20 @@ document
 
 async function loadDashboard(user) {
 
-    if (!user) {
-        return;
-    }
-
-
     if (
-        !ADMIN_UIDS.has(
-            user.uid
-        )
+        !user ||
+        !ADMIN_UIDS.has(user.uid)
     ) {
 
         return;
-
     }
 
 
     await loadDashboardCounts();
 
-
     await loadGmWalletDetails();
 
-
-    if (compensationCount) {
-
-        compensationCount.textContent =
-            "0";
-
-    }
-
+    await loadCompensationCount();
 
     await renderTransactionPreview();
 
@@ -2734,13 +3233,6 @@ async function loadDashboard(user) {
 
 // =====================================================
 // ADMIN AUTH CHECK
-// =====================================================
-//
-// สำคัญ:
-// ตั้ง Firebase Auth Persistence เป็น LOCAL
-// เพื่อให้ Session ที่ Login จาก index.html
-// สามารถถูกกู้คืนเมื่อเปิด admin.html
-//
 // =====================================================
 
 async function startAdminAuth() {
@@ -2780,7 +3272,6 @@ async function startAdminAuth() {
                     }
 
                     return;
-
                 }
 
 
@@ -2797,14 +3288,21 @@ async function startAdminAuth() {
 
                     }
 
+
                     console.warn(
                         "ADMIN AUTH: User ไม่ใช่ Admin",
                         user.uid
                     );
 
                     return;
-
                 }
+
+
+                // =================================================
+                // Load GM Members
+                // =================================================
+
+                await loadGmMembers();
 
 
                 // =================================================
@@ -2875,9 +3373,7 @@ async function startAdminAuth() {
                 // Dashboard
                 // =================================================
 
-                await loadDashboard(
-                    user
-                );
+                await loadDashboard(user);
 
             }
         );
@@ -2899,7 +3395,6 @@ async function startAdminAuth() {
         }
 
     }
-
 }
 
 

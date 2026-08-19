@@ -1,6 +1,12 @@
 /* =====================================================
    GAME FRIENDS
    ADMIN PANEL
+   admin.css
+   ===================================================== */
+
+
+/* =====================================================
+   RESET
    ===================================================== */
 
 * {
@@ -12,61 +18,50 @@ html,
 body {
     margin: 0;
     padding: 0;
+    width: 100%;
     min-height: 100%;
 }
 
 
 body {
     font-family:
-        system-ui,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
+        Arial,
+        "Noto Sans Thai",
         sans-serif;
 
     background:
-        linear-gradient(
-            135deg,
-            #10131a,
-            #171b24
-        );
+        #f4f6f9;
 
-    color: #fff;
-
-    min-height: 100vh;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: flex-start;
-
-    padding: 20px 12px;
+    color:
+        #1f2937;
 }
 
 
 /* =====================================================
-   PANEL
+   BUTTON
+   ===================================================== */
+
+button,
+input,
+textarea {
+    font-family: inherit;
+}
+
+
+button {
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   ADMIN PANEL
    ===================================================== */
 
 .admin-panel {
     width: 100%;
-
-    max-width: 430px;
-
-    background: #20242d;
-
-    border:
-        1px solid
-        rgba(255,255,255,.08);
-
-    border-radius: 16px;
-
-    overflow: hidden;
-
-    box-shadow:
-        0 15px 40px
-        rgba(0,0,0,.45);
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px;
 }
 
 
@@ -75,62 +70,67 @@ body {
    ===================================================== */
 
 .admin-header {
-    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    padding: 16px 18px;
+    gap: 16px;
 
-    background:
-        linear-gradient(
-            135deg,
-            #292e39,
-            #222731
-        );
+    padding: 18px 20px;
 
-    border-bottom:
-        1px solid
-        rgba(255,255,255,.08);
+    background: #ffffff;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.06);
+
+    margin-bottom: 16px;
 }
 
 
 .admin-title {
-    font-size: 18px;
-
+    font-size: 24px;
     font-weight: 700;
 }
 
 
 .admin-username {
-    margin-top: 5px;
+    margin-top: 4px;
 
-    font-size: 13px;
+    font-size: 14px;
 
-    color: #aeb5c2;
+    color: #6b7280;
 }
 
 
 .admin-close-btn {
-    position: absolute;
-
-    top: 12px;
-
-    right: 14px;
-
-    width: 32px;
-
-    height: 32px;
+    width: 42px;
+    height: 42px;
 
     border: none;
 
-    border-radius: 50%;
+    border-radius: 12px;
 
-    background:
-        rgba(255,255,255,.07);
+    background: #f3f4f6;
 
-    color: #fff;
+    color: #374151;
 
-    font-size: 17px;
+    font-size: 20px;
 
-    cursor: pointer;
+    transition:
+        background 0.2s,
+        transform 0.2s;
+}
+
+
+.admin-close-btn:hover {
+    background: #e5e7eb;
+}
+
+
+.admin-close-btn:active {
+    transform: scale(0.95);
 }
 
 
@@ -139,7 +139,7 @@ body {
    ===================================================== */
 
 .admin-dashboard {
-    padding: 16px;
+    margin-bottom: 18px;
 }
 
 
@@ -147,105 +147,94 @@ body {
     display: grid;
 
     grid-template-columns:
-        repeat(2, 1fr);
+        repeat(4, minmax(0, 1fr));
 
-    gap: 10px;
+    gap: 14px;
 }
 
 
 .admin-dashboard-card {
-    min-height: 110px;
+    min-height: 150px;
 
-    padding: 13px;
+    padding: 18px;
 
-    border:
-        1px solid
-        rgba(255,255,255,.07);
+    border: 1px solid #e5e7eb;
 
-    border-radius: 12px;
+    border-radius: 16px;
 
-    background: #282d37;
-
-    color: #fff;
+    background: #ffffff;
 
     text-align: left;
 
-    cursor: pointer;
+    box-shadow:
+        0 4px 14px rgba(0, 0, 0, 0.05);
 
     transition:
-        .15s;
-
-    display: grid;
-
-    grid-template-columns: auto 1fr;
-
-    grid-template-rows: auto auto auto;
-
-    column-gap: 7px;
-
-    align-items: center;
+        transform 0.2s,
+        box-shadow 0.2s,
+        border-color 0.2s;
 }
 
 
 .admin-dashboard-card:hover {
-    background: #303641;
+    transform: translateY(-2px);
+
+    border-color: #d1d5db;
+
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
 
 .admin-dashboard-card:active {
-    transform: scale(.98);
+    transform: scale(0.98);
 }
 
 
 .admin-card-icon {
-    grid-column: 1;
+    font-size: 28px;
 
-    grid-row: 1;
-
-    font-size: 21px;
-
-    margin: 0;
+    margin-bottom: 8px;
 }
 
 
 .admin-card-title {
-    grid-column: 2;
+    font-size: 14px;
 
-    grid-row: 1;
+    color: #6b7280;
 
-    font-size: 12px;
-
-    color: #aeb5c2;
-
-    white-space: nowrap;
+    margin-bottom: 4px;
 }
 
 
 .admin-card-value {
-    grid-column: 1 / 3;
-
-    grid-row: 2;
-
-    margin-top: 6px;
-
-    font-size: 21px;
+    font-size: 28px;
 
     font-weight: 700;
+
+    line-height: 1.2;
 }
 
 
 .admin-card-online {
-    grid-column: 1 / 3;
+    margin-top: 6px;
 
-    grid-row: 3;
+    font-size: 13px;
 
-    margin-top: 2px;
+    color: #16a34a;
+}
 
-    font-size: 10px;
 
-    color: #57d68d;
+/* =====================================================
+   SECTION TITLE
+   ===================================================== */
 
-    font-weight: 600;
+.admin-section-title {
+    font-size: 18px;
+
+    font-weight: 700;
+
+    margin-bottom: 12px;
 }
 
 
@@ -253,42 +242,34 @@ body {
    TRANSACTIONS
    ===================================================== */
 
-.transactions-section {
-    padding: 15px 16px;
+.transactions-section,
+.admin-actions {
+    padding: 18px;
 
-    border-top:
-        1px solid
-        rgba(255,255,255,.08);
+    background: #ffffff;
 
-    border-bottom:
-        1px solid
-        rgba(255,255,255,.08);
-}
+    border-radius: 16px;
 
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.05);
 
-.admin-section-title {
-    font-size: 14px;
-
-    font-weight: 700;
-
-    margin-bottom: 7px;
+    margin-bottom: 18px;
 }
 
 
 .admin-transaction {
     display: flex;
 
-    justify-content: space-between;
-
     align-items: center;
 
-    gap: 10px;
+    justify-content: space-between;
 
-    padding: 10px 0;
+    gap: 16px;
+
+    padding: 14px 0;
 
     border-bottom:
-        1px solid
-        rgba(255,255,255,.05);
+        1px solid #eef0f3;
 }
 
 
@@ -305,147 +286,138 @@ body {
 
 
 .transaction-title {
-    font-size: 12px;
+    font-size: 15px;
 
-    font-weight: 600;
+    font-weight: 700;
 
-    white-space: nowrap;
-
-    overflow: hidden;
-
-    text-overflow: ellipsis;
+    margin-bottom: 4px;
 }
 
 
 .transaction-detail {
+    font-size: 13px;
+
+    color: #6b7280;
+
     margin-top: 2px;
 
-    font-size: 10px;
-
-    color: #8d95a3;
+    word-break: break-word;
 }
 
 
 .transaction-date {
-    margin-top: 3px;
+    font-size: 12px;
 
-    font-size: 10px;
+    color: #9ca3af;
 
-    color: #858d9b;
+    margin-top: 5px;
 }
 
 
 .transaction-amount {
     flex-shrink: 0;
 
-    font-size: 12px;
+    font-size: 16px;
 
     font-weight: 700;
+
+    white-space: nowrap;
 }
 
 
 .transaction-amount.credit {
-    color: #57d68d;
+    color: #16a34a;
 }
 
 
 .transaction-amount.debit {
-    color: #ff7373;
+    color: #dc2626;
+}
+
+
+.admin-transaction-empty,
+.admin-empty {
+    padding: 24px 12px;
+
+    text-align: center;
+
+    color: #9ca3af;
+
+    font-size: 14px;
 }
 
 
 .view-all-transactions {
     width: 100%;
 
-    margin-top: 7px;
+    margin-top: 10px;
 
-    padding: 8px;
+    padding: 11px 14px;
 
     border: none;
 
-    border-radius: 8px;
+    border-radius: 10px;
 
-    background: transparent;
+    background: #f3f4f6;
 
-    color: #9fb8ff;
+    color: #374151;
 
-    font-size: 12px;
+    font-size: 14px;
 
     font-weight: 600;
-
-    cursor: pointer;
 }
 
 
 .view-all-transactions:hover {
-    background:
-        rgba(159,184,255,.08);
-}
-
-
-.admin-transaction-empty {
-    padding: 12px 0;
-
-    text-align: center;
-
-    color: #858d9b;
-
-    font-size: 11px;
+    background: #e5e7eb;
 }
 
 
 /* =====================================================
-   ACTIONS
+   TOOLS
    ===================================================== */
 
-.admin-actions {
-    padding: 15px 16px 18px;
-}
-
-
 .admin-action-list {
-    display: flex;
+    display: grid;
 
-    flex-direction: column;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
 
-    gap: 8px;
+    gap: 12px;
 }
 
 
 .admin-action-btn {
-    width: 100%;
+    min-height: 52px;
 
-    min-height: 44px;
+    border: 1px solid #e5e7eb;
 
-    padding: 10px 13px;
+    border-radius: 12px;
 
-    border:
-        1px solid
-        rgba(255,255,255,.07);
+    background: #ffffff;
 
-    border-radius: 10px;
+    color: #374151;
 
-    background: #282d37;
-
-    color: #fff;
-
-    font-size: 13px;
+    font-size: 15px;
 
     font-weight: 600;
 
-    text-align: left;
-
-    cursor: pointer;
+    transition:
+        background 0.2s,
+        border-color 0.2s,
+        transform 0.2s;
 }
 
 
 .admin-action-btn:hover {
-    background: #303641;
+    background: #f9fafb;
+
+    border-color: #d1d5db;
 }
 
 
 .admin-action-btn:active {
-    transform: scale(.985);
+    transform: scale(0.98);
 }
 
 
@@ -469,10 +441,7 @@ body {
     padding: 16px;
 
     background:
-        rgba(0,0,0,.68);
-
-    backdrop-filter:
-        blur(4px);
+        rgba(0, 0, 0, 0.45);
 }
 
 
@@ -484,32 +453,27 @@ body {
 .admin-modal-content {
     width: 100%;
 
-    max-width: 430px;
+    max-width: 650px;
 
-    max-height: 85vh;
+    max-height: 90vh;
 
-    overflow-y: auto;
+    display: flex;
 
-    background: #20242d;
+    flex-direction: column;
 
-    border:
-        1px solid
-        rgba(255,255,255,.08);
+    background: #ffffff;
 
-    border-radius: 15px;
+    border-radius: 18px;
+
+    overflow: hidden;
 
     box-shadow:
-        0 15px 45px
-        rgba(0,0,0,.55);
+        0 20px 60px rgba(0, 0, 0, 0.2);
 }
 
 
 .admin-modal-header {
-    position: sticky;
-
-    top: 0;
-
-    z-index: 2;
+    flex-shrink: 0;
 
     display: flex;
 
@@ -517,55 +481,49 @@ body {
 
     justify-content: space-between;
 
-    padding: 14px 16px;
+    gap: 12px;
 
-    background: #242933;
+    padding: 16px 18px;
 
     border-bottom:
-        1px solid
-        rgba(255,255,255,.07);
+        1px solid #eef0f3;
 }
 
 
 .admin-modal-title {
-    font-size: 15px;
+    font-size: 18px;
 
     font-weight: 700;
 }
 
 
 .admin-modal-close {
+    width: 38px;
+    height: 38px;
+
+    flex-shrink: 0;
+
     border: none;
 
-    background: transparent;
+    border-radius: 10px;
 
-    color: #fff;
+    background: #f3f4f6;
 
-    font-size: 19px;
+    color: #374151;
 
-    cursor: pointer;
+    font-size: 18px;
+}
+
+
+.admin-modal-close:hover {
+    background: #e5e7eb;
 }
 
 
 .admin-modal-body {
-    padding: 16px;
-}
+    overflow-y: auto;
 
-
-/* =====================================================
-   EMPTY
-   ===================================================== */
-
-.admin-empty {
-    padding: 18px 10px;
-
-    text-align: center;
-
-    color: #858d9b;
-
-    font-size: 12px;
-
-    line-height: 1.6;
+    padding: 18px;
 }
 
 
@@ -591,28 +549,28 @@ body {
 
     justify-content: space-between;
 
-    gap: 10px;
+    gap: 12px;
 
-    padding: 11px 12px;
+    padding: 13px 14px;
 
-    border:
-        1px solid
-        rgba(255,255,255,.06);
+    border: 1px solid #e5e7eb;
 
-    border-radius: 10px;
+    border-radius: 12px;
 
-    background: #282d37;
-
-    color: #fff;
+    background: #ffffff;
 
     text-align: left;
 
-    cursor: pointer;
+    transition:
+        background 0.2s,
+        border-color 0.2s;
 }
 
 
 .user-list-item:hover {
-    background: #303641;
+    background: #f9fafb;
+
+    border-color: #d1d5db;
 }
 
 
@@ -624,53 +582,53 @@ body {
 
 
 .user-name {
-    font-size: 13px;
+    font-size: 15px;
 
     font-weight: 700;
-
-    white-space: nowrap;
 
     overflow: hidden;
 
     text-overflow: ellipsis;
+
+    white-space: nowrap;
 }
 
 
 .user-id {
-    margin-top: 3px;
+    margin-top: 4px;
 
-    font-size: 10px;
+    font-size: 11px;
 
-    color: #858d9b;
-
-    white-space: nowrap;
+    color: #9ca3af;
 
     overflow: hidden;
 
     text-overflow: ellipsis;
+
+    white-space: nowrap;
 }
 
 
 .user-right {
     flex-shrink: 0;
+}
 
-    text-align: right;
+
+.user-online,
+.user-offline {
+    font-size: 12px;
+
+    font-weight: 600;
 }
 
 
 .user-online {
-    font-size: 10px;
-
-    color: #57d68d;
-
-    font-weight: 700;
+    color: #16a34a;
 }
 
 
 .user-offline {
-    font-size: 10px;
-
-    color: #858d9b;
+    color: #9ca3af;
 }
 
 
@@ -683,32 +641,52 @@ body {
 
     flex-direction: column;
 
-    gap: 9px;
+    gap: 0;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius: 14px;
+
+    overflow: hidden;
 }
 
 
 .detail-row {
-    padding: 10px 11px;
+    display: grid;
 
-    border-radius: 9px;
+    grid-template-columns:
+        140px minmax(0, 1fr);
 
-    background: #282d37;
+    gap: 14px;
+
+    padding: 13px 14px;
+
+    border-bottom:
+        1px solid #eef0f3;
+}
+
+
+.detail-row:last-child {
+    border-bottom: none;
 }
 
 
 .detail-label {
-    font-size: 10px;
-
-    color: #858d9b;
-}
-
-
-.detail-value {
-    margin-top: 3px;
+    color: #6b7280;
 
     font-size: 13px;
 
     font-weight: 600;
+}
+
+
+.detail-value {
+    min-width: 0;
+
+    color: #1f2937;
+
+    font-size: 14px;
 
     word-break: break-word;
 }
@@ -719,157 +697,42 @@ body {
    ===================================================== */
 
 .gm-wallet-balance {
-    padding: 16px;
+    padding: 18px;
 
-    margin-bottom: 16px;
+    margin-bottom: 18px;
 
-    border-radius: 12px;
+    border-radius: 14px;
 
-    background:
-        linear-gradient(
-            135deg,
-            #2c3443,
-            #252b35
-        );
+    background: #f8fafc;
 
     text-align: center;
+
+    border:
+        1px solid #e5e7eb;
 }
 
 
 .gm-wallet-label {
-    font-size: 12px;
+    font-size: 13px;
 
-    color: #aeb5c2;
+    color: #6b7280;
+
+    margin-bottom: 5px;
 }
 
 
 .gm-wallet-value {
-    margin-top: 5px;
+    font-size: 30px;
 
-    font-size: 28px;
-
-    font-weight: 800;
-}
-
-.gm-wallet-action-buttons {
-    display: grid;
-
-    grid-template-columns: 1fr 1fr;
-
-    gap: 10px;
-
-    margin-top: 2px;
+    font-weight: 700;
 }
 
 
 /* =====================================================
-   FORMS
+   FORM
    ===================================================== */
 
 .admin-form {
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 10px;
-}
-
-
-.admin-form label {
-    font-size: 11px;
-
-    color: #aeb5c2;
-}
-
-
-.admin-form input,
-.admin-form textarea,
-.admin-form select {
-    width: 100%;
-
-    padding: 11px 12px;
-
-    border:
-        1px solid
-        rgba(255,255,255,.1);
-
-    border-radius: 9px;
-
-    outline: none;
-
-    background: #171b22;
-
-    color: #fff;
-
-    font-family: inherit;
-
-    font-size: 13px;
-}
-
-
-.admin-form textarea {
-    min-height: 100px;
-
-    resize: vertical;
-}
-
-
-.admin-form input:focus,
-.admin-form textarea:focus,
-.admin-form select:focus {
-    border-color:
-        rgba(159,184,255,.7);
-}
-
-
-.admin-submit-btn {
-    width: 100%;
-
-    padding: 11px;
-
-    border: none;
-
-    border-radius: 9px;
-
-    background: #5578d8;
-
-    color: #fff;
-
-    font-size: 13px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition:
-        .15s;
-}
-
-
-.admin-submit-btn:hover {
-    background: #6486e4;
-}
-
-
-.admin-submit-btn:active {
-    transform: scale(.985);
-}
-
-
-.admin-submit-btn:disabled {
-    opacity: .65;
-
-    cursor: not-allowed;
-
-    transform: none;
-}
-
-
-/* =====================================================
-   NOTIFICATIONS
-   ===================================================== */
-
-.notification-list {
     display: flex;
 
     flex-direction: column;
@@ -878,39 +741,182 @@ body {
 }
 
 
-.notification-item {
-    padding: 11px 12px;
+.admin-form label {
+    margin-top: 5px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: #374151;
+}
+
+
+.admin-form input,
+.admin-form textarea {
+    width: 100%;
+
+    border:
+        1px solid #d1d5db;
 
     border-radius: 10px;
 
-    background: #282d37;
+    padding: 11px 12px;
+
+    background: #ffffff;
+
+    color: #1f2937;
+
+    font-size: 14px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
 }
 
 
-.notification-title {
-    font-size: 12px;
+.admin-form input:focus,
+.admin-form textarea:focus {
+    border-color: #6b7280;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(107, 114, 128, 0.12);
+}
+
+
+.admin-form textarea {
+    min-height: 90px;
+
+    resize: vertical;
+}
+
+
+.admin-submit-btn {
+    width: 100%;
+
+    min-height: 46px;
+
+    margin-top: 8px;
+
+    padding: 11px 14px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #1f2937;
+
+    color: #ffffff;
+
+    font-size: 14px;
 
     font-weight: 700;
+
+    transition:
+        background 0.2s,
+        opacity 0.2s,
+        transform 0.2s;
 }
 
 
-.notification-message {
-    margin-top: 4px;
-
-    font-size: 11px;
-
-    color: #aeb5c2;
-
-    line-height: 1.5;
+.admin-submit-btn:hover {
+    background: #111827;
 }
 
 
-.notification-date {
-    margin-top: 6px;
+.admin-submit-btn:active {
+    transform: scale(0.98);
+}
 
-    font-size: 9px;
 
-    color: #707887;
+.admin-submit-btn:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.55;
+}
+
+
+/* =====================================================
+   GM WALLET BUTTONS
+   ===================================================== */
+
+.gm-wallet-action-buttons {
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 10px;
+
+    margin-top: 8px;
+}
+
+
+.gm-wallet-action-buttons
+.admin-submit-btn {
+    margin-top: 0;
+}
+
+
+/* =====================================================
+   COMPENSATION
+   ===================================================== */
+
+#compensationContent {
+    min-height: 100px;
+}
+
+
+/* =====================================================
+   NOTIFICATION
+   ===================================================== */
+
+#notificationList {
+    min-height: 100px;
+}
+
+
+/* =====================================================
+   SCROLLBAR
+   ===================================================== */
+
+.admin-modal-body::-webkit-scrollbar {
+    width: 7px;
+}
+
+
+.admin-modal-body::-webkit-scrollbar-track {
+    background: #f3f4f6;
+}
+
+
+.admin-modal-body::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+
+    border-radius: 10px;
+}
+
+
+/* =====================================================
+   TABLET
+   ===================================================== */
+
+@media (max-width: 850px) {
+
+    .admin-dashboard-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    .admin-action-list {
+        grid-template-columns:
+            1fr;
+    }
+
 }
 
 
@@ -918,38 +924,170 @@ body {
    MOBILE
    ===================================================== */
 
-@media (max-width: 380px) {
+@media (max-width: 600px) {
 
-    body {
-        padding: 10px 8px;
+    .admin-panel {
+        padding: 10px;
     }
 
 
-    .admin-panel {
+    .admin-header {
+        padding: 14px;
+
+        border-radius: 14px;
+    }
+
+
+    .admin-title {
+        font-size: 20px;
+    }
+
+
+    .admin-username {
+        font-size: 13px;
+    }
+
+
+    .admin-close-btn {
+        width: 38px;
+        height: 38px;
+    }
+
+
+    .admin-dashboard-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 9px;
+    }
+
+
+    .admin-dashboard-card {
+        min-height: 130px;
+
+        padding: 14px;
+
         border-radius: 13px;
     }
 
 
-    .admin-dashboard {
-        padding: 12px;
+    .admin-card-icon {
+        font-size: 24px;
+    }
+
+
+    .admin-card-value {
+        font-size: 23px;
     }
 
 
     .transactions-section,
     .admin-actions {
-        padding-left: 12px;
+        padding: 14px;
 
-        padding-right: 12px;
+        border-radius: 14px;
+    }
+
+
+    .admin-section-title {
+        font-size: 16px;
+    }
+
+
+    .transaction-title {
+        font-size: 14px;
+    }
+
+
+    .transaction-detail {
+        font-size: 12px;
+    }
+
+
+    .transaction-amount {
+        font-size: 14px;
     }
 
 
     .admin-modal {
-        padding: 10px;
+        padding: 8px;
     }
 
 
     .admin-modal-content {
-        max-height: 90vh;
+        max-height: 94vh;
+
+        border-radius: 15px;
+    }
+
+
+    .admin-modal-header {
+        padding: 13px 14px;
+    }
+
+
+    .admin-modal-title {
+        font-size: 16px;
+    }
+
+
+    .admin-modal-body {
+        padding: 14px;
+    }
+
+
+    .detail-row {
+        grid-template-columns:
+            110px minmax(0, 1fr);
+
+        gap: 10px;
+
+        padding: 11px;
+    }
+
+
+    .detail-label {
+        font-size: 12px;
+    }
+
+
+    .detail-value {
+        font-size: 13px;
+    }
+
+
+    .user-list-item {
+        padding: 11px;
+    }
+
+
+    .user-name {
+        font-size: 14px;
+    }
+
+
+    .gm-wallet-value {
+        font-size: 26px;
+    }
+
+}
+
+
+/* =====================================================
+   VERY SMALL MOBILE
+   ===================================================== */
+
+@media (max-width: 380px) {
+
+    .admin-dashboard-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .gm-wallet-action-buttons {
+        grid-template-columns:
+            1fr;
     }
 
 }
