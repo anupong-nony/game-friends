@@ -85,7 +85,7 @@ const MAX_PURCHASED_BOARDS = 3;
 
 const MAX_PLAYERS = 20;
 
-const COUNTDOWN_SECONDS = 60;
+const COUNTDOWN_SECONDS = 30;
 
 
 // =====================================================
@@ -1028,9 +1028,13 @@ function updateRoomInfo() {
             );
 
 
+            // -----------------------------------------
+            // ผู้เล่นกดพร้อม/ยกเลิกได้ใน WAITING
+            // และ COUNTDOWN
+            // -----------------------------------------
+
             readyBtn.disabled =
                 status !== "waiting" &&
-                status !== "finished" &&
                 status !== "countdown";
 
         }
@@ -1064,9 +1068,6 @@ function updateRoomInfo() {
     //
     // ทุกคนที่อยู่ในห้องตอนเกมจบ
     // ต้องเห็น Popup
-    //
-    // ไม่ใช้ getMyPhase()
-    // เป็นตัวตัดสิน Popup
     // =================================================
 
     if (status === "finished") {
@@ -1198,9 +1199,10 @@ function countdownTick() {
 
 
     // =================================================
-    // เมื่อเหลือ 0
-    // Host เป็นคนปิด Countdown
-    // และหักเงินผู้เล่นที่พร้อม
+    // COUNTDOWN = 0
+    //
+    // ให้ Host เป็นคนประมวลผล
+    // หักเงินเฉพาะผู้เล่นที่ ready ตอนนี้
     // =================================================
 
     if (remain <= 0) {
@@ -1237,7 +1239,7 @@ function startCountdownDisplay() {
 // ADVANCE COUNTDOWN
 // =====================================================
 //
-// เมื่อ Countdown = 0
+// Countdown = 0
 //
 // ผู้เล่นที่ ready === true เท่านั้น
 //
@@ -1245,7 +1247,11 @@ function startCountdownDisplay() {
 // ├── 20 → room.pot
 // └── 5  → GM Wallet
 //
-// จากนั้นจึงเปลี่ยนเป็น playing
+// จากนั้นเปลี่ยนเป็น playing
+//
+// สำคัญ:
+// ห้ามล้าง ready ตอน Host กดเริ่ม
+// เพราะต้องรอให้ถึง 0 ก่อนจึงหักเงิน
 // =====================================================
 
 async function maybeAdvanceCountdown() {
@@ -1321,6 +1327,27 @@ async function maybeAdvanceCountdown() {
 
 
         // =================================================
+        // ตรวจว่าเวลาถึง 0 จริง
+        // =================================================
+
+        const endAt =
+            Number(
+                room.roundStartedAt || 0
+            ) +
+            COUNTDOWN_SECONDS * 1000;
+
+
+        if (
+            Date.now() <
+            endAt
+        ) {
+
+            return;
+
+        }
+
+
+        // =================================================
         // ป้องกันการหักเงินซ้ำ
         // =================================================
 
@@ -1329,25 +1356,18 @@ async function maybeAdvanceCountdown() {
             roundId
         ) {
 
-            if (
-                room.status ===
-                "countdown"
-            ) {
+            await update(
+                roomRef,
+                {
 
-                await update(
-                    roomRef,
-                    {
+                    status:
+                        "playing",
 
-                        status:
-                            "playing",
+                    updatedAt:
+                        Date.now()
 
-                        updatedAt:
-                            Date.now()
-
-                    }
-                );
-
-            }
+                }
+            );
 
             return;
 
@@ -1362,6 +1382,15 @@ async function maybeAdvanceCountdown() {
                 : [];
 
 
+        // =================================================
+        // สำคัญมาก
+        //
+        // อ่าน ready จาก Firebase "ตอนถึง 0"
+        //
+        // คนที่ยกเลิกพร้อมก่อน 0 จะไม่ถูกหัก
+        // คนที่ยัง ready ตอน 0 จะถูกหัก
+        // =================================================
+
         const readyPlayers =
             roomPlayers.filter(
                 player =>
@@ -1370,7 +1399,9 @@ async function maybeAdvanceCountdown() {
 
 
         let totalPrize =
-            Number(room.pot || 0);
+            Number(
+                room.pot || 0
+            );
 
 
         let totalGm =
@@ -1381,7 +1412,7 @@ async function maybeAdvanceCountdown() {
 
 
         // =================================================
-        // ตรวจเหรียญของผู้เล่นที่พร้อมก่อน
+        // ตรวจเหรียญของผู้เล่นที่พร้อม
         // =================================================
 
         for (
@@ -1412,6 +1443,11 @@ async function maybeAdvanceCountdown() {
                 );
 
 
+            // ---------------------------------------------
+            // เหรียญไม่พอ
+            // ไม่เข้ารอบ
+            // ---------------------------------------------
+
             if (
                 coins <
                 READY_FEE
@@ -1421,9 +1457,6 @@ async function maybeAdvanceCountdown() {
                     "ผู้เล่นเหรียญไม่พอ:",
                     player.uid
                 );
-
-                // ไม่ให้เข้ารอบ
-                player.ready = false;
 
                 continue;
 
@@ -1608,7 +1641,15 @@ async function maybeAdvanceCountdown() {
 
 
         // =================================================
-        // บันทึกเงินกองรางวัล
+        // อัปเดตสถานะผู้เล่น
+        //
+        // คนที่ถูกหักเงินจริง:
+        // ready = false
+        //
+        // คนที่เหรียญไม่พอ:
+        // ready = false
+        //
+        // หลังเริ่มเกม ทุกคนจะเข้าสู่ playing
         // =================================================
 
         const updatedPlayers = {};
@@ -1617,6 +1658,12 @@ async function maybeAdvanceCountdown() {
         roomPlayers.forEach(
             player => {
 
+                const wasCharged =
+                    !!walletUpdates[
+                        player.uid
+                    ];
+
+
                 updatedPlayers[
                     player.uid
                 ] = {
@@ -1624,16 +1671,35 @@ async function maybeAdvanceCountdown() {
                     ...player,
 
                     ready:
-                        player.ready === true &&
-                        !!walletUpdates[
-                            player.uid
-                        ]
+                        false,
+
+                    paidRoundId:
+                        wasCharged
+                            ? roundId
+                            : null,
+
+                    winnerAcknowledged:
+                        false
 
                 };
+
+
+                delete updatedPlayers[
+                    player.uid
+                ].acknowledgedRoundId;
 
             }
         );
 
+
+        // =================================================
+        // เปลี่ยน COUNTDOWN → PLAYING
+        //
+        // สำคัญ:
+        // Update นี้อยู่ท้ายสุด
+        // ดังนั้น Countdown จะไม่เปลี่ยนเป็น
+        // playing จนกว่าการหักเงินจะเสร็จ
+        // =================================================
 
         await update(
             roomRef,
@@ -1659,6 +1725,13 @@ async function maybeAdvanceCountdown() {
 
             }
         );
+
+
+        // =================================================
+        // ปิด Overlay ทันทีสำหรับ Host
+        // =================================================
+
+        stopCountdown();
 
 
         addSystemMessage(
@@ -1811,10 +1884,21 @@ async function startGame() {
 
                     ...player,
 
-                    // ทุกคนต้องกดพร้อมใหม่
-                    // สำหรับรอบใหม่
+                    // =================================================
+                    // สำคัญมาก
+                    //
+                    // ห้ามตั้ง ready:false ตรงนี้
+                    //
+                    // เพราะคนที่กดพร้อมต้องยังคงพร้อม
+                    // จน Countdown ถึง 0
+                    //
+                    // ถ้าผู้เล่นต้องการยกเลิก
+                    // สามารถกดปุ่มพร้อมอีกครั้งได้
+                    // ระหว่าง Countdown
+                    // =================================================
+
                     ready:
-                        false,
+                        player.ready === true,
 
                     winnerAcknowledged:
                         false
@@ -1919,12 +2003,13 @@ async function startGame() {
 // READY
 // =====================================================
 //
-// กดพร้อม = ยังไม่หักเงิน
+// กดพร้อม
+// = ยังไม่หักเงิน
 //
-// สามารถกดพร้อม / ยกเลิกพร้อมได้
-// ระหว่าง Countdown
+// กดพร้อมอีกครั้ง
+// = ยกเลิกพร้อม
 //
-// เงินจะถูกหักตอน Countdown = 0
+// หักเงินจริงเมื่อ Countdown = 0 เท่านั้น
 // =====================================================
 
 readyBtn?.addEventListener(
@@ -2322,7 +2407,7 @@ function initializeBoards() {
     boards = [];
 
 
-    // ฟรี 1 กระดานเท่านั้น
+    // ฟรี 1 กระดาน
     boards.push(
         createBoard()
     );
@@ -2928,8 +3013,6 @@ async function finishLocalBingo(
 
         // =================================================
         // เงินรางวัลทั้งหมดในกองกลาง
-        // ไม่มีหัก 20% ซ้ำ
-        // เพราะ 5 เหรียญ/คนถูกส่ง GM ไปแล้ว
         // =================================================
 
         const pot =
@@ -3311,10 +3394,6 @@ function showWinnerPopup() {
         );
 
 
-    // =================================================
-    // ชื่อผู้ชนะ
-    // =================================================
-
     if (winnerNameEl) {
 
         winnerNameEl.textContent =
@@ -3322,10 +3401,6 @@ function showWinnerPopup() {
 
     }
 
-
-    // =================================================
-    // ข้อความ
-    // =================================================
 
     if (winnerMessageEl) {
 
@@ -3346,10 +3421,6 @@ function showWinnerPopup() {
     }
 
 
-    // =================================================
-    // ชื่อกระดาน
-    // =================================================
-
     if (winnerBoardTitle) {
 
         winnerBoardTitle.textContent =
@@ -3361,17 +3432,8 @@ function showWinnerPopup() {
     }
 
 
-    // =================================================
-    // กระดานผู้ชนะ
-    // ทุกคนเห็นกระดานนี้
-    // =================================================
-
     renderWinnerBoard();
 
-
-    // =================================================
-    // รางวัล
-    // =================================================
 
     if (winnerPrizeEl) {
 
@@ -3405,10 +3467,6 @@ function showWinnerPopup() {
 
     }
 
-
-    // =================================================
-    // เปิด Popup
-    // =================================================
 
     winnerModal.hidden =
         false;
@@ -3517,20 +3575,12 @@ async function acknowledgeWinner() {
         );
 
 
-        // =================================================
-        // ปิด Popup ของคนนี้เท่านั้น
-        // =================================================
-
         winnerPopupRoundId =
             null;
 
 
         hideWinnerPopup();
 
-
-        // =================================================
-        // เตรียมกระดาน Lobby รอบต่อไป
-        // =================================================
 
         resetLocalBoards();
 
@@ -3591,11 +3641,6 @@ function updateBoardControls() {
     if (!buyBoardBtn) return;
 
 
-    // =================================================
-    // สูงสุด 4 กระดาน
-    // ฟรี 1 + ซื้อ 3
-    // =================================================
-
     if (
         boards.length >=
         MAX_BOARDS
@@ -3616,11 +3661,6 @@ function updateBoardControls() {
         roomData?.status ||
         "waiting";
 
-
-    // =================================================
-    // WAITING / COUNTDOWN = ซื้อได้
-    // PLAYING / FINISHED = ล็อก
-    // =================================================
 
     if (
         status !== "waiting" &&
@@ -3664,10 +3704,6 @@ buyBoardBtn?.addEventListener(
 
 async function buyBoard() {
 
-    // =================================================
-    // ฟรี 1 + ซื้อสูงสุด 3
-    // =================================================
-
     if (
         boards.length >=
         MAX_BOARDS
@@ -3682,10 +3718,6 @@ async function buyBoard() {
         roomData?.status ||
         "waiting";
 
-
-    // =================================================
-    // ซื้อได้ทั้ง WAITING และ COUNTDOWN
-    // =================================================
 
     if (
         status !== "waiting" &&
@@ -3814,10 +3846,6 @@ async function buyBoard() {
         );
 
 
-        // =================================================
-        // เงินซื้อกระดานเข้า Prize Pot ทั้งหมด
-        // =================================================
-
         const roomRef =
             ref(
                 database,
@@ -3868,10 +3896,6 @@ async function buyBoard() {
             currentCoins -
             BOARD_PRICE;
 
-
-        // =================================================
-        // เพิ่มกระดาน
-        // =================================================
 
         boards.push(
             createBoard()
