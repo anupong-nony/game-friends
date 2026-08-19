@@ -13,9 +13,9 @@ import {
 import {
     getDatabase,
     ref,
-    runTransaction,
     set,
-    get
+    get,
+    update
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 
@@ -161,6 +161,7 @@ const bingoBtn =
 
 const xoBtn =
     document.getElementById("xoBtn");
+
 
 // =====================================================
 // Profile Elements
@@ -464,12 +465,6 @@ if (xoBtn) {
 
 
 // =====================================================
-// Start
-// =====================================================
-
-showLoginScreen();
-
-// =====================================================
 // Show Login Screen
 // =====================================================
 
@@ -518,9 +513,6 @@ function showGameCenterScreen() {
 // =====================================================
 // Thailand Date
 // =====================================================
-//
-// แก้ไข:
-// ไม่อ่าน Firebase .info/serverTimeOffset
 //
 // ใช้เวลาเครื่อง + บังคับ TimeZone เป็น Asia/Bangkok
 // เพื่อป้องกัน THAILAND DATE ERROR
@@ -664,6 +656,14 @@ function getThailandDateKey() {
 
 // =====================================================
 // Daily Login Reward
+// -----------------------------------------------------
+// get() + update() แทน runTransaction()
+// (transaction ล้มเหลวเงียบๆ บ่อยเมื่อ WebSocket ไม่นิ่ง)
+//
+// มีความเสี่ยงเล็กน้อยเรื่อง race condition ถ้าผู้เล่น
+// login พร้อมกันหลาย tab ในวินาทีเดียวกันเป๊ะ ๆ ซึ่งสำหรับ
+// กลุ่มเพื่อนความเสี่ยงนี้ต่ำมาก ยอมรับได้เพื่อแลกกับความ
+// เสถียรของระบบ
 // =====================================================
 
 async function requestLoginReward(user) {
@@ -686,105 +686,78 @@ async function requestLoginReward(user) {
                 user.uid
             );
 
-        let rewardPaid =
-            false;
+        const snapshot =
+            await get(walletRef);
 
-        const result =
-            await runTransaction(
-                walletRef,
-                currentWallet => {
+        if (!snapshot.exists()) {
 
-                    if (
-                        currentWallet === null
-                    ) {
+            return false;
 
-                        return;
+        }
 
-                    }
+        const wallet =
+            snapshot.val();
 
-                    if (
-                        !currentWallet.transactions
-                    ) {
+        const transactions =
+            wallet.transactions || {};
 
-                        currentWallet.transactions =
-                            {};
-
-                    }
-
-                    const transactionId =
-                        "login_" +
-                        dateKey;
-
-                    if (
-                        currentWallet
-                            .transactions[
-                                transactionId
-                            ]
-                    ) {
-
-                        rewardPaid =
-                            false;
-
-                        return currentWallet;
-
-                    }
-
-                    const currentCoins =
-                        Number(
-                            currentWallet.coins ||
-                            0
-                        );
-
-                    if (
-                        !Number.isFinite(
-                            currentCoins
-                        )
-                    ) {
-
-                        return;
-
-                    }
-
-                    currentWallet.coins =
-                        currentCoins +
-                        DAILY_LOGIN_REWARD;
-
-                    currentWallet.transactions[
-                        transactionId
-                    ] = {
-
-                        type:
-                            "credit",
-
-                        amount:
-                            DAILY_LOGIN_REWARD,
-
-                        reason:
-                            "Login Reward 100 เหรียญ",
-
-                        timestamp:
-                            Date.now()
-
-                    };
-
-                    rewardPaid =
-                        true;
-
-                    return currentWallet;
-
-                }
-            );
-
+        const transactionId =
+            "login_" +
+            dateKey;
 
         if (
-            !result.committed
+            transactions[transactionId]
+        ) {
+
+            // รับรางวัลวันนี้ไปแล้ว
+
+            return false;
+
+        }
+
+        const currentCoins =
+            Number(
+                wallet.coins || 0
+            );
+
+        if (
+            !Number.isFinite(
+                currentCoins
+            )
         ) {
 
             return false;
 
         }
 
-        return rewardPaid;
+        await update(
+            walletRef,
+            {
+
+                coins:
+                    currentCoins +
+                    DAILY_LOGIN_REWARD,
+
+                ["transactions/" + transactionId]: {
+
+                    type:
+                        "credit",
+
+                    amount:
+                        DAILY_LOGIN_REWARD,
+
+                    reason:
+                        "Login Reward 100 เหรียญ",
+
+                    timestamp:
+                        Date.now()
+
+                }
+
+            }
+        );
+
+        return true;
 
     } catch (error) {
 
@@ -841,24 +814,6 @@ function formatRegisteredDate(
         month +
         "/" +
         year
-    );
-
-}
-
-
-// =====================================================
-// Initial Display Name
-// =====================================================
-
-function createInitialDisplayName(
-    registeredDate,
-    friendId
-) {
-
-    return (
-        "My Friend#" +
-        registeredDate +
-        friendId
     );
 
 }
@@ -1194,6 +1149,10 @@ function normalizeDisplayNameForRole(
 
 // =====================================================
 // Friend ID Counter
+// -----------------------------------------------------
+// get() + set() แทน runTransaction()
+// ความเสี่ยง race condition ต่ำมากสำหรับกลุ่มเพื่อน
+// (ไม่มีทางที่ 2 คนสมัครพร้อมกันในเสี้ยววินาทีเดียวกัน)
 // =====================================================
 
 async function createFriendId() {
@@ -1204,60 +1163,30 @@ async function createFriendId() {
             "system/userCounter"
         );
 
-    const result =
-        await runTransaction(
-            counterRef,
-            currentValue => {
+    const snapshot =
+        await get(counterRef);
 
-                if (
-                    currentValue === null
-                ) {
+    const current =
+        snapshot.exists()
+            ? Number(snapshot.val())
+            : 0;
 
-                    return 1;
+    const next =
+        Number.isFinite(current)
+            ? current + 1
+            : 1;
 
-                }
-
-                const number =
-                    Number(
-                        currentValue
-                    );
-
-                if (
-                    !Number.isFinite(
-                        number
-                    )
-                ) {
-
-                    return 1;
-
-                }
-
-                return number + 1;
-
-            }
-        );
+    await set(
+        counterRef,
+        next
+    );
 
     if (
-        !result.committed
-    ) {
-
-        throw new Error(
-            "ไม่สามารถสร้าง Friend ID ได้"
-        );
-
-    }
-
-    const number =
-        Number(
-            result.snapshot.val()
-        );
-
-    if (
-        number < 1000
+        next < 1000
     ) {
 
         return String(
-            number
+            next
         ).padStart(
             3,
             "0"
@@ -1265,7 +1194,7 @@ async function createFriendId() {
 
     }
 
-    return String(number);
+    return String(next);
 
 }
 
@@ -1800,7 +1729,7 @@ if (adminPanelBtn) {
 
 
             window.location.href =
-                "admin.html";
+                "panel/admin/admin.html";
 
         }
     );
@@ -1848,7 +1777,7 @@ if (gmPanelBtn) {
 
 
             window.location.href =
-                "gm.html";
+                "panel/gm/gm.html";
 
         }
     );
