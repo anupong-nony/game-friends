@@ -2370,141 +2370,85 @@ gmWalletWithdrawBtn
 // =====================================================
 // REWARD
 // Admin → Player / GM / Admin
-// Admin สามารถมอบให้ตัวเองได้
-// GM → Player ใช้ระบบ GM แยก
 // =====================================================
 
 async function giveReward() {
 
-    const user =
-        auth.currentUser;
-
+    const user = auth.currentUser;
 
     if (
         !user ||
         !ADMIN_UIDS.has(user.uid)
     ) {
-
-        alert(
-            "คุณไม่มีสิทธิ์ Admin"
-        );
-
+        alert("คุณไม่มีสิทธิ์ Admin");
         return;
     }
-
 
     const target =
-        rewardTarget?.value
-            ?.trim();
-
+        rewardTarget?.value?.trim();
 
     const amount =
-        safeNumber(
-            rewardAmount?.value
-        );
-
+        safeNumber(rewardAmount?.value);
 
     const reason =
-        rewardReason?.value
-            ?.trim();
-
+        rewardReason?.value?.trim();
 
     if (!target) {
-
-        alert(
-            "กรุณาระบุ Friend ID / Username"
-        );
-
+        alert("กรุณาระบุ Friend ID / Username");
         return;
     }
-
 
     if (
         !Number.isInteger(amount) ||
         amount <= 0
     ) {
-
-        alert(
-            "จำนวนเหรียญต้องเป็นจำนวนเต็มมากกว่า 0"
-        );
-
+        alert("จำนวนเหรียญต้องเป็นจำนวนเต็มมากกว่า 0");
         return;
     }
-
 
     if (!reason) {
-
-        alert(
-            "กรุณาระบุเหตุผล"
-        );
-
+        alert("กรุณาระบุเหตุผล");
         return;
     }
-
 
     const submitButton =
         rewardForm?.querySelector(
             "button[type='submit']"
         );
 
-
     if (submitButton) {
-
-        submitButton.disabled =
-            true;
-
+        submitButton.disabled = true;
         submitButton.textContent =
             "กำลังมอบเหรียญ...";
-
     }
 
-
     try {
+
+        // =================================================
+        // ค้นหาผู้รับ
+        // =================================================
 
         const found =
             await findUser(target);
 
-
         if (!found) {
-
             throw new Error(
                 "ไม่พบผู้ใช้\nกรุณาตรวจสอบ Friend ID / Username / Display Name"
             );
-
         }
-
 
         const targetUid =
             found.uid;
 
-
         const targetData =
             found.data || {};
 
-
         const targetIsAdmin =
-            ADMIN_UIDS.has(
-                targetUid
-            );
-
+            ADMIN_UIDS.has(targetUid);
 
         const targetIsGM =
-            GM_UIDS.has(
-                targetUid
-            ) ||
+            GM_UIDS.has(targetUid) ||
             targetData.role === "gm";
-
-
-        console.log(
-            "REWARD TARGET:",
-            {
-                target,
-                targetUid,
-                targetIsAdmin,
-                targetIsGM,
-                targetData
-            }
-        );
 
 
         // =================================================
@@ -2517,30 +2461,24 @@ async function giveReward() {
             const targetCoinsRef =
                 ref(
                     database,
-                    "wallets/" +
+                    "users/" +
                     targetUid +
                     "/coins"
                 );
-
 
             const result =
                 await runTransaction(
                     targetCoinsRef,
                     currentValue =>
-                        safeNumber(
-                            currentValue
-                        ) + amount
+                        safeNumber(currentValue) +
+                        amount
                 );
 
-
             if (!result.committed) {
-
                 throw new Error(
                     "เพิ่มเหรียญให้ Admin ไม่สำเร็จ"
                 );
-
             }
-
 
             const transactionRef =
                 push(
@@ -2550,16 +2488,11 @@ async function giveReward() {
                     )
                 );
 
-
             await set(
                 transactionRef,
                 {
-
-                    type:
-                        "admin_reward",
-
+                    type: "admin_reward",
                     amount,
-
                     reason,
 
                     actorUid:
@@ -2579,10 +2512,8 @@ async function giveReward() {
 
                     timestamp:
                         Date.now()
-
                 }
             );
-
 
             const notificationRef =
                 push(
@@ -2593,13 +2524,10 @@ async function giveReward() {
                     )
                 );
 
-
             await set(
                 notificationRef,
                 {
-
-                    type:
-                        "admin_reward",
+                    type: "admin_reward",
 
                     title:
                         "👑 ได้รับเหรียญจาก Admin",
@@ -2611,11 +2539,9 @@ async function giveReward() {
                         reason,
 
                     amount,
-
                     reason,
 
-                    read:
-                        false,
+                    read: false,
 
                     createdAt:
                         Date.now(),
@@ -2626,26 +2552,19 @@ async function giveReward() {
                     fromName:
                         panelUsername?.textContent ||
                         "Admin"
-
                 }
             );
 
-
             await renderTransactionPreview();
 
-
-            if (rewardTarget) {
+            if (rewardTarget)
                 rewardTarget.value = "";
-            }
 
-            if (rewardAmount) {
+            if (rewardAmount)
                 rewardAmount.value = "";
-            }
 
-            if (rewardReason) {
+            if (rewardReason)
                 rewardReason.value = "";
-            }
-
 
             alert(
                 "เพิ่มเหรียญให้ Admin สำเร็จ\n\n" +
@@ -2661,11 +2580,7 @@ async function giveReward() {
                 " 🪙"
             );
 
-
-            closeModal(
-                rewardModal
-            );
-
+            closeModal(rewardModal);
 
             return;
         }
@@ -2673,7 +2588,7 @@ async function giveReward() {
 
         // =================================================
         // ADMIN → GM / PLAYER
-        // ต้องหักจาก GM Wallet
+        // หักจาก GM Wallet
         // =================================================
 
         const walletRef =
@@ -2684,14 +2599,11 @@ async function giveReward() {
 
 
         // =================================================
-        // อ่านยอดจริงจาก Firebase ก่อน
+        // อ่านยอด GM Wallet ล่าสุด
         // =================================================
 
         const walletSnapshot =
-            await get(
-                walletRef
-            );
-
+            await get(walletRef);
 
         const walletBefore =
             walletSnapshot.exists()
@@ -2700,21 +2612,7 @@ async function giveReward() {
                 )
                 : 0;
 
-
-        console.log(
-            "GM WALLET BEFORE REWARD:",
-            {
-                walletBefore,
-                amount,
-                walletPath:
-                    "gmWallet/coins"
-            }
-        );
-
-
-        if (
-            walletBefore < amount
-        ) {
+        if (walletBefore < amount) {
 
             throw new Error(
                 "GM Wallet มีเหรียญไม่เพียงพอ\n\n" +
@@ -2725,12 +2623,11 @@ async function giveReward() {
                 amount.toLocaleString() +
                 " 🪙"
             );
-
         }
 
 
         // =================================================
-        // หัก GM Wallet ด้วย Transaction
+        // หัก GM Wallet
         // =================================================
 
         const walletResult =
@@ -2739,37 +2636,20 @@ async function giveReward() {
                 currentValue => {
 
                     const current =
-                        safeNumber(
-                            currentValue
-                        );
+                        safeNumber(currentValue);
 
-
-                    if (
-                        current < amount
-                    ) {
-
+                    if (current < amount) {
                         return current;
-
                     }
 
-
-                    return (
-                        current -
-                        amount
-                    );
-
+                    return current - amount;
                 }
             );
 
-
-        if (
-            !walletResult.committed
-        ) {
-
+        if (!walletResult.committed) {
             throw new Error(
                 "ไม่สามารถตัดเหรียญจาก GM Wallet ได้"
             );
-
         }
 
 
@@ -2779,92 +2659,31 @@ async function giveReward() {
             );
 
 
-        const expectedWalletAfter =
-            walletBefore -
-            amount;
-
-
-        console.log(
-            "GM WALLET AFTER REWARD:",
-            {
-                walletBefore,
-                amount,
-                walletAfter,
-                expectedWalletAfter
-            }
-        );
-
-
         // =================================================
-        // ตรวจว่าหักได้ตามจำนวนจริงหรือไม่
-        // =================================================
-
-        if (
-            walletAfter !==
-            expectedWalletAfter
-        ) {
-
-            throw new Error(
-                "ยอด GM Wallet เปลี่ยนแปลงระหว่างการมอบเหรียญ\n\n" +
-                "กรุณาลองใหม่อีกครั้ง"
-            );
-
-        }
-
-
-        // =================================================
-        // เพิ่มเหรียญให้ GM / Player
+        // เพิ่มเหรียญให้ผู้รับ
         //
-        // แก้จาก users/{uid}/coins
-        // เป็น wallets/{uid}/coins
+        // ใช้ path เดิมของระบบ users/{uid}/coins
         // =================================================
 
         const targetCoinsRef =
             ref(
                 database,
-                "wallets/" +
+                "users/" +
                 targetUid +
                 "/coins"
             );
 
-
-        let targetCommitted =
-            false;
-
+        let targetResult;
 
         try {
 
-            const targetResult =
+            targetResult =
                 await runTransaction(
                     targetCoinsRef,
                     currentValue =>
-                        safeNumber(
-                            currentValue
-                        ) + amount
+                        safeNumber(currentValue) +
+                        amount
                 );
-
-
-            targetCommitted =
-                targetResult.committed;
-
-
-            console.log(
-                "TARGET WALLET RESULT:",
-                {
-                    targetUid,
-                    targetWalletPath:
-                        "wallets/" +
-                        targetUid +
-                        "/coins",
-                    targetCommitted,
-                    targetCoins:
-                        targetResult.snapshot.exists()
-                            ? safeNumber(
-                                targetResult.snapshot.val()
-                            )
-                            : 0
-                }
-            );
 
         }
         catch (targetError) {
@@ -2874,69 +2693,82 @@ async function giveReward() {
                 targetError
             );
 
-            targetCommitted =
-                false;
-
+            targetResult = null;
         }
 
 
         // =================================================
-        // ถ้าเพิ่มเหรียญให้ผู้รับไม่สำเร็จ
+        // ถ้า Player / GM รับเหรียญไม่สำเร็จ
         // คืนเหรียญกลับ GM Wallet
         // =================================================
 
         if (
-            !targetCommitted
+            !targetResult ||
+            !targetResult.committed
         ) {
 
-            try {
-
-                const refundResult =
-                    await runTransaction(
-                        walletRef,
-                        currentValue =>
-                            safeNumber(
-                                currentValue
-                            ) + amount
-                    );
-
-
-                if (
-                    !refundResult.committed
-                ) {
-
-                    throw new Error(
-                        "Refund Transaction ไม่สำเร็จ"
-                    );
-
+            console.error(
+                "TARGET COINS COMMIT FAILED",
+                {
+                    targetUid,
+                    targetPath:
+                        "users/" +
+                        targetUid +
+                        "/coins",
+                    amount
                 }
+            );
 
-            }
-            catch (refundError) {
-
-                console.error(
-                    "GM WALLET REFUND ERROR:",
-                    refundError
+            const refundResult =
+                await runTransaction(
+                    walletRef,
+                    currentValue =>
+                        safeNumber(currentValue) +
+                        amount
                 );
+
+            if (!refundResult.committed) {
 
                 throw new Error(
                     "เพิ่มเหรียญให้ผู้รับไม่สำเร็จ และคืนเหรียญกลับ GM Wallet ไม่สำเร็จ\n\n" +
                     "กรุณาตรวจสอบ GM Wallet ทันที"
                 );
-
             }
-
 
             throw new Error(
                 "เพิ่มเหรียญให้ผู้รับไม่สำเร็จ\n\n" +
                 "เหรียญถูกคืนกลับ GM Wallet แล้ว"
             );
-
         }
 
 
         // =================================================
-        // Transaction
+        // ตรวจยอดผู้รับหลังโอน
+        // =================================================
+
+        const targetCoinsAfter =
+            safeNumber(
+                targetResult.snapshot.val()
+            );
+
+        console.log(
+            "REWARD SUCCESS:",
+            {
+                targetUid,
+                targetPath:
+                    "users/" +
+                    targetUid +
+                    "/coins",
+                amount,
+                targetCoinsAfter,
+                walletBefore,
+                walletAfter
+            }
+        );
+
+
+        // =================================================
+        // บันทึก Transaction
         // =================================================
 
         const transactionRef =
@@ -2947,18 +2779,15 @@ async function giveReward() {
                 )
             );
 
-
         await set(
             transactionRef,
             {
-
                 type:
                     targetIsGM
                         ? "admin_to_gm"
                         : "reward",
 
                 amount,
-
                 reason,
 
                 actorUid:
@@ -2978,7 +2807,6 @@ async function giveReward() {
 
                 timestamp:
                     Date.now()
-
             }
         );
 
@@ -2996,13 +2824,10 @@ async function giveReward() {
                 )
             );
 
-
         await set(
             notificationRef,
             {
-
-                type:
-                    "reward",
+                type: "reward",
 
                 title:
                     "🎁 ได้รับเหรียญ",
@@ -3014,11 +2839,9 @@ async function giveReward() {
                     reason,
 
                 amount,
-
                 reason,
 
-                read:
-                    false,
+                read: false,
 
                 createdAt:
                     Date.now(),
@@ -3029,7 +2852,6 @@ async function giveReward() {
                 fromName:
                     panelUsername?.textContent ||
                     "Admin"
-
             }
         );
 
@@ -3044,24 +2866,21 @@ async function giveReward() {
 
 
         // =================================================
-        // Clear Form
+        // ล้างฟอร์ม
         // =================================================
 
-        if (rewardTarget) {
+        if (rewardTarget)
             rewardTarget.value = "";
-        }
 
-        if (rewardAmount) {
+        if (rewardAmount)
             rewardAmount.value = "";
-        }
 
-        if (rewardReason) {
+        if (rewardReason)
             rewardReason.value = "";
-        }
 
 
         // =================================================
-        // Success
+        // สำเร็จ
         // =================================================
 
         alert(
@@ -3081,10 +2900,7 @@ async function giveReward() {
             " 🪙"
         );
 
-
-        closeModal(
-            rewardModal
-        );
+        closeModal(rewardModal);
 
     }
     catch (error) {
@@ -3093,7 +2909,6 @@ async function giveReward() {
             "GIVE REWARD ERROR:",
             error
         );
-
 
         alert(
             "มอบเหรียญไม่สำเร็จ\n\n" +
@@ -3108,17 +2923,16 @@ async function giveReward() {
 
         if (submitButton) {
 
-            submitButton.disabled =
-                false;
+            submitButton.disabled = false;
 
             submitButton.textContent =
                 "🎁 มอบรางวัล";
-
         }
-
     }
 }
+ 
 
+        
 
 // =====================================================
 // Reward Form
