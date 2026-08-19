@@ -1930,10 +1930,6 @@ async function findUser(
         }
 
 
-        // =================================================
-        // UID
-        // =================================================
-
         if (
             uid.toLowerCase() === search
         ) {
@@ -1945,10 +1941,6 @@ async function findUser(
 
         }
 
-
-        // =================================================
-        // Username
-        // =================================================
 
         if (
             String(
@@ -1964,11 +1956,6 @@ async function findUser(
         }
 
 
-        // =================================================
-        // Display Name
-        // แก้เพิ่ม: เดิมระบบค้นหา Display Name ไม่ได้
-        // =================================================
-
         if (
             String(
                 user.displayName || ""
@@ -1982,10 +1969,6 @@ async function findUser(
 
         }
 
-
-        // =================================================
-        // Friend ID
-        // =================================================
 
         if (
             String(
@@ -2122,10 +2105,6 @@ async function changeGmWallet(
             );
 
 
-        let insufficient =
-            false;
-
-
         const result =
             await runTransaction(
                 walletRef,
@@ -2138,22 +2117,29 @@ async function changeGmWallet(
 
 
                     if (
-                        type === "debit" &&
-                        amount > current
+                        type === "debit"
                     ) {
 
-                        insufficient =
-                            true;
+                        if (
+                            amount > current
+                        ) {
 
-                        return;
+                            return current;
+
+                        }
+
+
+                        return (
+                            current -
+                            amount
+                        );
 
                     }
 
 
                     return (
-                        type === "credit"
-                            ? current + amount
-                            : current - amount
+                        current +
+                        amount
                     );
 
                 }
@@ -2164,17 +2150,26 @@ async function changeGmWallet(
             !result.committed
         ) {
 
-            if (insufficient) {
-
-                throw new Error(
-                    "GM Wallet มีเหรียญไม่เพียงพอ"
-                );
-
-            }
-
-
             throw new Error(
                 "ไม่สามารถเปลี่ยนยอด GM Wallet ได้"
+            );
+
+        }
+
+
+        const newBalance =
+            safeNumber(
+                result.snapshot.val()
+            );
+
+
+        if (
+            type === "debit" &&
+            newBalance < 0
+        ) {
+
+            throw new Error(
+                "GM Wallet มีเหรียญไม่เพียงพอ"
             );
 
         }
@@ -2322,10 +2317,6 @@ async function giveReward() {
         auth.currentUser;
 
 
-    // =================================================
-    // ตรวจสอบ Admin
-    // =================================================
-
     if (
         !user ||
         !ADMIN_UIDS.has(user.uid)
@@ -2338,10 +2329,6 @@ async function giveReward() {
         return;
     }
 
-
-    // =================================================
-    // อ่านข้อมูลจาก Form
-    // =================================================
 
     const target =
         rewardTarget?.value
@@ -2392,10 +2379,6 @@ async function giveReward() {
     }
 
 
-    // =================================================
-    // ป้องกันกดซ้ำ
-    // =================================================
-
     const submitButton =
         rewardForm?.querySelector(
             "button[type='submit']"
@@ -2414,10 +2397,6 @@ async function giveReward() {
 
 
     try {
-
-        // =================================================
-        // ค้นหาผู้รับ
-        // =================================================
 
         const found =
             await findUser(target);
@@ -2439,13 +2418,6 @@ async function giveReward() {
         const targetData =
             found.data || {};
 
-
-        // =================================================
-        // ตรวจ Admin จาก UID โดยตรง
-        // สำคัญมาก:
-        // ต่อให้ข้อมูลใน users/role ไม่มี
-        // UID ที่อยู่ใน ADMIN_UIDS ต้องถือเป็น Admin
-        // =================================================
 
         const targetIsAdmin =
             ADMIN_UIDS.has(
@@ -2474,10 +2446,6 @@ async function giveReward() {
 
         // =================================================
         // ADMIN → ADMIN
-        //
-        // Admin สามารถเพิ่มเหรียญให้ตัวเอง
-        // หรือ Admin อีกคนได้
-        //
         // ไม่หัก GM Wallet
         // =================================================
 
@@ -2510,13 +2478,6 @@ async function giveReward() {
 
             }
 
-
-            // =================================================
-            // Transaction
-            //
-            // admin_reward = เพิ่มให้ Admin
-            // ไม่กระทบ GM Wallet
-            // =================================================
 
             const transactionRef =
                 push(
@@ -2559,10 +2520,6 @@ async function giveReward() {
                 }
             );
 
-
-            // =================================================
-            // Notification
-            // =================================================
 
             const notificationRef =
                 push(
@@ -2653,7 +2610,6 @@ async function giveReward() {
 
         // =================================================
         // ADMIN → GM / PLAYER
-        //
         // ต้องหักจาก GM Wallet
         // =================================================
 
@@ -2665,14 +2621,64 @@ async function giveReward() {
 
 
         // =================================================
-        // ตัดเหรียญจาก GM Wallet
+        // อ่านยอดจริงจาก Firebase ก่อน
         //
-        // ใช้ Transaction
+        // จุดสำคัญ:
+        // ไม่ใช้ค่าในหน้าจอ
+        // ไม่ใช้ค่าเก่าในตัวแปร
         // =================================================
 
-        let walletInsufficient =
-            false;
+        const walletSnapshot =
+            await get(
+                walletRef
+            );
 
+
+        const walletBefore =
+            walletSnapshot.exists()
+                ? safeNumber(
+                    walletSnapshot.val()
+                )
+                : 0;
+
+
+        console.log(
+            "GM WALLET BEFORE REWARD:",
+            {
+                walletBefore,
+                amount,
+                walletPath:
+                    "gmWallet/coins"
+            }
+        );
+
+
+        if (
+            walletBefore < amount
+        ) {
+
+            throw new Error(
+                "GM Wallet มีเหรียญไม่เพียงพอ\n\n" +
+                "ยอดปัจจุบัน: " +
+                walletBefore.toLocaleString() +
+                " 🪙\n" +
+                "ต้องการ: " +
+                amount.toLocaleString() +
+                " 🪙"
+            );
+
+        }
+
+
+        // =================================================
+        // หัก GM Wallet ด้วย Transaction
+        //
+        // IMPORTANT:
+        // ห้าม return undefined เมื่อเงินไม่พอ
+        // เพราะจะทำให้ Transaction ถูกยกเลิกทันที
+        //
+        // เราจะคืนค่าเดิม แล้วตรวจผลหลัง Transaction
+        // =================================================
 
         const walletResult =
             await runTransaction(
@@ -2689,10 +2695,7 @@ async function giveReward() {
                         current < amount
                     ) {
 
-                        walletInsufficient =
-                            true;
-
-                        return;
+                        return current;
 
                     }
 
@@ -2706,29 +2709,55 @@ async function giveReward() {
             );
 
 
-        // =================================================
-        // ตรวจผล Transaction
-        // =================================================
-
         if (
             !walletResult.committed
         ) {
 
-            if (walletInsufficient) {
+            throw new Error(
+                "ไม่สามารถตัดเหรียญจาก GM Wallet ได้"
+            );
 
-                throw new Error(
-                    "GM Wallet มีเหรียญไม่เพียงพอ\n\n" +
-                    "ต้องการ: " +
-                    amount.toLocaleString() +
-                    " 🪙"
-                );
+        }
 
+
+        const walletAfter =
+            safeNumber(
+                walletResult.snapshot.val()
+            );
+
+
+        const expectedWalletAfter =
+            walletBefore -
+            amount;
+
+
+        console.log(
+            "GM WALLET AFTER REWARD:",
+            {
+                walletBefore,
+                amount,
+                walletAfter,
+                expectedWalletAfter
             }
+        );
 
+
+        // =================================================
+        // ตรวจว่าหักได้ตามจำนวนจริงหรือไม่
+        // =================================================
+
+        if (
+            walletAfter !==
+            expectedWalletAfter
+        ) {
+
+            // =================================================
+            // ป้องกันกรณี Transaction เจอข้อมูลเปลี่ยนระหว่างทาง
+            // =================================================
 
             throw new Error(
-                "ไม่สามารถตัดเหรียญจาก GM Wallet ได้\n\n" +
-                "Transaction ถูกยกเลิกหรือข้อมูลถูกเปลี่ยนแปลง"
+                "ยอด GM Wallet เปลี่ยนแปลงระหว่างการมอบเหรียญ\n\n" +
+                "กรุณาลองใหม่อีกครั้ง"
             );
 
         }
@@ -2782,7 +2811,7 @@ async function giveReward() {
 
         // =================================================
         // ถ้าเพิ่มเหรียญให้ผู้รับไม่สำเร็จ
-        // ให้คืนเหรียญกลับ GM Wallet
+        // คืนเหรียญกลับ GM Wallet
         // =================================================
 
         if (
@@ -2791,13 +2820,25 @@ async function giveReward() {
 
             try {
 
-                await runTransaction(
-                    walletRef,
-                    currentValue =>
-                        safeNumber(
-                            currentValue
-                        ) + amount
-                );
+                const refundResult =
+                    await runTransaction(
+                        walletRef,
+                        currentValue =>
+                            safeNumber(
+                                currentValue
+                            ) + amount
+                    );
+
+
+                if (
+                    !refundResult.committed
+                ) {
+
+                    throw new Error(
+                        "Refund Transaction ไม่สำเร็จ"
+                    );
+
+                }
 
             }
             catch (refundError) {
@@ -2963,6 +3004,9 @@ async function giveReward() {
             ) +
             "\n+" +
             amount.toLocaleString() +
+            " 🪙" +
+            "\n\nGM Wallet เหลือ " +
+            walletAfter.toLocaleString() +
             " 🪙"
         );
 
