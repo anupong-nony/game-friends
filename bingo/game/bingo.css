@@ -443,6 +443,10 @@ body {
 
 /* =====================================================
    BOARDS
+   -----------------------------------------------------
+   สำคัญ: ทุกกระดานเป็น flex column สูง 100% ของ cell
+   ในกริด กระดาน (ไม่พึ่ง aspect-ratio ที่อิงความกว้าง)
+   เพื่อไม่ให้แถวสุดท้ายล้นออกไปโดน overflow:hidden ตัด
    ===================================================== */
 
 .boards-container {
@@ -451,6 +455,8 @@ body {
 
     grid-template-columns:
         repeat(2, minmax(0, 1fr));
+
+    grid-auto-rows: 1fr;
 
     gap: 6px;
 
@@ -462,8 +468,6 @@ body {
     min-height: 0;
 
     overflow: hidden;
-
-    align-content: center;
 
 }
 
@@ -530,6 +534,8 @@ body {
 
     width: 100%;
 
+    height: 100%;
+
     padding: 3px;
 
     background:
@@ -547,44 +553,9 @@ body {
 
     overflow: hidden;
 
-}
+    display: flex;
 
-
-/*
-   สำคัญ:
-   ให้กระดานยืด/หดตามพื้นที่ที่เหลือ
-   ไม่บังคับความสูงจนเลขแถวล่างถูกตัด
-*/
-
-.boards-container.board-count-1
-.bingo-board {
-
-    max-height:
-        100%;
-
-}
-
-.boards-container.board-count-2
-.bingo-board {
-
-    max-height:
-        100%;
-
-}
-
-.boards-container.board-count-3
-.bingo-board {
-
-    max-height:
-        100%;
-
-}
-
-.boards-container.board-count-4
-.bingo-board {
-
-    max-height:
-        100%;
+    flex-direction: column;
 
 }
 
@@ -605,6 +576,8 @@ body {
 
     line-height: 1.2;
 
+    flex-shrink: 0;
+
 }
 
 
@@ -622,6 +595,8 @@ body {
     gap: 2px;
 
     margin-bottom: 2px;
+
+    flex-shrink: 0;
 
 }
 
@@ -666,6 +641,10 @@ body {
 
 /* =====================================================
    GRID
+   -----------------------------------------------------
+   grid-template-rows แบ่งความสูงเท่าๆ กัน 5 แถว
+   ไม่พึ่ง aspect-ratio อีกต่อไป -> ไม่มีทางล้นสูงเกิน
+   พื้นที่ของกระดาน ไม่ว่าจะกี่กระดานพร้อมกันก็ตาม
    ===================================================== */
 
 .bingo-grid {
@@ -675,23 +654,24 @@ body {
     grid-template-columns:
         repeat(5, minmax(0, 1fr));
 
+    grid-template-rows:
+        repeat(5, minmax(0, 1fr));
+
     gap: 2px;
 
     width: 100%;
+
+    flex: 1;
+
+    min-height: 0;
 
 }
 
 .bingo-cell {
 
-    /*
-       ขนาดจะอิงจากความกว้างกระดาน
-       และไม่ให้ล้นพื้นที่แนวตั้ง
-    */
-
     width: 100%;
 
-    aspect-ratio:
-        1 / 1;
+    height: 100%;
 
     min-width: 0;
 
@@ -714,13 +694,6 @@ body {
 
     color:
         #fff;
-
-    font-size:
-        clamp(
-            7px,
-            2.3vw,
-            13px
-        );
 
     font-weight: 700;
 
@@ -756,19 +729,15 @@ body {
     color:
         #9fb8ff;
 
-    font-size:
-        clamp(
-            5px,
-            1.7vw,
-            9px
-        );
-
     line-height: 1;
 
     text-align:
         center;
 
     padding: 1px;
+
+    font-size:
+        clamp(5px, 1.6vw, 9px) !important;
 
 }
 
@@ -784,7 +753,41 @@ body {
 
 
 /* =====================================================
-   3-4 BOARDS
+   FONT SIZE ตามจำนวนกระดาน
+   (แทนที่ inline JS style เดิมที่ทำให้กระดาน 2-3 ใหญ่
+   เกินไปไม่ลดตามจริง)
+   ===================================================== */
+
+.boards-container.board-count-1
+.bingo-cell {
+
+    font-size:
+        clamp(14px, 6vw, 26px);
+
+}
+
+.boards-container.board-count-2
+.bingo-cell {
+
+    font-size:
+        clamp(11px, 4.2vw, 18px);
+
+}
+
+.boards-container.board-count-3
+.bingo-cell,
+
+.boards-container.board-count-4
+.bingo-cell {
+
+    font-size:
+        clamp(8px, 3vw, 13px);
+
+}
+
+
+/* =====================================================
+   3-4 BOARDS - SPACING
    ===================================================== */
 
 .boards-container.board-count-3
@@ -838,21 +841,6 @@ body {
 .bingo-grid {
 
     gap: 1px;
-
-}
-
-.boards-container.board-count-3
-.bingo-cell,
-
-.boards-container.board-count-4
-.bingo-cell {
-
-    font-size:
-        clamp(
-            6px,
-            2vw,
-            11px
-        );
 
 }
 
@@ -1284,6 +1272,13 @@ body {
 
     background:
         #5578d8;
+
+}
+
+.ready-btn.ready-active::before {
+
+    content:
+        "✓ ";
 
 }
 
@@ -1753,32 +1748,28 @@ body {
 
 }
 
+
 /* =====================================================
-   BINGO WINNER POPUP
+   WINNER POPUP (ใช้กับ #winnerModal ใน bingo.html)
    ===================================================== */
 
-.bingo-winner-modal {
+.winner-modal {
 
     width: 100%;
 
-    max-width: 340px;
+    max-width: 360px;
 
-    background:
-        #282d37;
+    background: #282d37;
 
-    border:
-        1px solid
-        rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.12);
 
     border-radius: 14px;
 
-    padding: 20px 16px;
+    padding: 18px;
+
+    box-shadow: 0 20px 55px rgba(0,0,0,.6);
 
     text-align: center;
-
-    box-shadow:
-        0 20px 50px
-        rgba(0,0,0,.6);
 
     animation:
         bingoWinnerPop
@@ -1789,78 +1780,72 @@ body {
 @keyframes bingoWinnerPop {
 
     from {
-
         opacity: 0;
-
-        transform:
-            scale(.85);
-
+        transform: scale(.85);
     }
 
     to {
-
         opacity: 1;
-
-        transform:
-            scale(1);
-
+        transform: scale(1);
     }
 
 }
 
+.winner-title {
 
-.bingo-winner-icon {
-
-    font-size: 42px;
-
-    line-height: 1;
-
-    margin-bottom: 8px;
-
-}
-
-
-.bingo-winner-title {
-
-    font-size: 20px;
+    font-size: 22px;
 
     font-weight: 900;
 
-    color:
-        #ffd45c;
-
-    margin-bottom: 7px;
+    margin-bottom: 10px;
 
 }
 
+.winner-name {
 
-.bingo-winner-name {
+    font-size: 18px;
 
-    font-size: 15px;
+    font-weight: 900;
 
-    font-weight: 800;
+    color: #ffd45c;
 
-    color:
-        #fff;
+    margin-bottom: 8px;
 
-    margin-bottom: 5px;
-
-}
-
-
-.bingo-winner-board {
-
-    font-size: 11px;
-
-    color:
-        #aeb5c2;
-
-    margin-bottom: 15px;
+    word-break: break-word;
 
 }
 
+.winner-message {
 
-.bingo-winner-ok-btn {
+    color: #c4c9d2;
+
+    font-size: 12px;
+
+    line-height: 1.6;
+
+    margin-bottom: 12px;
+
+}
+
+.winner-prize {
+
+    background: #20242d;
+
+    border-radius: 9px;
+
+    padding: 10px;
+
+    margin-bottom: 14px;
+
+    color: #fff;
+
+    font-size: 12px;
+
+    line-height: 1.7;
+
+}
+
+.winner-confirm-btn {
 
     width: 100%;
 
@@ -1870,11 +1855,9 @@ body {
 
     border-radius: 8px;
 
-    background:
-        #57a773;
+    background: #57a773;
 
-    color:
-        #fff;
+    color: #fff;
 
     font-size: 12px;
 
@@ -1884,31 +1867,44 @@ body {
 
 }
 
+.winner-confirm-btn:disabled {
 
-.bingo-winner-ok-btn:active {
+    opacity: .5;
 
-    transform:
-        scale(.97);
+    cursor: not-allowed;
 
 }
 
+.winner-confirm-status {
 
-.bingo-winner-ok-btn:disabled {
+    min-height: 18px;
 
-    opacity:
-        .45;
+    margin-top: 8px;
 
-    cursor:
-        not-allowed;
+    color: #aeb5c2;
+
+    font-size: 10px;
+
+}
+
+@media (max-width: 380px) {
+
+    .winner-modal {
+
+        max-width: 320px;
+
+        padding: 15px;
+
+    }
 
 }
 
 
 /* =====================================================
-   BINGO COUNTDOWN
+   COUNTDOWN OVERLAY
    ===================================================== */
 
-.bingo-countdown {
+#bingoCountdownOverlay {
 
     position: fixed;
 
@@ -1918,221 +1914,115 @@ body {
 
     display: flex;
 
-    align-items:
-        center;
+    align-items: center;
 
-    justify-content:
-        center;
-
-    background:
-        rgba(0,0,0,.65);
+    justify-content: center;
 
     pointer-events: none;
 
+    background: rgba(0,0,0,.35);
+
 }
 
-
-.bingo-countdown[hidden] {
+#bingoCountdownOverlay[hidden] {
 
     display: none;
 
 }
 
-
-.bingo-countdown-box {
-
-    min-width: 150px;
-
-    padding:
-        20px;
-
-    border-radius: 14px;
-
-    background:
-        #282d37;
-
-    border:
-        1px solid
-        rgba(255,255,255,.1);
-
-    text-align:
-        center;
-
-    box-shadow:
-        0 15px 45px
-        rgba(0,0,0,.55);
-
-}
-
-
-.bingo-countdown-title {
-
-    font-size: 12px;
-
-    color:
-        #aeb5c2;
-
-    font-weight: 700;
-
-    margin-bottom: 5px;
-
-}
-
-
 .bingo-countdown-number {
 
-    font-size: 52px;
+    min-width: 120px;
 
-    line-height: 1;
+    min-height: 120px;
+
+    padding: 20px;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: rgba(20, 24, 32, .90);
+
+    border: 2px solid rgba(255,255,255,.18);
+
+    box-shadow:
+        0 12px 45px rgba(0,0,0,.55),
+        0 0 35px rgba(85,120,216,.18);
+
+    color: #fff;
+
+    font-size: 58px;
 
     font-weight: 900;
 
-    color:
-        #ffd45c;
+    line-height: 1;
+
+    text-shadow: 0 3px 15px rgba(0,0,0,.7);
 
 }
 
+.bingo-countdown-text {
 
-/* =====================================================
-   WAITING / READY STATE
-   ===================================================== */
+    position: absolute;
 
-.ready-btn.ready-active {
+    margin-top: 155px;
 
-    background:
-        #5578d8;
+    padding: 6px 12px;
 
-    color:
-        #fff;
+    border-radius: 8px;
 
-}
+    background: rgba(20,24,32,.88);
 
+    color: #fff;
 
-.ready-btn.ready-active::before {
+    font-size: 12px;
 
-    content:
-        "✓ ";
+    font-weight: 800;
 
 }
-
-
-.player-item.player-ready {
-
-    border:
-        1px solid
-        rgba(87,214,141,.25);
-
-}
-
-
-.player-item.player-host {
-
-    border:
-        1px solid
-        rgba(255,212,92,.2);
-
-}
-
-
-/* =====================================================
-   FINISHED ROOM STATE
-   ===================================================== */
-
-.room-status.finished {
-
-    color:
-        #ffd45c;
-
-}
-
-
-.room-status.playing {
-
-    color:
-        #57d68d;
-
-}
-
-
-.room-status.waiting {
-
-    color:
-        #aeb5c2;
-
-}
-
-
-/* =====================================================
-   RESET / NEW ROUND
-   ===================================================== */
-
-.new-round-ready {
-
-    border:
-        1px solid
-        rgba(87,214,141,.3);
-
-    background:
-        rgba(87,167,115,.12);
-
-}
-
-
-/* =====================================================
-   SMALL PHONE
-   ===================================================== */
 
 @media (max-width: 380px) {
 
-    .bingo-winner-modal {
-
-        max-width:
-            300px;
-
-        padding:
-            17px 13px;
-
-    }
-
-    .bingo-winner-icon {
-
-        font-size:
-            36px;
-
-    }
-
-    .bingo-winner-title {
-
-        font-size:
-            18px;
-
-    }
-
-    .bingo-winner-ok-btn {
-
-        min-height:
-            36px;
-
-        font-size:
-            11px;
-
-    }
-
-    .bingo-countdown-box {
-
-        min-width:
-            130px;
-
-        padding:
-            17px;
-
-    }
-
     .bingo-countdown-number {
 
-        font-size:
-            45px;
+        min-width: 100px;
+
+        min-height: 100px;
+
+        font-size: 48px;
 
     }
 
+    .bingo-countdown-text {
+
+        margin-top: 130px;
+
+    }
+
+}
+
+
+/* =====================================================
+   ROOM STATUS COLORS
+   ===================================================== */
+
+.room-status.finished {
+    color: #ffd45c;
+}
+
+.room-status.playing {
+    color: #57d68d;
+}
+
+.room-status.countdown {
+    color: #5578d8;
+}
+
+.room-status.waiting {
+    color: #aeb5c2;
 }
